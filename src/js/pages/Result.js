@@ -5,7 +5,7 @@ export default class TimeLine extends React.Component{
     render() {
         return (
             <div>
-                ここにタイムライン
+                検索結果
                 <Container >
                 <Card.Header >
                     <Posts title="a" overview="本物にはエントロピー大、偽物にはエントロピー小にする" link="http://www.aaa" thought="わからんかった、誰か知見ください"/>
