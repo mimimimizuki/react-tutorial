@@ -6,5 +6,5 @@ npm start
 
 ## back
 ```
-go run main.go
+go run *.go
 ```
