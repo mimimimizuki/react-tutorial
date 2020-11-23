@@ -1,6 +1,5 @@
 package main
 
-var posts []Post
 
 type Post struct {
 	ID int 
@@ -10,4 +9,6 @@ type Post struct {
 	Link string 
 	PostDate string 
 	Thought string 
- }
+}
+
+var posts []Post

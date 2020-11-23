@@ -3,14 +3,9 @@ package main
 import (
    "log"
    "net/http"
+   "os"
 )
 
-// type User struct {
-//    ID int
-//    DisplayName string 
-//    Birthday time.Time 
-//    Pass string
-// }
 
 // type Draft struct {
 //    ID int
@@ -36,7 +31,14 @@ import (
 
 
 func main(){
-
+   os.Setenv("APP_DB_USERNAME", "postgres")
+   os.Setenv("APP_DB_PASSWORD", "")
+   os.Setenv("APP_DB_NAME", "papers")
+   a := App{}
+   a.Initialize(os.Getenv("APP_DB_USERNAME"),
+               os.Getenv("APP_DB_PASSWORD"),
+               os.Getenv("APP_DB_NAME"))
+   a.Run(":5432")
    router := NewRouter()
 
    log.Println("listen sever .......")
