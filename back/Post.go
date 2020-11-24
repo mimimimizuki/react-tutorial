@@ -11,4 +11,4 @@ type Post struct {
 	Thought string 
 }
 
-var posts []Post
+var Posts []Post

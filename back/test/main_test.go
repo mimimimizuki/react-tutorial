@@ -5,7 +5,9 @@ import (
 	"testing"
 	"."
 	"log"
-	"net/httptest"
+	"net/http"
+	"net/http/httptest"
+	"encoding/json"
 )
 var a main.App
 func TestMain(m *testing.M) {
@@ -49,5 +51,29 @@ func executeRequest(req *http.Request) *httptest.ResponseRecorder {
 func checkResponseCode(t *testing.T, expected, actual int){
 	if expected != actual {
 		t.Errorf("Expected response code %d, Got %d\n", expected, actual)
+	}
+}
+
+func TestEmptyTable(t *testing.T) {
+	clearTable()
+	req, _ := http.NewRequest("GET", "/users", nil)
+	response := executeRequest(req)
+
+	checkResponseCode(t, http.StatusOK, response.Code)
+	if body := response.Body.String(); body != "[]" {
+		t.Errorf("expected an empty array, got %s", body)
+	}
+}
+func TestGetNonExistentProduct(t *testing.T) {
+	clearTable()
+
+	req, _ := http.NewRequest("GET", "/users/1", nil)
+	response := executeRequest(req)
+	checkResponseCode(t, http.StatusNotFound, response.Code)
+
+	var m map[string]string
+	json.Unmarshal(response.Vody.Bytes(), &m)
+	if m["error"] != "Product not found" {
+		t.Errorf("Expected the 'error' key of the response to be set to 'Product not found'. Got '%s'", m["error"])
 	}
 }

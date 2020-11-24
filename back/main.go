@@ -28,17 +28,16 @@ import (
 //    Link string
 // }
 
-
+var A App
 
 func main(){
    os.Setenv("APP_DB_USERNAME", "postgres")
    os.Setenv("APP_DB_PASSWORD", "")
    os.Setenv("APP_DB_NAME", "papers")
-   a := App{}
-   a.Initialize(os.Getenv("APP_DB_USERNAME"),
+   A.Initialize(os.Getenv("APP_DB_USERNAME"),
                os.Getenv("APP_DB_PASSWORD"),
                os.Getenv("APP_DB_NAME"))
-   a.Run(":5432")
+   A.Run(":5432")
    router := NewRouter()
 
    log.Println("listen sever .......")
