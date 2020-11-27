@@ -22,7 +22,7 @@ func GetPosts(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		err := rows.Scan(&post.ID, &post.UserId, &post.Title, &post.Overview, &post.Link, &post.PostDate, &post.Thought)
+		err := rows.Scan(&post.ID, &post.UserId, &post.PostDate, &post.Title, &post.Overview, &post.Link, &post.Thought)
 		if err != nil {
 			log.Println(err)
 		}
@@ -40,11 +40,11 @@ func GetPost(w http.ResponseWriter, r *http.Request) {
 	log.Println(params["id"])
 	rows := A.DB.QueryRow("select * from posts where user_id = $1", params["id"])
 	// rows := A.DB.QueryRow("select * from posts where user_id = 1")
-	err := rows.Scan(&post.ID, &post.UserId, &post.Title, &post.Overview, &post.Link, &post.PostDate, &post.Thought)
+	err := rows.Scan(&post.ID, &post.UserId, &post.PostDate, &post.Title, &post.Overview, &post.Link, &post.Thought)
 	if err != nil {
 		log.Println(err)
 	}
-
+	log.Println(&post.PostDate)
 	json.NewEncoder(w).Encode(&post)
 }
 func AddPost(w http.ResponseWriter, r *http.Request) {
@@ -114,7 +114,6 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Get all users")
 	var user User
 	Users = []User{}
-
 	rows, err := A.DB.Query("select * from users;")
 	if err != nil {
 		log.Println(err)

@@ -3,13 +3,36 @@ import MyInfo from "../components/MyInfo";
 import Posts from "../components/Posts";
 import YetPosts from "../components/YetPosts";
 import { Card, CardDeck, Button, Modal, Tabs, Form, Tab } from "react-bootstrap";
+import axios from 'axios';
 
 export default class Home extends React.Component{
     constructor(props){
         super()
-        this.state = {show: false, title:"", overview:"", thought:"", link:""}
+        this.state = {show: false, title:"", overview:"", thought:"", link:"", postList: [], yesPostList: []}
         this.handleClose = this.handleClose.bind(this);
         this.handleShow = this.handleShow.bind(this);
+
+        const url = "http://localhost:5000/posts";
+        axios.get(url)
+        .then((res) => {
+            res.data.forEach((doc) => {
+                this.state.postList.push(
+                <Posts key={doc.ID} title={doc.Title} overview={doc.Overview} link={doc.Link} thought={doc.Thought}
+                />);
+            });
+            this.setState({postList : this.state.postList});
+        }).catch((error) => {
+            console.log(error)
+        });
+        const yeturl = "http://localhost:5000/wantReads";
+        axios.get(url).then((res) => {
+            res.data.forEach((doc) => {
+                this.state.yesPostList.push(
+                    <YetPosts title={doc.Title} link={doc.Link} />
+                )
+                this.setState({yesPostList : this.state.yesPostList});
+            })
+        })
     }
     handleClose() {
         this.setState({show: false});
@@ -25,6 +48,19 @@ export default class Home extends React.Component{
     formSubmit(e) {
         this.setState({data:e.target.value})
     }
+    // componentWillMount(){
+    //     const url = "http://localhost:5000/posts";
+    //     axios.get(url)
+    //     .then((res) => {
+    //         res.data.forEach(doc => {
+    //             this.state.postList.push(<Posts key={doc.ID} title={doc.Title} overview={doc.Overview} link={doc.Link} thought={doc.Thought}/>);
+    //         });
+    //         this.setState({postList : this.state.postList});
+    //         console.log(this.state.postList)
+    //     }).catch((error) => {
+    //         console.log(error)
+    //     });
+    // }
     render(){
         return (
             <div>
@@ -83,10 +119,7 @@ export default class Home extends React.Component{
                     <CardDeck className = 'm-4' >
                     <Button variant="info" size="sm" onClick={this.handleShow}>読んだ論文を投稿</Button>
                         <Card.Header>読んだ論文
-                        <Posts title="a" overview="本物にはエントロピー大、偽物にはエントロピー小にする" link="http://www.aaa" thought="わからんかった、誰か知見ください"/>
-                        <Posts title="i" overview="SVMなどのマージン最大、最小化の理論をGANに応用したもの。" link="http://www.iii" thought="これは自分の研究にも応用できそう"/>
-                        <Posts title="u" overview="" link="http://www.uuu" thought="GANに３つ目の識別器を導入したのが新規性があると思った"/>
-                        <Posts title="e" overview="" link="http://www.eee" thought=""/>
+                        {this.state.postList[0]}
                         </Card.Header>
                         <Card.Header>気になる論文
                         <YetPosts title="a" link="http://www.aaa" />
@@ -101,3 +134,5 @@ export default class Home extends React.Component{
         )
     }
 }
+
+// curl -H "origin: http://localhost:8080/" -v "http://localhost:5000/users/1"
