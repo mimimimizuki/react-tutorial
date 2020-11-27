@@ -109,9 +109,48 @@ func AddUser(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(userID)
 }
-func passwordVerify(hash, pw string) error {
-	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(pw))
+
+func GetUsers(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Get all users")
+	var user User
+	Users = []User{}
+
+	rows, err := A.DB.Query("select * from users;")
+	if err != nil {
+		log.Println(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&user.ID, &user.DisplayName, &user.Birthday, &user.Pass)
+		if err != nil {
+			log.Println(err)
+		}
+		Users = append(Users, user)
+	}
+	if err = rows.Err(); err != nil {
+		log.Println(err)
+	}
+	json.NewEncoder(w).Encode(Users)
 }
+func GetUser(w http.ResponseWriter, r *http.Request) {
+	log.Println("Get user")
+	var user User
+	params := mux.Vars(r)
+	log.Println(params["id"])
+	rows := A.DB.QueryRow("select * from users where user_id = $1", params["id"])
+	// rows := A.DB.QueryRow("select * from posts where user_id = 1")
+	err := rows.Scan(&user.ID, &user.DisplayName, &user.Birthday, &user.Pass)
+	if err != nil {
+		log.Println(err)
+	}
+
+	json.NewEncoder(w).Encode(&user)
+
+}
+
+// func passwordVerify(hash, pw string) error {
+// 	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(pw))
+// }
 
 // err := passwordVerify(hash, "入力されたパスワード")
 // if err != nil {
