@@ -29,4 +29,7 @@ var routes = Routes{
 	Route{
 		"RemovePost", "DELETE", "/posts/{id}", RemovePost,
 	},
+	Route{
+		"AddUser", "POST", "/users/", AddUser,
+	},
 }

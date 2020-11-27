@@ -6,7 +6,10 @@ import (
 	"net/http"
 	"github.com/gorilla/mux"
 	"fmt"
+	"golang.org/x/crypto/bcrypt"
 )
+
+// ============> Post
 func GetPosts(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Get all posts")
 	var post Post
@@ -85,3 +88,32 @@ func RemovePost(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("rowsDeleted", rowsDeleted)
 	json.NewEncoder(w).Encode(rowsDeleted)
 }
+
+// ============> User 
+
+func AddUser(w http.ResponseWriter, r *http.Request) {
+	var user User
+	var userID int
+	log.Println("add user id called")
+	json.NewDecoder(r.Body).Decode(&user)
+	hash , err :=bcrypt.GenerateFromPassword([]byte(user.Pass),12)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err_1 := A.DB.QueryRow("INSERT INTO users (display_name, birthday, pass) values ($1 , $2 , $3) RETURNING user_id;", 
+				user.DisplayName, user.Birthday, string(hash)).Scan(&userID)
+	if err_1 != nil {
+		log.Fatal(err)
+	}
+	json.NewEncoder(w).Encode(userID)
+}
+func passwordVerify(hash, pw string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(pw))
+}
+// err := passwordVerify(hash, "入力されたパスワード")
+// if err != nil {
+//     panic(err)
+// }
+
+// println("認証しました")
+//https://tool-taro.com/hash/ SHA1 mizuki

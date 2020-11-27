@@ -1,0 +1,40 @@
+CREATE TABLE users (
+      user_id serial PRIMARY KEY,
+      display_name text not null,
+      birthday date not null,
+      password text not null,
+      UNIQUE(display_name, birthday)
+);
+
+CREATE TABLE posts (
+      post_id serial PRIMARY KEY,
+      user_id int references users (user_id),
+      post_time date not null,
+      title text not null,
+      overview text not null,
+      link text not null,
+      thought text not null
+);
+
+CREATE TABLE drafts (
+      draft_id serial PRIMARY KEY,
+      user_id int references users (user_id),
+      post_time date NOT NULL,
+      title text,
+      overview text,
+      link text,
+      thought text
+);
+
+CREATE TABLE favorites (
+      favorite_id serial PRIMARY KEY,
+      user_id int REFERENCES users (user_id),
+      post_id int REFERENCES posts (post_id)
+);
+
+CREATE TABLE wantReads (
+      want_id serial PRIMARY KEY,
+      user_id int REFERENCES users (user_id),
+      title text NOT NULL,
+      link text NOT NULL
+);
