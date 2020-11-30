@@ -6,27 +6,6 @@ import (
 	"os"
 )
 
-// type Draft struct {
-//    ID int
-//    UserId int
-//    Title string
-//    Overview string
-//    Link string
-//    PostDate string
-//    Thought string
-// }
-// type Favorite struct {
-//    ID int
-//    UserId int
-//    PostId int
-// }
-// type WantRead struct {
-//    ID int
-//    UserId int
-//    Title string
-//    Link string
-// }
-
 var A App
 
 func main() {

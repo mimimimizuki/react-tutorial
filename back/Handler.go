@@ -144,7 +144,34 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(&user)
-
+}
+func UpdateUser(w http.ResponseWriter, r *http.Request) { //dont use this API yet
+	var user User
+	log.Println("update user is called")
+	json.NewDecoder(r.Body).Decode(&user)
+	result, err := A.DB.Exec("UPDATE users SET display_name = $1 where user_id = $2", &user.DisplayName, &user.ID)
+	if err != nil {
+		log.Fatal(err)
+	}
+	rowsUpdated, err := result.RowsAffected()
+	if err != nil {
+		log.Fatal(err)
+	}
+	json.NewEncoder(w).Encode(rowsUpdated)
+}
+func RemoveUser(w http.ResponseWriter, r *http.Request) {
+	log.Println("delete user is called")
+	params := mux.Vars(r)
+	result, err := A.DB.Exec("DELETE FROM users WHERE user_id = $1", params["id"])
+	if err != nil {
+		log.Fatal(err)
+	}
+	rowsDeleted, err := result.RowsAffected()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("rowsDeleted", rowsDeleted)
+	json.NewEncoder(w).Encode(rowsDeleted)
 }
 
 // func passwordVerify(hash, pw string) error {

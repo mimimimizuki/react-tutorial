@@ -38,4 +38,10 @@ var routes = Routes{
 	Route{
 		"GetUser", "GET", "/users/{id}", GetUser,
 	},
+	Route{
+		"UpdateUser", "PUT", "/users/{id}", UpdateUser,
+	},
+	Route{
+		"RemoveUser", "DELETE", "/users/{id}", RemoveUser,
+	},
 }
