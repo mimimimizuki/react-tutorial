@@ -8,7 +8,7 @@ export default class Posts extends React.Component{
                 <Card.Body>
                     <Card.Title>{this.props.title}
                     </Card.Title>
-                    <Card.Link href="#">
+                    <Card.Link href={this.props.link}>
                     {this.props.link}
                     </Card.Link>
                 </Card.Body>

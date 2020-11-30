@@ -173,6 +173,37 @@ func RemoveUser(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("rowsDeleted", rowsDeleted)
 	json.NewEncoder(w).Encode(rowsDeleted)
 }
+func GetWantReads(w http.ResponseWriter, r *http.Request) {
+
+}
+func GetWantRead(w http.ResponseWriter, r *http.Request) {
+	var wantread WantRead
+	WantReads = []WantRead{}
+	params := mux.Vars(r)
+	log.Println("get wantread is called")
+	rows, err := A.DB.Query("select * from wantreads where user_id = $1", params["id"])
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&wantread.ID, &wantread.UserId, &wantread.Title, &wantread.Link)
+		if err != nil {
+			log.Fatal(err)
+		}
+		WantReads = append(WantReads, wantread)
+	}
+	if err = rows.Err(); err != nil {
+		log.Fatal(err)
+	}
+	json.NewEncoder(w).Encode(WantReads)
+}
+func AddWantRead(w http.ResponseWriter, r *http.Request) {
+
+}
+func UpdateWantRead(w http.ResponseWriter, r *http.Request) {
+
+}
+func RemoveWantRead(w http.ResponseWriter, r *http.Request) {
+
+}
 
 // func passwordVerify(hash, pw string) error {
 // 	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(pw))

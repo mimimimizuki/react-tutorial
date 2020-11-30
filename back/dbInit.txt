@@ -42,3 +42,6 @@ CREATE TABLE wantReads (
 INSERT INTO users (display_name, birthday, password) VALUES ('admin01', '19990110', 'qwertyuiop') RETURNING user_id;
 
 INSERT INTO posts (user_id, post_time, title, overview, link, thought) VALUES (1, '202011110', 'detecting_attention_targets', 'about gaze analysis without wearable cameras', 'http://www.aaa','this is good');
+
+INSERT INTO wantreads (user_id, title, link) VALUES (1, 'HOW MUCH POSITION INFORMATION DO
+CONVOLUTIONAL NEURAL NETWORKS ENCODE?' , 'https://arxiv.org/pdf/2001.08248.pdf')

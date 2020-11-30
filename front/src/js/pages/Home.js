@@ -8,7 +8,7 @@ import axios from 'axios';
 export default class Home extends React.Component{
     constructor(props){
         super()
-        this.state = {show: false, title:"", overview:"", thought:"", link:"", postList: [], yesPostList: []}
+        this.state = {show: false, title:"", overview:"", thought:"", link:"", postList: [], yetPostList: []}
         this.handleClose = this.handleClose.bind(this);
         this.handleShow = this.handleShow.bind(this);
 
@@ -24,15 +24,18 @@ export default class Home extends React.Component{
         }).catch((error) => {
             console.log(error)
         });
-        const yeturl = "http://localhost:5000/wantReads";
-        axios.get(url).then((res) => {
+        const yeturl = "http://localhost:5000/wantReads/1";
+        axios.get(yeturl).then((res) => {
             res.data.forEach((doc) => {
-                this.state.yesPostList.push(
-                    <YetPosts title={doc.Title} link={doc.Link} />
-                )
-                this.setState({yesPostList : this.state.yesPostList});
-            })
-        })
+                this.state.yetPostList.push(
+                    <YetPosts key={doc.ID} title={doc.Title} link={doc.Link} />
+                );
+            });
+            this.setState({yetPostList : this.state.yetPostList});
+            console.log(this.state.yetPostList)
+        }).catch((error) => {
+            console.log(error)
+        });
     }
     handleClose() {
         this.setState({show: false});
@@ -48,19 +51,6 @@ export default class Home extends React.Component{
     formSubmit(e) {
         this.setState({data:e.target.value})
     }
-    // componentWillMount(){
-    //     const url = "http://localhost:5000/posts";
-    //     axios.get(url)
-    //     .then((res) => {
-    //         res.data.forEach(doc => {
-    //             this.state.postList.push(<Posts key={doc.ID} title={doc.Title} overview={doc.Overview} link={doc.Link} thought={doc.Thought}/>);
-    //         });
-    //         this.setState({postList : this.state.postList});
-    //         console.log(this.state.postList)
-    //     }).catch((error) => {
-    //         console.log(error)
-    //     });
-    // }
     render(){
         return (
             <div>
@@ -122,10 +112,8 @@ export default class Home extends React.Component{
                         {this.state.postList[0]}
                         </Card.Header>
                         <Card.Header>気になる論文
-                        <YetPosts title="a" link="http://www.aaa" />
-                        <YetPosts title="i" link="http://www.iii" />
-                        <YetPosts title="u" link="http://www.uuu" />
-                        <YetPosts title="e" link="http://www.eee" />
+                        {this.state.yetPostList[0]}
+                        {this.state.yetPostList[1]}
                         </Card.Header>
                     <Button variant="secondary" size="sm" onClick={this.handleShow}>読みたい論文を投稿</Button>
                     </CardDeck>

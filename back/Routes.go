@@ -44,4 +44,19 @@ var routes = Routes{
 	Route{
 		"RemoveUser", "DELETE", "/users/{id}", RemoveUser,
 	},
+	Route{
+		"GetWantReads", "GET", "/wantReads", GetWantReads,
+	},
+	Route{
+		"GetWantRead", "GET", "/wantReads/{id}", GetWantRead,
+	},
+	Route{
+		"AddWantRead", "POST", "/wantReads", AddWantRead,
+	},
+	Route{
+		"UpdateWantRead", "PUT", "/wantReads", UpdateWantRead,
+	},
+	Route{
+		"RemoveWantRead", "DELETE", "/wantReads/{id}", RemoveWantRead,
+	},
 }

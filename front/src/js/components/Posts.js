@@ -13,8 +13,8 @@ export default class Posts extends React.Component{
                     <Card.Text>
                     {this.props.thought}
                     </Card.Text>
-                    <Card.Link href="#">
-                    {this.props.link}
+                    <Card.Link href={this.props.link}>
+                        {this.props.link}
                     </Card.Link>
                     <br></br> <button><BsFillHeartFill /> </button>  <button><BsFillReplyFill /></button>
                 </Card.Body>
