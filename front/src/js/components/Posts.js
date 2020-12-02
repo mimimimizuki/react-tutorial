@@ -4,7 +4,7 @@ import { BsFillReplyFill, BsFillHeartFill, BsHeart } from "react-icons/bs";
 export default class Posts extends React.Component{
     render(){
         var ooo = "";
-        if (this.props.tags.length > 0) {
+        if (this.props.tags != null) {
             ooo = this.props.tags.map((tag, i) => <p key={i} className="tags">#{tag}</p>);
         }
         return (

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/lib/pq"
@@ -41,7 +42,7 @@ func GetPost(w http.ResponseWriter, r *http.Request) {
 	log.Println(params["id"])
 	rows := A.DB.QueryRow("select * from posts where user_id = $1", params["id"])
 	// rows := A.DB.QueryRow("select * from posts where user_id = 1")
-	err := rows.Scan(&post.ID, &post.UserId, &post.PostDate, &post.Title, &post.Overview, &post.Link, &post.Thought, &post.Tags)
+	err := rows.Scan(&post.ID, &post.UserId, &post.PostDate, &post.Title, &post.Overview, &post.Link, &post.Thought, pq.Array(&post.Tags))
 	if err != nil {
 		log.Println(err)
 	}
@@ -49,14 +50,21 @@ func GetPost(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(&post)
 }
 func AddPost(w http.ResponseWriter, r *http.Request) {
-	var post Post
+	post := Post{}
 	var postID int
 	log.Println("add post is called")
-	json.NewDecoder(r.Body).Decode(&post)
-	err := A.DB.QueryRow("INSERT INTO posts (user_id, post_time , title, overview, link, thought) values($1, $2, $3, $4, $5, $6) RETURNING post_id;",
-		post.UserId, post.PostDate, post.Title, post.Overview, post.Link, post.Thought).Scan(&postID)
+	post.UserId, _ = strconv.Atoi(r.FormValue("UserId"))
+	post.PostDate = r.FormValue("PostDate")
+	post.Title = r.FormValue("Title")
+	post.Overview = r.FormValue("Overview")
+	post.Link = r.FormValue("Link")
+	post.Thought = r.FormValue("Thought")
+	log.Println(r.FormValue("Tags"))
+	// post.Tags = (r.FormValue("Tags"))
+	err := A.DB.QueryRow("INSERT INTO posts (user_id, post_time , title, overview, link, thought, tags) values($1, $2, $3, $4, $5, $6 , $7) RETURNING post_id;",
+		post.UserId, post.PostDate, post.Title, post.Overview, post.Link, post.Thought, pq.Array(post.Tags)).Scan(&postID)
 	if err != nil {
-		log.Println(err)
+		log.Fatal(err)
 	}
 	json.NewEncoder(w).Encode(postID)
 }

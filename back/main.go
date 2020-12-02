@@ -36,11 +36,6 @@ func forCORS(next http.Handler) http.Handler {
 			w.WriteHeader(http.StatusOK)
 			return
 		}
-		if r.Method == "POST" {
-			log.Println("HE")
-			w.WriteHeader(http.StatusOK)
-			return
-		}
 		log.Println(r.Method)
 		next.ServeHTTP(w, r)
 		return
