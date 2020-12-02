@@ -30,10 +30,10 @@ var routes = Routes{
 		"RemovePost", "DELETE", "/posts/{id}", RemovePost,
 	},
 	Route{
-		"AddUser", "POST", "/users/", AddUser,
+		"AddUser", "POST", "/users", AddUser,
 	},
 	Route{
-		"GetUsers", "GET", "/users/", GetUsers,
+		"GetUsers", "GET", "/users", GetUsers,
 	},
 	Route{
 		"GetUser", "GET", "/users/{id}", GetUser,

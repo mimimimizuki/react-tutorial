@@ -26,15 +26,22 @@ func main() {
 // CORSのためのミドルウェア
 func forCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
 		w.Header().Set("Access-Control-Allow-Headers", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Methods", "POST,HEAD,PUT,PATCH,GET,DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		// プリフライトリクエストの対応
 		if r.Method == "OPTIONS" {
+			log.Println("here")
 			w.WriteHeader(http.StatusOK)
 			return
 		}
+		if r.Method == "POST" {
+			log.Println("HE")
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		log.Println(r.Method)
 		next.ServeHTTP(w, r)
 		return
 	})

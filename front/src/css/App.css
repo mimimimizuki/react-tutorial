@@ -1,9 +1,22 @@
 .mypage {
-    text-align: center;
+  text-align: center;
 }
 .papers {
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.timeline {
+  text-align: center;
+  margin: auto;
+  width: 50%;
+}
+.tags {
+  color: dimgray;
+}
+.favorites {
+  text-align: center;
+  margin: auto;
+  width: 50%;
 }

@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/lib/pq"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -22,7 +23,7 @@ func GetPosts(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		err := rows.Scan(&post.ID, &post.UserId, &post.PostDate, &post.Title, &post.Overview, &post.Link, &post.Thought)
+		err := rows.Scan(&post.ID, &post.UserId, &post.PostDate, &post.Title, &post.Overview, &post.Link, &post.Thought, pq.Array(&post.Tags))
 		if err != nil {
 			log.Println(err)
 		}
@@ -40,7 +41,7 @@ func GetPost(w http.ResponseWriter, r *http.Request) {
 	log.Println(params["id"])
 	rows := A.DB.QueryRow("select * from posts where user_id = $1", params["id"])
 	// rows := A.DB.QueryRow("select * from posts where user_id = 1")
-	err := rows.Scan(&post.ID, &post.UserId, &post.PostDate, &post.Title, &post.Overview, &post.Link, &post.Thought)
+	err := rows.Scan(&post.ID, &post.UserId, &post.PostDate, &post.Title, &post.Overview, &post.Link, &post.Thought, &post.Tags)
 	if err != nil {
 		log.Println(err)
 	}
@@ -52,8 +53,8 @@ func AddPost(w http.ResponseWriter, r *http.Request) {
 	var postID int
 	log.Println("add post is called")
 	json.NewDecoder(r.Body).Decode(&post)
-	err := A.DB.QueryRow("INSERT INTO posts (user_id, title, overview, link, thought) values($1, $2, $3, $4) RETURNING post_id;",
-		post.UserId, post.Title, post.Overview, post.Link, post.Thought).Scan(&postID)
+	err := A.DB.QueryRow("INSERT INTO posts (user_id, post_time , title, overview, link, thought) values($1, $2, $3, $4, $5, $6) RETURNING post_id;",
+		post.UserId, post.PostDate, post.Title, post.Overview, post.Link, post.Thought).Scan(&postID)
 	if err != nil {
 		log.Println(err)
 	}
@@ -102,8 +103,8 @@ func AddUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err_1 := A.DB.QueryRow("INSERT INTO users (display_name, birthday, pass) values ($1 , $2 , $3) RETURNING user_id;",
-		user.DisplayName, user.Birthday, string(hash)).Scan(&userID)
+	err_1 := A.DB.QueryRow("INSERT INTO users (display_name, birthday, pass, bio) values ($1 , $2 , $3, $4) RETURNING user_id;",
+		user.DisplayName, user.Birthday, string(hash), user.BIO).Scan(&userID)
 	if err_1 != nil {
 		log.Fatal(err)
 	}
@@ -120,7 +121,7 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		err := rows.Scan(&user.ID, &user.DisplayName, &user.Birthday, &user.Pass)
+		err := rows.Scan(&user.ID, &user.DisplayName, &user.Birthday, &user.Pass, &user.BIO)
 		if err != nil {
 			log.Println(err)
 		}
@@ -138,7 +139,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	log.Println(params["id"])
 	rows := A.DB.QueryRow("select * from users where user_id = $1", params["id"])
 	// rows := A.DB.QueryRow("select * from posts where user_id = 1")
-	err := rows.Scan(&user.ID, &user.DisplayName, &user.Birthday, &user.Pass)
+	err := rows.Scan(&user.ID, &user.DisplayName, &user.Birthday, &user.Pass, &user.BIO)
 	if err != nil {
 		log.Println(err)
 	}
