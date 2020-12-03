@@ -1,7 +1,23 @@
 import React from 'react';
 import { Card } from "react-bootstrap";
 import { BsFillReplyFill, BsFillHeartFill, BsHeart } from "react-icons/bs";
+import axios from 'axios';
 export default class Posts extends React.Component{
+    constructor (props) {
+        super()
+        this.state = {liked : false}
+    }
+    handleClick(e) {
+        this.setState({ liked: !this.state.liked});
+        console.log(this.state.liked);
+        if (this.state.liked){
+            var params = new URLSearchParams();
+            params.append("PostId", 1);
+            params.append("UserId", 1);
+            axios.post("http://localhost:5000/favorites", params);
+            console.log("here")
+        }
+    }
     render(){
         var ooo = "";
         if (this.props.tags != null) {
@@ -21,7 +37,12 @@ export default class Posts extends React.Component{
                     <Card.Link href={this.props.link}>
                         {this.props.link}
                     </Card.Link>
-                    <br></br> <button><BsFillHeartFill /> </button>  <button><BsFillReplyFill /></button>
+                    <br></br> {this.state.liked ? 
+                    <BsFillHeartFill onClick={this.handleClick.bind(this)}/>
+                     : 
+                    <BsHeart onClick={this.handleClick.bind(this)}/>
+                    }
+                    <button><BsFillReplyFill /></button>
                 </Card.Body>
             </Card>
             </div>

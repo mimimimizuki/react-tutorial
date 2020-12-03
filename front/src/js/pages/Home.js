@@ -8,7 +8,9 @@ import axios from 'axios';
 export default class Home extends React.Component{
     constructor(props){
         super()
-        this.state = {show: false, draft_show: false, title:"", overview:"", thought:"", link:"", tags : [] , postList: [], yetPostList: [], user_name: "", user_bio : "", }
+        this.state = {show: false, draft_show: false, title:"", overview:"", 
+                    thought:"", link:"", tags : [], draft_title: "", draft_link: "", postList: [],
+                    yetPostList: [], user_name: "", user_bio : "", }
         this.handleClose = this.handleClose.bind(this);
         this.handleShow = this.handleShow.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -16,9 +18,12 @@ export default class Home extends React.Component{
         this.overview_handleChange = this.overview_handleChange.bind(this);
         this.link_handleChange = this.link_handleChange.bind(this);
         this.thought_handleChange = this.thought_handleChange.bind(this);
+        this.tags_handleChange = this.tags_handleChange.bind(this);
         this.draft_handleClose = this.draft_handleClose.bind(this);
         this.draft_handleShow = this.draft_handleShow.bind(this);
-        this.tags_handleChange = this.tags_handleChange.bind(this);
+        this.draft_link_handleChange = this.draft_link_handleChange.bind(this);
+        this.draft_title_handleChange = this.draft_title_handleChange.bind(this);
+        this.draft_handleSubmit = this.draft_handleSubmit.bind(this);
 
         const url = "http://localhost:5000/posts/";
         axios.get(url)
@@ -87,8 +92,12 @@ export default class Home extends React.Component{
     }
     draft_handleSubmit(e) {
         const submitUrl = "http://localhost:5000/wantReads";
-        axios.post(submitUrl, data1).then((res) => {
-            console.logg(res.data.UserId)
+        var params = new URLSearchParams();
+        params.append("UserId", 1);
+        params.append("Title", this.state.draft_title);
+        params.append("Link", this.state.draft_link);
+        axios.post(submitUrl, params).then((res) => {
+            console.log(res)
         }).catch(err => {
             console.log(err);
         });
@@ -105,6 +114,12 @@ export default class Home extends React.Component{
     }
     thought_handleChange(e) {
         this.setState({ thought: e.target.value});
+    }
+    draft_title_handleChange(e) {
+        this.setState({ draft_title: e.target.value});
+    }
+    draft_link_handleChange(e) {
+        this.setState({ draft_link: e.target.value});
     }
     tags_handleChange(e) {
         var input_tags = e.target.value.split("#")
@@ -224,13 +239,3 @@ export default class Home extends React.Component{
         )
     }
 }
-
-// curl -H "origin: http://localhost:8080/" -v "http://localhost:5000/users/1"
-
-// {UserId: 1, 
-// PostDate: "2020-12-2", 
-// Title: "Gait-based person identification method using shad…or robustness to changes in the walking direction", 
-// Overview: "監視カメラで捉えられない体の重なりも考慮して歩行動画から人物推定をする。(シミュレーションのみで実際…量FDFPを導入。他の歩行特徴量よりも学習データとテストデータの撮影角度が異なるときの精度が高い。", 
-// Link: "https://robotics.ait.kyushu-u.ac.jp/kurazume/papers/Yumi_WACV2015.pdf", 
-// Thought: "シミュレーションのみだったんかーい。"
-// }

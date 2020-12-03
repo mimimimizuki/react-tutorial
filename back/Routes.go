@@ -59,4 +59,10 @@ var routes = Routes{
 	Route{
 		"RemoveWantRead", "DELETE", "/wantReads/{id}", RemoveWantRead,
 	},
+	Route{
+		"AddFavorite", "POST", "/favorites", AddFavorite,
+	},
+	Route{
+		"RemoveFavorite", "DELETE", "/favoites", RemoveFavorite,
+	},
 }

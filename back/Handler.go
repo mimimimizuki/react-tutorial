@@ -128,10 +128,10 @@ func AddUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err := A.DB.QueryRow("INSERT INTO users (display_name, birthday, pass, bio) values ($1 , $2 , $3, $4) RETURNING user_id;",
+	err1 := A.DB.QueryRow("INSERT INTO users (display_name, birthday, pass, bio) values ($1 , $2 , $3, $4) RETURNING user_id;",
 		user.DisplayName, user.Birthday, string(hash), user.BIO).Scan(&userID)
-	if err != nil {
-		log.Fatal(err)
+	if err1 != nil {
+		log.Fatal(err1)
 	}
 	json.NewEncoder(w).Encode(userID)
 }
@@ -257,7 +257,7 @@ func AddWantRead(w http.ResponseWriter, r *http.Request) {
 	wantread.UserId, _ = strconv.Atoi(r.FormValue("UserId"))
 	wantread.Title = r.FormValue("Title")
 	wantread.Link = r.FormValue("Link")
-	err := A.DB.QueryRow("INSERT INTO wantreads (user_id, title, link) values ($1, $2, $3) RETURNING wantread_id;",
+	err := A.DB.QueryRow("INSERT INTO wantreads (user_id, title, link) values ($1, $2, $3) RETURNING want_id;",
 		wantread.UserId, wantread.Title, wantread.Link).Scan(&wantreadID)
 	if err != nil {
 		log.Fatal(err)
@@ -287,6 +287,34 @@ func RemoveWantRead(w http.ResponseWriter, r *http.Request) {
 	log.Println("delete wantread is called")
 	params := mux.Vars(r)
 	result, err := A.DB.Exec("DELETE FROM wantreads WHERE wantread_id = $1", params["id"])
+	if err != nil {
+		log.Fatal(err)
+	}
+	rowsDeleted, err := result.RowsAffected()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("rowsDeleted", rowsDeleted)
+	json.NewEncoder(w).Encode(rowsDeleted)
+}
+
+// ============> favorite
+
+// AddFavorite is to add favorite to a post
+func AddFavorite(w http.ResponseWriter, r *http.Request) {
+	log.Println("add favorite is called")
+	var favoriteID int
+	err := A.DB.QueryRow("INSERT INTO favorites (user_id, post_id ) VALUES ($1, $2) RETURNING favorite_id ; ", r.FormValue("UserId"), r.FormValue("PostId")).Scan(&favoriteID)
+	if err != nil {
+		log.Fatal(err)
+	}
+	json.NewEncoder(w).Encode(favoriteID)
+}
+
+// RemoveFavorite is a function to delete action which a user click a post to preserve favoritesList
+func RemoveFavorite(w http.ResponseWriter, r *http.Request) {
+	log.Println("delete favorite is called")
+	result, err := A.DB.Exec("DELETE FROM favorites WHERE post_id = $1 and user_id = $2", r.FormValue("PostId"), r.FormValue("UserId"))
 	if err != nil {
 		log.Fatal(err)
 	}
