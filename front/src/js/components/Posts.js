@@ -1,11 +1,11 @@
 import React from 'react';
-import { Card } from "react-bootstrap";
+import { Card, Image ,OverlayTrigger, Tooltip} from "react-bootstrap";
 import { BsFillReplyFill, BsFillHeartFill, BsHeart } from "react-icons/bs";
 import axios from 'axios';
 export default class Posts extends React.Component{
     constructor (props) {
         super()
-        this.state = {liked : false, post_id: ""}
+        this.state = {liked : false, post_id: "", me: false}
         axios.defaults.baseURL = 'http://localhost:8080';
     }
     componentDidMount(e) {
@@ -19,6 +19,9 @@ export default class Posts extends React.Component{
         }).catch(err => {
             console.log(err)
         });
+        if (this.props.me){
+            this.setState({me:true})
+        }
     }
     handleClick(e) {
         if (!this.state.liked){ // add favorite 
@@ -60,11 +63,11 @@ export default class Posts extends React.Component{
         return (
             <div>
             <Card >
-                    {this.state.liked ? 
-                    <BsFillHeartFill className="heart" color="#e57373" size="30px"  onClick={this.handleClick.bind(this)}/>
-                     : 
-                    <BsHeart className="heart" size="30px" onClick={this.handleClick.bind(this)}/>
-                    }
+            {this.state.me ? <Image src="../../images/logo.png"  roundedCircle
+                style={{ height: 50, width: 50}} /> : 
+                <Image src="../../images/logo2.png"  roundedCircle
+                style={{ height: 50, width: 50}} />
+            }
                 <Card.Body  id="post">
                     <Card.Title>{this.props.title}
                     </Card.Title>
@@ -79,7 +82,17 @@ export default class Posts extends React.Component{
                     </Card.Link>
                     <br></br>
                 </Card.Body>
+                {this.state.liked ? 
+                    <BsFillHeartFill className="heart" color="#e57373" size="30px"  onClick={this.handleClick.bind(this)}/>
+                     : 
+                     <OverlayTrigger overlay={<Tooltip id="tooltip-like">like!</Tooltip>}>
+                     <BsHeart className="heart" size="30px" onClick={this.handleClick.bind(this)}/>
+                    </OverlayTrigger>
+                    
+                }
+                <OverlayTrigger overlay={<Tooltip id="tooltip-reply">reply this post</Tooltip>}>
                 <BsFillReplyFill size="30px" className="reply" color="dimgray"/>
+                </OverlayTrigger>
             </Card>
             </div>
         )
