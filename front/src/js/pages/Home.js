@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import MyInfo from "../components/MyInfo";
 import Posts from "../components/Posts";
 import YetPosts from "../components/YetPosts";
-import { Card, CardDeck, Button, Modal, Tabs, Form, Tab, Alert } from "react-bootstrap";
+import { Card, CardGroup, Button, Modal, Tabs, Form, Tab, Alert, Container } from "react-bootstrap";
 import axios from 'axios';
 
 export default class Home extends React.Component{
@@ -185,20 +185,20 @@ export default class Home extends React.Component{
                 </Modal>
                 <MyInfo name={this.state.user_name} bio={this.state.user_bio}/>
                     <div className="papers">
-                    <CardDeck className = 'm-4' >
-                    <Button variant="info" size="sm" onClick={this.handleShow}>読んだ論文を投稿</Button>
-                        <Card.Header>読んだ論文
+                    <CardGroup className = 'm-4' style={{ width: '100vm' }}>
+                        <Card.Header style={{ width: '50%' }}><Button variant="info" size="lg" onClick={this.handleShow}>読んだ論文を投稿</Button>
                             <div>
                                 {this.state.postList}
                             </div>
                         </Card.Header>
-                        <Card.Header>気になる論文
+                        <Card.Header style={{ width: '50%', position:'relative', right: '0px' }}><Button variant="secondary" size="lg" onClick={this.draft_handleShow}>気になる論文を投稿</Button>
                             <div>
                                 {this.state.yetPostList}
                             </div>
                         </Card.Header>
-                    <Button variant="secondary" size="sm" onClick={this.draft_handleShow}>気になる論文を投稿</Button>
-                    </CardDeck>
+                    
+                    </CardGroup>
+                    </div>
                     <Modal  style={{opacity:1}} show={this.state.draft_show} onHide={this.draft_handleClose} 
                         size="lg"
                         aria-labelledby="contained-modal-title-vcenter"
@@ -234,7 +234,7 @@ export default class Home extends React.Component{
                     </Button>
                     </Modal.Footer>
                 </Modal>
-                </div>
+                
             </div>
         )
     }

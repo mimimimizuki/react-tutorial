@@ -1,15 +1,32 @@
 import React, { Component } from 'react';
 import { Navbar, Nav, Form, FormControl, Button } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
-import Result from './Result'
 import axios from 'axios';
+import { Redirect } from 'react-router-dom';
+
 class Navi extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            result : [],
+            init : true,
+            form : "",
+        }
+    }
     formSubmit(e) {
         e.preventDefault()
-        const tagArr = ["情報"]
+        var tagArr = new Array();
+        if (this.state.form.includes(",")){
+            tagArr = this.state.form.split(",")
+        } else{
+            tagArr = this.state.form.split(" ");
+        }
         const searchUrl = "http://localhost:5000/search"
         var params = new URLSearchParams();
         for (let i = 0; i < tagArr.length; i ++) {
+            if (tagArr[i].includes("#")){
+                tagArr.replace("#", "");
+            }
             params.append("tags", tagArr[i])
         }
         console.log(params.getAll("tags"))
@@ -19,10 +36,15 @@ class Navi extends Component {
                 alert("お探しの投稿はありません.")
                 return
             }
-            return <Result tags={res.data} />
+            else{
+                this.setState({ result : res.data, init : false});
+            }
         }).catch(err => {
             console.log(err);
-        })
+        });
+    }
+    handleChange(e){
+        this.setState({ form : e.target.value});
     }
     render() {
         return (
@@ -54,6 +76,14 @@ class Navi extends Component {
                     <Form inline onSubmit={this.formSubmit.bind(this)}>
                         <FormControl type="text" placeholder="調べたい論文のキーワード" className="mr-sm-2" id="search"/>
                         <Button variant="outline-info" type="submit">Search</Button>
+                        {this.state.result &&  !this.state.init != [] ? <Redirect to={{
+                            pathname : "/result", 
+                            state: {result: this.state.result}
+                        }}
+                        />
+                        : 
+                        <></>
+                        }
                     </Form>
                 </Navbar.Collapse>
             </Navbar>

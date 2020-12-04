@@ -3,9 +3,7 @@
 }
 .papers {
   text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 100vw;
 }
 .timeline {
   text-align: center;
@@ -17,6 +15,11 @@
   display: inline;
 }
 .favorites {
+  text-align: center;
+  margin: auto;
+  width: 50%;
+}
+.results {
   text-align: center;
   margin: auto;
   width: 50%;

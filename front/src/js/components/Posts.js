@@ -59,7 +59,7 @@ export default class Posts extends React.Component{
         }
         return (
             <div>
-            <Card style={{ width: '350px' }}>
+            <Card >
                     {this.state.liked ? 
                     <BsFillHeartFill className="heart" color="#e57373" size="30px"  onClick={this.handleClick.bind(this)}/>
                      : 
