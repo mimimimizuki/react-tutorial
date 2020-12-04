@@ -8,8 +8,8 @@ import axios from 'axios';
 export default class Home extends React.Component{
     constructor(props){
         super()
-        this.state = {show: false, draft_show: false, title:"", overview:"", 
-                    thought:"", link:"", tags : [], draft_title: "", draft_link: "", postList: [],
+        this.state = {show: false, wantread_show: false, title:"", overview:"", 
+                    thought:"", link:"", tags : [], wantread_title: "", wantread_link: "", postList: [],
                     yetPostList: [], user_name: "", user_bio : "", }
         this.handleClose = this.handleClose.bind(this);
         this.handleShow = this.handleShow.bind(this);
@@ -19,11 +19,11 @@ export default class Home extends React.Component{
         this.link_handleChange = this.link_handleChange.bind(this);
         this.thought_handleChange = this.thought_handleChange.bind(this);
         this.tags_handleChange = this.tags_handleChange.bind(this);
-        this.draft_handleClose = this.draft_handleClose.bind(this);
-        this.draft_handleShow = this.draft_handleShow.bind(this);
-        this.draft_link_handleChange = this.draft_link_handleChange.bind(this);
-        this.draft_title_handleChange = this.draft_title_handleChange.bind(this);
-        this.draft_handleSubmit = this.draft_handleSubmit.bind(this);
+        this.wantread_handleClose = this.wantread_handleClose.bind(this);
+        this.wantread_handleShow = this.wantread_handleShow.bind(this);
+        this.wantread_link_handleChange = this.wantread_link_handleChange.bind(this);
+        this.wantread_title_handleChange = this.wantread_title_handleChange.bind(this);
+        this.wantread_handleSubmit = this.wantread_handleSubmit.bind(this);
 
         const url = "http://localhost:5000/posts/1";
         axios.get(url)
@@ -59,11 +59,11 @@ export default class Home extends React.Component{
     handleShow() {
         this.setState({show: true});
     }
-    draft_handleClose() {
-        this.setState({draft_show : false});
+    wantread_handleClose() {
+        this.setState({wantread_show : false});
     }
-    draft_handleShow() {
-        this.setState({ draft_show: true});
+    wantread_handleShow() {
+        this.setState({ wantread_show: true});
     }
     handleSubmit(e) {
         const submitUrl = "http://localhost:5000/posts";
@@ -90,18 +90,41 @@ export default class Home extends React.Component{
         }
         this.setState({show: false});
     }
-    draft_handleSubmit(e) {
+    wantread_handleSubmit(e) {
         const submitUrl = "http://localhost:5000/wantReads";
         var params = new URLSearchParams();
         params.append("UserId", 1);
-        params.append("Title", this.state.draft_title);
-        params.append("Link", this.state.draft_link);
+        params.append("Title", this.state.wantread_title);
+        params.append("Link", this.state.wantread_link);
         axios.post(submitUrl, params).then((res) => {
             console.log(res)
         }).catch(err => {
             console.log(err);
         });
-        this.setState({draft_show : false})
+        this.setState({wantread_show : false})
+    }
+    draft_handleSubmit(e) {
+        const submitUrl = "http://localhost:5000/draft";
+        var params = new URLSearchParams();
+        params.append("UserId", 1)
+        params.append("Title", this.state.title);
+        params.append("Overview", this.state.overview);
+        params.append("Link", this.state.link);
+        params.append("Thought", this.state.thought);
+        params.append("Tags", this.state.tags);
+        if (this.state.title == "" && this.state.overview == "" && this.state.link == "" && this.state.thought == "" && this.state.tags == []){
+            alert("いずれかの項目は入力してください")
+        }
+        else{
+            axios.post(submitUrl, params)
+                .then( (response) => {
+                    console.log(response);
+                  })
+                  .catch( (error) => {
+                    console.log(error);
+                  });
+        }
+        this.setState({show: false});
     }
     title_handleChange(e) {
         this.setState({ title: e.target.value});
@@ -115,11 +138,11 @@ export default class Home extends React.Component{
     thought_handleChange(e) {
         this.setState({ thought: e.target.value});
     }
-    draft_title_handleChange(e) {
-        this.setState({ draft_title: e.target.value});
+    wantread_title_handleChange(e) {
+        this.setState({ wantread_title: e.target.value});
     }
-    draft_link_handleChange(e) {
-        this.setState({ draft_link: e.target.value});
+    wantread_link_handleChange(e) {
+        this.setState({ wantread_link: e.target.value});
     }
     tags_handleChange(e) {
         var input_tags = e.target.value.split("#")
@@ -170,7 +193,7 @@ export default class Home extends React.Component{
                             <Button variant="secondary" onClick={this.handleClose}>
                                 Close
                             </Button>
-                            <Button variant="info" onClick={this.handleClose}>
+                            <Button variant="info" onClick={this.draft_handleSubmit.bind(this)}>
                                 Save Changes
                             </Button>
 
@@ -191,7 +214,7 @@ export default class Home extends React.Component{
                                 {this.state.postList}
                             </div>
                         </Card.Header>
-                        <Card.Header style={{ width: '50%', position:'relative', right: '0px' }}><Button variant="secondary" size="lg" onClick={this.draft_handleShow}>気になる論文を投稿</Button>
+                        <Card.Header style={{ width: '50%', position:'relative', right: '0px' }}><Button variant="secondary" size="lg" onClick={this.wantread_handleShow}>気になる論文を投稿</Button>
                             <div>
                                 {this.state.yetPostList}
                             </div>
@@ -199,7 +222,7 @@ export default class Home extends React.Component{
                     
                     </CardGroup>
                     </div>
-                    <Modal  style={{opacity:1}} show={this.state.draft_show} onHide={this.draft_handleClose} 
+                    <Modal  style={{opacity:1}} show={this.state.wantread_show} onHide={this.wantread_handleClose} 
                         size="lg"
                         aria-labelledby="contained-modal-title-vcenter"
                         centered>
@@ -211,25 +234,25 @@ export default class Home extends React.Component{
                         <Form>
                             <Form.Group controlId="formTitile">
                                 <Form.Label>その論文のタイトルは?</Form.Label>
-                                <Form.Control placeholder="Enter title" onChange={this.draft_title_handleChange}/>
+                                <Form.Control placeholder="Enter title" onChange={this.wantread_title_handleChange}/>
                             </Form.Group>
 
                             <Form.Group controlId="formLink">
                                 <Form.Label>その論文のリンク</Form.Label>
-                                <Form.Control placeholder="http:///www.XXX" onChange={this.draft_link_handleChange}/>
+                                <Form.Control placeholder="http:///www.XXX" onChange={this.wantread_link_handleChange}/>
                                 <Form.Text className="text-muted">
                                 正しいリンクを貼ってください
                                 </Form.Text>
                             </Form.Group>
                             
-                            <Button variant="secondary" onClick={this.draft_handleClose}>
+                            <Button variant="secondary" onClick={this.wantread_handleClose}>
                                 Close
                             </Button>
                         </Form>
                         </div>
                     </Modal.Body>
                     <Modal.Footer>
-                    <Button variant="success" type="submit" onClick={this.draft_handleSubmit}>
+                    <Button variant="success" type="submit" onClick={this.wantread_handleSubmit}>
                                 Post
                     </Button>
                     </Modal.Footer>

@@ -7,7 +7,7 @@ export default class Layout extends React.Component {
   render() {
     
     return (
-        <div style={{backgroundColor:"#d9e3f0"}}>
+        <div>
             <Navi />
             {this.props.children}
         </div>

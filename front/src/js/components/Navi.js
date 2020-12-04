@@ -11,6 +11,7 @@ class Navi extends Component {
             result : [],
             init : true,
             form : "",
+            color: "#4077bf"
         }
     }
     formSubmit(e) {
@@ -48,7 +49,7 @@ class Navi extends Component {
     }
     render() {
         return (
-            <Navbar collapseOnSelect expand="xl" className="navbar">
+            <Navbar collapseOnSelect expand="xl" color={this.state.color}>
                 <LinkContainer to="/">
                     <Navbar.Brand>
                         <Image  roundedCircle
@@ -70,6 +71,12 @@ class Navi extends Component {
                         </LinkContainer>
                         <LinkContainer to="/favorite">
                             <Nav.Link>Favorite</Nav.Link>
+                        </LinkContainer>
+                        <LinkContainer to={{
+                            pathname:"/setting",
+                            state:this.state.color}}
+                            >
+                            <Nav.Link>Setting</Nav.Link>
                         </LinkContainer>
                     </Nav>
                     <Form inline onSubmit={this.formSubmit.bind(this)}>
