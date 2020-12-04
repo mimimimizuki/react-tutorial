@@ -13,10 +13,24 @@
   width: 50%;
 }
 .tags {
-  color: dimgray;
+  color: #7f1a1a;
+  display: inline;
 }
 .favorites {
   text-align: center;
   margin: auto;
   width: 50%;
+}
+.heart {
+  margin: 5px 10px 10px 10px;
+}
+.reply {
+  margin: 10px;
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+}
+#post {
+  position: relative;
+  top: -20px;
 }

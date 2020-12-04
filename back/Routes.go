@@ -63,6 +63,15 @@ var routes = Routes{
 		"AddFavorite", "POST", "/favorites", AddFavorite,
 	},
 	Route{
-		"RemoveFavorite", "DELETE", "/favoites", RemoveFavorite,
+		"RemoveFavorite", "DELETE", "/favorites", RemoveFavorite,
+	},
+	Route{
+		"GetFavorite", "GET", "/favorites/{id}", GetFavorite,
+	},
+	Route{
+		"GetSearchPost", "GET", "/search", GetSearchPost,
+	},
+	Route{
+		"OPTIONSFavorite", "OPTIONS", "/favorites", OPTIONSFavorite,
 	},
 }

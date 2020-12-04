@@ -25,21 +25,29 @@ func main() {
 
 // CORSのためのミドルウェア
 func forCORS(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
-		w.Header().Set("Access-Control-Allow-Headers", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "POST,HEAD,PUT,PATCH,GET,DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Credentials", "true")
-		// プリフライトリクエストの対応
-		if r.Method == "OPTIONS" {
-			log.Println("here")
-			w.WriteHeader(http.StatusOK)
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+			w.Header().Set("Access-Control-Allow-Methods", "OPTIONS,PUT,GET,DELETE,OPTIONS, POST")
+			w.Header().Set("Access-Control-Max-Age", "100000")
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
+			// プリフライトリクエストの対応
+			if r.Method == "OPTIONS" {
+				log.Println("here")
+				w.WriteHeader(http.StatusOK)
+				w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
+				return
+			}
+			log.Println(r.Method)
+			next.ServeHTTP(w, r)
 			return
-		}
-		log.Println(r.Method)
-		next.ServeHTTP(w, r)
-		return
-	})
+		})
+}
+func SetupCorsResponse(w *http.ResponseWriter, req *http.Request) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
+	(*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	(*w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Authorization")
 }
 
 // curl -X POST  http://localhost:5000/posts  -data "ID=3&Title=post2&Overview=overview&Link=http:///www.bbb&PostDate=2020/11/13&Thought=this is good"

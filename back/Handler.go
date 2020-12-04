@@ -314,7 +314,10 @@ func AddFavorite(w http.ResponseWriter, r *http.Request) {
 // RemoveFavorite is a function to delete action which a user click a post to preserve favoritesList
 func RemoveFavorite(w http.ResponseWriter, r *http.Request) {
 	log.Println("delete favorite is called")
-	result, err := A.DB.Exec("DELETE FROM favorites WHERE post_id = $1 and user_id = $2", r.FormValue("PostId"), r.FormValue("UserId"))
+	favorite := Favorite{}
+	favorite.PostId, _ = strconv.Atoi(r.FormValue("PostId"))
+	favorite.UserId, _ = strconv.Atoi(r.FormValue("UserId"))
+	result, err := A.DB.Exec("DELETE FROM favorites WHERE post_id= $1 and user_id = $2", favorite.PostId, favorite.UserId)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -324,6 +327,67 @@ func RemoveFavorite(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Println("rowsDeleted", rowsDeleted)
 	json.NewEncoder(w).Encode(rowsDeleted)
+}
+
+// GetFavorite is to return posts which a user liked
+func GetFavorite(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	var favoritePost Post
+	Posts = []Post{}
+	log.Println("get favorites is called")
+	rows, err := A.DB.Query("SELECT * FROM posts where post_id = (SELECT post_id FROM favorites WHERE user_id = $1)", params["id"])
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&favoritePost.ID, &favoritePost.UserId,
+			&favoritePost.PostDate, &favoritePost.Title, &favoritePost.Overview, &favoritePost.Link, &favoritePost.Thought, pq.Array(&favoritePost.Tags))
+		if err != nil {
+			log.Fatal(err)
+		}
+		Posts = append(Posts, favoritePost)
+	}
+	if err = rows.Err(); err != nil {
+		log.Fatal(err)
+	}
+	json.NewEncoder(w).Encode(Posts)
+}
+
+// GetSearchPost is the most important , search function . now can search from tags
+func GetSearchPost(w http.ResponseWriter, r *http.Request) {
+	var searchPost Post
+	var arr string
+	Posts = []Post{}
+	for k, v := range r.URL.Query() {
+		if k != "tags" {
+			log.Fatal("no tags parameter")
+		}
+		for i := range v {
+			rows, err := A.DB.Query("SELECT * FROM (SELECT * , unnest(tags) as arr FROM posts) as t WHERE arr LIKE $1;", v[i]+"%")
+
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer rows.Close()
+			for rows.Next() {
+				err := rows.Scan(&searchPost.ID, &searchPost.UserId,
+					&searchPost.PostDate, &searchPost.Title, &searchPost.Overview, &searchPost.Link, &searchPost.Thought, pq.Array(&searchPost.Tags), &arr)
+				if err != nil {
+					log.Fatal(err)
+				}
+				Posts = append(Posts, searchPost)
+			}
+			if err = rows.Err(); err != nil {
+				log.Fatal(err)
+			}
+		}
+	}
+	json.NewEncoder(w).Encode(Posts)
+}
+
+func OPTIONSFavorite(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
 }
 
 // func passwordVerify(hash, pw string) error {

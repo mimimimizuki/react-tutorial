@@ -25,12 +25,12 @@ export default class Home extends React.Component{
         this.draft_title_handleChange = this.draft_title_handleChange.bind(this);
         this.draft_handleSubmit = this.draft_handleSubmit.bind(this);
 
-        const url = "http://localhost:5000/posts/";
+        const url = "http://localhost:5000/posts/1";
         axios.get(url)
         .then((res) => {
             res.data.forEach((doc) => {
                 this.state.postList.push(
-                <Posts key={doc.ID} title={doc.Title} overview={doc.Overview} link={doc.Link} thought={doc.Thought} tags={doc.Tags}
+                <Posts key={doc.ID} title={doc.Title} overview={doc.Overview} link={doc.Link} thought={doc.Thought} tags={doc.Tags} id={doc.ID}
                 />);
                 this.setState({postList : this.state.postList});
             });
@@ -41,7 +41,7 @@ export default class Home extends React.Component{
         axios.get(yeturl).then((res) => {
             res.data.forEach((doc) => {
                 this.state.yetPostList.push(
-                    <YetPosts key={doc.ID} title={doc.Title} link={doc.Link} />
+                    <YetPosts key={doc.ID} title={doc.Title} link={doc.Link} id={doc.ID}/>
                 );
                 this.setState({yetPostList : this.state.yetPostList});
             });

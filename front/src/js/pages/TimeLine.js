@@ -12,7 +12,7 @@ export default class TimeLine extends React.Component{
         axios.get(postUrl).then((res) => {
             res.data.forEach(doc => {
                 this.state.Posts.push(
-                    <Posts key={doc.ID}  title={doc.Title} overview={doc.Overview} link={doc.Link} thought={doc.Thought} tags={doc.Tags}/>
+                    <Posts key={doc.ID}  title={doc.Title} overview={doc.Overview} link={doc.Link} thought={doc.Thought} tags={doc.Tags} id={doc.ID}/>
                 );
                 this.setState({Posts: this.state.Posts})
             });
