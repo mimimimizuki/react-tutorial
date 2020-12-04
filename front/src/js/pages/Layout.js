@@ -3,12 +3,11 @@ import Navi from '../components/Navi';
 export default class Layout extends React.Component {
   constructor() {
     super();
-    this.state = {title : 'Welcome'};
   }
   render() {
     
     return (
-        <div>
+        <div style={{backgroundColor:"#d9e3f0"}}>
             <Navi />
             {this.props.children}
         </div>

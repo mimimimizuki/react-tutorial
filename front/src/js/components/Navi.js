@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Navbar, Nav, Form, FormControl, Button } from 'react-bootstrap';
+import { Navbar, Nav, Form, FormControl, Button, Image } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import axios from 'axios';
 import { Redirect } from 'react-router-dom';
@@ -48,16 +48,15 @@ class Navi extends Component {
     }
     render() {
         return (
-            <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
+            <Navbar collapseOnSelect expand="xl" className="navbar">
                 <LinkContainer to="/">
                     <Navbar.Brand>
-                        <img
+                        <Image  roundedCircle
                             src='../../images/logo.png'
-                            width="30"
-                            height="30"
+                            width="50"
+                            height="50"
                             alt="React Bootstrap logo"
                         />
-                        App
                     </Navbar.Brand>
                 </LinkContainer>
                 <Navbar.Toggle aria-controls="responsive-navbar-nav" />
