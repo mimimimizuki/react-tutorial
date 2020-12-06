@@ -177,9 +177,12 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 // UpdateUser is to update user infomation
 func UpdateUser(w http.ResponseWriter, r *http.Request) { //dont use this API yet
 	var user User
+	params := mux.Vars(r)
 	log.Println("update user is called")
 	json.NewDecoder(r.Body).Decode(&user)
-	result, err := A.DB.Exec("UPDATE users SET display_name = $1 where user_id = $2", &user.DisplayName, &user.ID)
+	log.Println("UPDATE users SET display_name = '" + user.DisplayName + "', bio = '" + user.BIO + "' where user_id = " + params["id"])
+
+	result, err := A.DB.Exec("UPDATE users SET display_name = '" + user.DisplayName + "', bio = '" + user.BIO + "' where user_id = " + params["id"])
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -386,8 +389,64 @@ func GetSearchPost(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(Posts)
 }
 
+// OPTIONSFavorite is prelight process
 func OPTIONSFavorite(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
+}
+
+// OPTIONSUpdateUser is preflight process
+func OPTIONSUpdateUser(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+}
+
+// ================> Draft
+
+// AddDraft is a funtion to preserve incomplete posts
+func AddDraft(w http.ResponseWriter, r *http.Request) {
+	log.Println("add draft is called")
+	draft := Draft{}
+	var draftID int
+	draft.UserId, _ = strconv.Atoi(r.FormValue("UserId"))
+	draft.Title = r.FormValue("Title")
+	draft.Overview = r.FormValue("Overview")
+	draft.Link = r.FormValue("Link")
+	draft.Thought = r.FormValue("Thought")
+	tags := []string{}
+	for k, v := range r.Form {
+		if k == "Tags" {
+			tags = v
+		}
+	}
+	err := A.DB.QueryRow("INSERT INTO drafts  (user_id , title, overview, link, thought, tags) values($1, $2, $3, $4, $5, $6) RETURNING draft_id;",
+		draft.UserId, draft.Title, draft.Overview, draft.Link, draft.Thought, pq.Array(tags)).Scan(&draftID)
+	if err != nil {
+		log.Fatal(err)
+	}
+	json.NewEncoder(w).Encode(draftID)
+}
+
+// GetDraft returns a user's drarft
+func GetDraft(w http.ResponseWriter, r *http.Request) {
+	log.Println("get draft is called")
+	var draft Draft
+	params := mux.Vars(r)
+	Drafts = []Draft{}
+	rows, err := A.DB.Query("SELECT * FROM drafts WHERE user_id = $1", params["id"])
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&draft.ID, &draft.UserId, &draft.Title, &draft.Overview, &draft.Link, &draft.Thought, pq.Array(&draft.Tags))
+		if err != nil {
+			log.Fatal(err)
+		}
+		Drafts = append(Drafts, draft)
+	}
+	if err = rows.Err(); err != nil {
+		log.Println(err)
+	}
+	json.NewEncoder(w).Encode(Drafts)
 }
 
 // func passwordVerify(hash, pw string) error {

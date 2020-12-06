@@ -74,4 +74,13 @@ var routes = Routes{
 	Route{
 		"OPTIONSFavorite", "OPTIONS", "/favorites", OPTIONSFavorite,
 	},
+	Route{
+		"AddDraft", "POST", "/drafts", AddDraft,
+	},
+	Route{
+		"GetDraft", "GET", "/drafts/{id}", GetDraft,
+	},
+	Route{
+		"OPTIONSUpdateUser", "OPTIONS", "/users/{id}", OPTIONSUpdateUser,
+	},
 }

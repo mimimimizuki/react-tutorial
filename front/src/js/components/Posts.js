@@ -4,8 +4,8 @@ import { BsFillReplyFill, BsFillHeartFill, BsHeart } from "react-icons/bs";
 import axios from 'axios';
 export default class Posts extends React.Component{
     constructor (props) {
-        super()
-        this.state = {liked : false, post_id: "", me: false}
+        super(props)
+        this.state = {liked : false, post_id: "", me: false, user_id : 1}
         axios.defaults.baseURL = 'http://localhost:8080';
     }
     componentDidMount(e) {
@@ -55,6 +55,9 @@ export default class Posts extends React.Component{
             this.setState({ liked : false})
         }
     }
+    handleOtherPage(e) {
+        return this.props.history("/users/"+this.state.user_id);
+    }
     render(){
         var ooo = "";
         if (this.props.tags != null) {
@@ -63,9 +66,9 @@ export default class Posts extends React.Component{
         return (
             <div>
             <Card >
-            {this.state.me ? <Image src="../../images/logo.png"  roundedCircle
+            {this.state.me ? <Image src="../../images/logo.png"  roundedCircle onClick={this.handleOtherPage.bind(this)}
                 style={{ height: 50, width: 50}} /> : 
-                <Image src="../../images/logo2.png"  roundedCircle
+                <Image src="../../images/logo2.png"  roundedCircle onClick={this.handleOtherPage.bind(this)}
                 style={{ height: 50, width: 50}} />
             }
                 <Card.Body  id="post">

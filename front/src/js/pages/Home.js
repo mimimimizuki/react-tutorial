@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import MyInfo from "../components/MyInfo";
 import Posts from "../components/Posts";
 import YetPosts from "../components/YetPosts";
-import { Card, CardGroup, Button, Modal, Tabs, Form, Tab, Alert, Container } from "react-bootstrap";
+import { Card, CardGroup, Button, Modal, Form} from "react-bootstrap";
 import axios from 'axios';
 
 export default class Home extends React.Component{
@@ -10,7 +10,7 @@ export default class Home extends React.Component{
         super()
         this.state = {show: false, wantread_show: false, title:"", overview:"", 
                     thought:"", link:"", tags : [], wantread_title: "", wantread_link: "", postList: [],
-                    yetPostList: [], user_name: "", user_bio : "", }
+                    yetPostList: [], user_name: "", user_bio : "", draft_exist: false}
         this.handleClose = this.handleClose.bind(this);
         this.handleShow = this.handleShow.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -52,6 +52,14 @@ export default class Home extends React.Component{
         axios.get(userUrl).then((res) => {
             this.setState({user_bio : res.data.BIO, user_name : res.data.DisplayName });
         });
+        axios.get("http://localhost:5000/drafts/1").then(res => {
+            console.log(res);
+            if (res.data.length > 0){
+                this.setState({ draft_exist : true});
+            }
+        }).catch(err => {
+            console.log(err);
+        })
     }
     handleClose() {
         this.setState({show: false});
@@ -104,18 +112,39 @@ export default class Home extends React.Component{
         this.setState({wantread_show : false})
     }
     draft_handleSubmit(e) {
-        const submitUrl = "http://localhost:5000/draft";
+        if (this.state.draft_exist){
+            alert("すでに下書きが存在します、そちらを書いてからにしましょう");
+            return
+        }
+        const submitUrl = "http://localhost:5000/drafts";
         var params = new URLSearchParams();
+        if (this.state.tags != ""){
+            var tagArr = new Array();
+            if (this.state.tags.includes(",")){
+                tagArr = this.state.tags.split(",")
+            } else{
+                tagArr = this.state.tags.split(" ");
+            }
+            tagArr.forEach(element => {
+                if (element.includes("#")){
+                    element = element.replace("#", "")
+                } 
+                element = element.trim();
+                params.append("Tags", element);
+            });
+        } else {
+            params.append("Tags", "")
+        }
         params.append("UserId", 1)
         params.append("Title", this.state.title);
         params.append("Overview", this.state.overview);
         params.append("Link", this.state.link);
         params.append("Thought", this.state.thought);
-        params.append("Tags", this.state.tags);
+        console.log(params.getAll("Tags"))
         if (this.state.title == "" && this.state.overview == "" && this.state.link == "" && this.state.thought == "" && this.state.tags == []){
             alert("いずれかの項目は入力してください")
         }
-        else{
+        else {
             axios.post(submitUrl, params)
                 .then( (response) => {
                     console.log(response);
@@ -125,6 +154,21 @@ export default class Home extends React.Component{
                   });
         }
         this.setState({show: false});
+    }
+    handleSeeDrafts(e) {
+        axios.get("http://localhost:5000/drafts/1").then(res => {
+            console.log(res);
+            var tagArr = new Array();
+            if (res.data[0].Tags.length > 0){
+                res.data[0].Tags.forEach(tag => {
+                    tagArr.push("#"+tag);
+                });
+            }
+            this.setState({ title:res.data[0].Title, overview:res.data[0].Overview,  link: res.data[0].Link,
+                            thought : res.data[0].Thought, tags:tagArr});
+        }).catch(err => {
+            console.log(err);
+        })
     }
     title_handleChange(e) {
         this.setState({ title: e.target.value});
@@ -145,13 +189,7 @@ export default class Home extends React.Component{
         this.setState({ wantread_link: e.target.value});
     }
     tags_handleChange(e) {
-        var input_tags = e.target.value.split("#")
-        input_tags.forEach(tag => {
-            if (tag.includes(",")){
-                tag.replace(",", "")
-            }
-        });
-        this.setState({tags: input_tags});
+        this.setState({tags: e.target.value});
     }
     render(){
         return (
@@ -161,34 +199,34 @@ export default class Home extends React.Component{
                 aria-labelledby="contained-modal-title-vcenter"
                 centered>
                     <Modal.Header >
-                    <Modal.Title>読んだ論文について説明しましょう</Modal.Title>
+                    <Modal.Title>読んだ論文について説明しましょう</Modal.Title><Button variant="dark" onClick={this.handleSeeDrafts.bind(this)}>see drafts</Button>
                     </Modal.Header>
                     <Modal.Body>
                         <div>
                         <Form>
                             <Form.Group controlId="formTitile">
                                 <Form.Label>その論文のタイトルは?</Form.Label>
-                                <Form.Control placeholder="Enter title" onChange={this.title_handleChange}/>
+                                <Form.Control placeholder="Enter title" onChange={this.title_handleChange} value={this.state.title}/>
                             </Form.Group>
 
                             <Form.Group controlId="formOverview">
                                 <Form.Label>どんな内容でしたか?</Form.Label>
-                                <Form.Control placeholder="overview" onChange={this.overview_handleChange}/>
+                                <Form.Control placeholder="overview" onChange={this.overview_handleChange} value={this.state.overview}/>
                             </Form.Group>
                             <Form.Group controlId="formLink">
                                 <Form.Label>その論文のリンク</Form.Label>
-                                <Form.Control placeholder="http:///www.XXX" onChange={this.link_handleChange}/>
+                                <Form.Control placeholder="http:///www.XXX" onChange={this.link_handleChange} value={this.state.link}/>
                                 <Form.Text className="text-muted">
                                 正しいリンクを貼ってください
                                 </Form.Text>
                             </Form.Group>
                             <Form.Group controlId="formthought">
                                 <Form.Label>読んだ感想</Form.Label>
-                                <Form.Control placeholder="すごく難しかった。何ページ目がわからなかったので誰か教えて" onChange={this.thought_handleChange}/>
+                                <Form.Control placeholder="すごく難しかった。何ページ目がわからなかったので誰か教えて" onChange={this.thought_handleChange} value={this.state.thought}/>
                             </Form.Group>
                             <Form.Group controlId="formTab">
                                 <Form.Label>タブの追加</Form.Label>
-                                <Form.Control placeholder="#有機化学, #古典力学, #音声認識のように#をつけて最後はカンマで区切る" onChange={this.tags_handleChange}/>
+                                <Form.Control placeholder="#有機化学, #古典力学, #音声認識のように#をつけて最後はカンマで区切る" onChange={this.tags_handleChange} value={this.state.tags}/>
                             </Form.Group>
                             <Button variant="secondary" onClick={this.handleClose}>
                                 Close
