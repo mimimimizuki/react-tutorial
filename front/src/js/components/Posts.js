@@ -2,11 +2,12 @@ import React from 'react';
 import { Card, Image ,OverlayTrigger, Tooltip} from "react-bootstrap";
 import { BsFillReplyFill, BsFillHeartFill, BsHeart } from "react-icons/bs";
 import axios from 'axios';
-export default class Posts extends React.Component{
+import { withRouter } from 'react-router-dom';
+class Posts extends React.Component{
     constructor (props) {
         super(props)
-        this.state = {liked : false, post_id: "", me: false, user_id : 1}
-        axios.defaults.baseURL = 'http://localhost:8080';
+        this.state = {liked : false, post_id: "", me: false}
+        this.handleOtherPage = this.handleOtherPage.bind(this)
     }
     componentDidMount(e) {
         const getUrl = "http://localhost:5000/favorites/1";
@@ -55,20 +56,26 @@ export default class Posts extends React.Component{
             this.setState({ liked : false})
         }
     }
-    handleOtherPage(e) {
-        return this.props.history("/users/"+this.state.user_id);
+    handleOtherPage(id) {
+        if (this.state.me){
+            this.props.history.push("/")
+        }
+        else{
+            this.props.history.push("/user?id="+id);
+        }
     }
     render(){
         var ooo = "";
         if (this.props.tags != null) {
             ooo = this.props.tags.map((tag, i) => <p key={i} className="tags">#{tag}</p>);
         }
+        const { id } = this.props;
         return (
             <div>
             <Card >
-            {this.state.me ? <Image src="../../images/logo.png"  roundedCircle onClick={this.handleOtherPage.bind(this)}
+            {this.state.me ? <Image src="../../images/logo.png"  roundedCircle onClick={() => this.handleOtherPage(id)}
                 style={{ height: 50, width: 50}} /> : 
-                <Image src="../../images/logo2.png"  roundedCircle onClick={this.handleOtherPage.bind(this)}
+                <Image src="../../images/logo2.png"  roundedCircle onClick={() => this.handleOtherPage(id)}
                 style={{ height: 50, width: 50}} />
             }
                 <Card.Body  id="post">
@@ -101,3 +108,4 @@ export default class Posts extends React.Component{
         )
     }
 }
+export default withRouter(Posts);

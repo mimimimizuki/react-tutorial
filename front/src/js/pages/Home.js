@@ -244,7 +244,7 @@ export default class Home extends React.Component{
                     </Button>
                     </Modal.Footer>
                 </Modal>
-                <MyInfo name={this.state.user_name} bio={this.state.user_bio}/>
+                <MyInfo name={this.state.user_name} bio={this.state.user_bio} following="10" follower="10"/>
                     <div className="papers">
                     <CardGroup className = 'm-4' style={{ width: '100vm' }}>
                         <Card.Header style={{ width: '50%' }}><Button variant="info" size="lg" onClick={this.handleShow}>読んだ論文を投稿</Button>
