@@ -10,7 +10,7 @@ export default class Home extends React.Component{
         super()
         this.state = {show: false, wantread_show: false, title:"", overview:"", 
                     thought:"", link:"", tags : [], wantread_title: "", wantread_link: "", postList: [],
-                    yetPostList: [], user_name: "", user_bio : "", draft_exist: false}
+                    yetPostList: [], user_name: "", user_bio : "", draft_exist: false, draft_click : false, draft_id : "",}
         this.handleClose = this.handleClose.bind(this);
         this.handleShow = this.handleShow.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -24,6 +24,8 @@ export default class Home extends React.Component{
         this.wantread_link_handleChange = this.wantread_link_handleChange.bind(this);
         this.wantread_title_handleChange = this.wantread_title_handleChange.bind(this);
         this.wantread_handleSubmit = this.wantread_handleSubmit.bind(this);
+
+        axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
 
         const url = "http://localhost:5000/posts/1";
         axios.get(url)
@@ -55,7 +57,7 @@ export default class Home extends React.Component{
         axios.get("http://localhost:5000/drafts/1").then(res => {
             console.log(res);
             if (res.data.length > 0){
-                this.setState({ draft_exist : true});
+                this.setState({ draft_exist : true, draft_id:res.data[0].ID});
             }
         }).catch(err => {
             console.log(err);
@@ -88,13 +90,24 @@ export default class Home extends React.Component{
             alert("全ての項目を入力して下さい")
         }
         else{
-            axios.post(submitUrl, params)
+            if (this.state.draft_click){
+                var delete_draft = confirm("下書きを削除しますか?");
+                axios.post(submitUrl, params)
                 .then( (response) => {
                     console.log(response);
                   })
                   .catch( (error) => {
                     console.log(error);
                   });
+                if (delete_draft){
+                    axios.delete("http://localhost:5000/drafts/"+this.state.draft_id).then(res =>{
+                        console.log(res);
+                    }).catch(err => {
+                        console.log(err);
+                    });
+                }
+            }
+
         }
         this.setState({show: false});
     }
@@ -112,10 +125,6 @@ export default class Home extends React.Component{
         this.setState({wantread_show : false})
     }
     draft_handleSubmit(e) {
-        if (this.state.draft_exist){
-            alert("すでに下書きが存在します、そちらを書いてからにしましょう");
-            return
-        }
         const submitUrl = "http://localhost:5000/drafts";
         var params = new URLSearchParams();
         if (this.state.tags != ""){
@@ -141,6 +150,24 @@ export default class Home extends React.Component{
         params.append("Link", this.state.link);
         params.append("Thought", this.state.thought);
         console.log(params.getAll("Tags"))
+
+        if (this.state.draft_exist){
+            var result = confirm("すでに下書きが存在します、上書きしますか？");
+            if (!result){
+                alert("この下書きを削除します");
+                return
+            }
+            else{ //update draft
+                axios.put("http://localhost:5000/drafts/1",params,
+                ).then(res =>{
+                    console.log(res);
+                }).catch(err =>{
+                    console.log(err);
+                });
+                this.setState({ show : false})
+                return
+            }
+        }
         if (this.state.title == "" && this.state.overview == "" && this.state.link == "" && this.state.thought == "" && this.state.tags == []){
             alert("いずれかの項目は入力してください")
         }
@@ -165,10 +192,11 @@ export default class Home extends React.Component{
                 });
             }
             this.setState({ title:res.data[0].Title, overview:res.data[0].Overview,  link: res.data[0].Link,
-                            thought : res.data[0].Thought, tags:tagArr});
+                            thought : res.data[0].Thought, tags:tagArr, draft_id:res.data[0].ID});
         }).catch(err => {
             console.log(err);
-        })
+        });
+        this.setState({draft_click:true});
     }
     title_handleChange(e) {
         this.setState({ title: e.target.value});
@@ -257,7 +285,6 @@ export default class Home extends React.Component{
                                 {this.state.yetPostList}
                             </div>
                         </Card.Header>
-                    
                     </CardGroup>
                     </div>
                     <Modal  style={{opacity:1}} show={this.state.wantread_show} onHide={this.wantread_handleClose} 

@@ -1,5 +1,5 @@
 import React from "react";
-import { Image, Col, Row, Container } from "react-bootstrap"
+import { Image } from "react-bootstrap";
 export default class MyInfo extends React.Component{
     render() {
         return(

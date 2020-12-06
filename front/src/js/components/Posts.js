@@ -8,6 +8,7 @@ class Posts extends React.Component{
         super(props)
         this.state = {liked : false, post_id: "", me: false}
         this.handleOtherPage = this.handleOtherPage.bind(this)
+        this.handleSeePost = this.handleSeePost.bind(this)
     }
     componentDidMount(e) {
         const getUrl = "http://localhost:5000/favorites/1";
@@ -37,7 +38,7 @@ class Posts extends React.Component{
                 console.log(err);
             });
             this.setState({ liked : true})
-        } else {
+        } else { //delete favorite
             var params = new FormData();
             params.append("PostId", this.state.post_id)
             params.append("UserId", 1)
@@ -64,6 +65,10 @@ class Posts extends React.Component{
             this.props.history.push("/user?id="+id);
         }
     }
+    handleSeePost(id) {
+        this.props.history.push("/posts?id="+id);
+    }
+
     render(){
         var ooo = "";
         if (this.props.tags != null) {
@@ -79,8 +84,7 @@ class Posts extends React.Component{
                 style={{ height: 50, width: 50}} />
             }
                 <Card.Body  id="post">
-                    <Card.Title>{this.props.title}
-                    </Card.Title>
+                    <Card.Title onClick={() => this.handleSeePost(id)}>{this.props.title}</Card.Title>
                     <Card.Subtitle className="mb-2 text-muted">{this.props.overview}</Card.Subtitle>
                     <Card.Text>
                     {this.props.thought}

@@ -44,7 +44,7 @@ export default class Setting extends React.Component{
             <Form style={{textAlign:"center"}} onSubmit={this.handleSubmit.bind(this)} >
                 <FormControl type="text" onChange={this.handleBIOChange.bind(this)} value={this.state.bio} className="mr-sm-2" ></FormControl>
                 <FormControl type="text" onChange={this.handleNameChange.bind(this)} value={this.state.name} className="mr-sm-2" ></FormControl>
-                <Button variant="dark" bg="lg"　type="submit">
+                <Button variant="info" size="lg"　type="submit">
                         change!
                 </Button>
             </Form>

@@ -180,7 +180,6 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) { //dont use this API ye
 	params := mux.Vars(r)
 	log.Println("update user is called")
 	json.NewDecoder(r.Body).Decode(&user)
-	log.Println("UPDATE users SET display_name = '" + user.DisplayName + "', bio = '" + user.BIO + "' where user_id = " + params["id"])
 
 	result, err := A.DB.Exec("UPDATE users SET display_name = '" + user.DisplayName + "', bio = '" + user.BIO + "' where user_id = " + params["id"])
 	if err != nil {
@@ -399,6 +398,16 @@ func OPTIONSUpdateUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// OPTIONSUpdateDraft is preflight process
+func OPTIONSUpdateDraft(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+}
+
+// OPTIONSRemoveDraft is preflight process
+func OPTIONSRemoveDraft(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+}
+
 // ================> Draft
 
 // AddDraft is a funtion to preserve incomplete posts
@@ -447,6 +456,45 @@ func GetDraft(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 	json.NewEncoder(w).Encode(Drafts)
+}
+
+// RemoveDraft is a function to remove draft
+func RemoveDraft(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	log.Println("delete draft is called")
+	result, err := A.DB.Exec("DELETE FROM drafts WHERE draft_id= $1", params["id"])
+	if err != nil {
+		log.Fatal(err)
+	}
+	rowsDeleted, err := result.RowsAffected()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("rowsDeleted", rowsDeleted)
+	json.NewEncoder(w).Encode(rowsDeleted)
+}
+
+// UpdateDraft is a function to update drafts
+func UpdateDraft(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	log.Println("update draft is called")
+	tags := []string{}
+	for k, v := range r.Form {
+		if k == "Tags" {
+			tags = v
+		}
+	}
+	result, err := A.DB.Exec("UPDATE drafts SET title=$1, overview=$2, link=$3, thought=$4, tags = $5 WHERE draft_id = $6",
+		r.FormValue("Title"), r.FormValue("Overview"), r.FormValue("Link"), r.FormValue("Thought"), pq.Array(tags), params["id"])
+	if err != nil {
+		log.Fatal(err)
+	}
+	rowsUpdated, err := result.RowsAffected()
+	if err != nil {
+		log.Println(err)
+	}
+
+	json.NewEncoder(w).Encode(rowsUpdated)
 }
 
 // func passwordVerify(hash, pw string) error {

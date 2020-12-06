@@ -2,14 +2,13 @@ import React, { Component } from 'react';
 import { Navbar, Nav, Form, FormControl, Button, Image } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import axios from 'axios';
-import { Redirect } from 'react-router-dom';
+import { Redirect, withRouter } from 'react-router-dom';
 
 class Navi extends Component {
     constructor(props) {
         super(props);
         this.state = {
             result : [],
-            init : true,
             form : "",
             color: "#4077bf"
         }
@@ -38,7 +37,11 @@ class Navi extends Component {
                 return
             }
             else{
-                this.setState({ result : res.data, init : false});
+                this.setState({ result : res.data});
+                return this.props.history.push({
+                    pathname : "/result", 
+                    state: {result: this.state.result}
+                })
             }
         }).catch(err => {
             console.log(err);
@@ -80,20 +83,12 @@ class Navi extends Component {
                         </LinkContainer>
                     </Nav>
                     <Form inline onSubmit={this.formSubmit.bind(this)}>
-                        <FormControl type="text" placeholder="調べたい論文のキーワード" className="mr-sm-2" id="search"/>
+                        <FormControl type="text" placeholder="調べたい論文のキーワード" className="mr-sm-2" id="search" value={this.state.form} onChange={this.handleChange.bind(this)}/>
                         <Button variant="outline-info" type="submit">Search</Button>
-                        {this.state.result &&  !this.state.init != [] ? <Redirect to={{
-                            pathname : "/result", 
-                            state: {result: this.state.result}
-                        }}
-                        />
-                        : 
-                        <></>
-                        }
                     </Form>
                 </Navbar.Collapse>
             </Navbar>
         );
     }
 }
-export default Navi;
+export default withRouter(Navi);

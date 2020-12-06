@@ -8,6 +8,7 @@ import Result from './pages/Result';
 import Setting from './pages/Setting';
 import NotFound from './pages/NotFound';
 import User from './pages/User';
+import Post from './pages/PostDetail';
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 const app = document.getElementById('app');
 ReactDOM.render(
@@ -20,6 +21,7 @@ ReactDOM.render(
             <Route exact path="/result" component={Result}></Route>
             <Route exact path="/setting" component={Setting}></Route>
             <Route path="/user" component={User}></Route>
+            <Route path="/posts" component={Post}></Route>
             <Route path="/404" component={NotFound}/>
         </Switch>
         </Layout>
