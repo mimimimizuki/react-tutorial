@@ -8,10 +8,8 @@ class User extends React.Component{
         this.state = {postList: [],}
     }  
     componentDidMount(e){
-        console.log("here")
         const query = new URLSearchParams(this.props.location.search);
         const post_id = query.get('id');
-
         const url = "http://localhost:5000/posts/"+post_id+"/detail";
         axios.get(url).then((res) => {
             console.log(res.data)
