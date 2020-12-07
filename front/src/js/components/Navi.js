@@ -10,7 +10,6 @@ class Navi extends Component {
         this.state = {
             result : [],
             form : "",
-            color: "#4077bf"
         }
     }
     formSubmit(e) {
@@ -52,7 +51,7 @@ class Navi extends Component {
     }
     render() {
         return (
-            <Navbar collapseOnSelect expand="xl" color={this.state.color}>
+            <Navbar collapseOnSelect expand="xl" id="navColor">
                 <LinkContainer to="/">
                     <Navbar.Brand>
                         <Image  roundedCircle
