@@ -48,3 +48,9 @@
   font-size: large;
   margin-bottom: 0px;
 }
+.detail {
+  text-align: end;
+  position: absolute;
+  left: 93%;
+  bottom: 10px;
+}

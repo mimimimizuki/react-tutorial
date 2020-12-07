@@ -21,6 +21,9 @@ var routes = Routes{
 		"GetPost", "GET", "/posts/{id}", GetPost,
 	},
 	Route{
+		"GetPostDetail", "GET", "/posts/{post_id}/detail", GetPostDetail,
+	},
+	Route{
 		"AddPost", "POST", "/posts", AddPost,
 	},
 	Route{
@@ -84,9 +87,19 @@ var routes = Routes{
 		"OPTIONSRemoveDraft", "OPTIONS", "/drafts/{id}", OPTIONSRemoveDraft,
 	},
 	Route{
+		"OPTIONSRemovePost", "OPTIONS", "/posts/{id}", OPTIONSRemovePost,
+	},
+	Route{
+		"OPTIONSUpdatePost", "OPTIONS", "/posts", OPTIONSUpdatePost,
+	},
+	Route{
 		"AddDraft", "POST", "/drafts", AddDraft,
 	},
 	Route{
 		"GetDraft", "GET", "/drafts/{id}", GetDraft,
+	}, Route{
+		"UpdateDraft", "PUT", "/drafts/{id}", UpdateDraft,
+	}, Route{
+		"RemoveDraft", "DELETE", "/drafts/{id}", RemoveDraft,
 	},
 }

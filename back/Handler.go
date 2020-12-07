@@ -44,7 +44,7 @@ func GetPost(w http.ResponseWriter, r *http.Request) {
 	var post Post
 	params := mux.Vars(r)
 	Posts = []Post{}
-	rows, err := A.DB.Query("select * from posts where user_id = $1", params["id"])
+	rows, err := A.DB.Query("select * from posts where user_id = $1;", params["id"])
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -60,6 +60,19 @@ func GetPost(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 	json.NewEncoder(w).Encode(Posts)
+}
+
+// GetPostDetail is  a function to show post detail
+func GetPostDetail(w http.ResponseWriter, r *http.Request) {
+	log.Println("Get post by post_id is called")
+	var post Post
+	params := mux.Vars(r)
+	rows := A.DB.QueryRow("select * from posts where post_id = $1;", params["post_id"])
+	err := rows.Scan(&post.ID, &post.UserId, &post.PostDate, &post.Title, &post.Overview, &post.Link, &post.Thought, pq.Array(&post.Tags))
+	if err != nil {
+		log.Fatal(err)
+	}
+	json.NewEncoder(w).Encode(post)
 }
 
 // AddPost is to add posts of one users
@@ -104,7 +117,7 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 func RemovePost(w http.ResponseWriter, r *http.Request) {
 	log.Println("Remove post is called")
 	params := mux.Vars(r)
-	result, err := A.DB.Exec("DELETE FROM posts WHERE post_id = $1", params["id"])
+	result, err := A.DB.Exec("DELETE FROM posts WHERE post_id = $1;", params["id"])
 	if err != nil {
 		log.Println(err)
 	}
@@ -175,7 +188,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // UpdateUser is to update user infomation
-func UpdateUser(w http.ResponseWriter, r *http.Request) { //dont use this API yet
+func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	var user User
 	params := mux.Vars(r)
 	log.Println("update user is called")
@@ -408,6 +421,14 @@ func OPTIONSRemoveDraft(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func OPTIONSRemovePost(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+}
+
+func OPTIONSUpdatePost(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+}
+
 // ================> Draft
 
 // AddDraft is a funtion to preserve incomplete posts
@@ -434,35 +455,24 @@ func AddDraft(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(draftID)
 }
 
-// GetDraft returns a user's drarft
+// GetDraft returns a user's drarft (draft is only one)
 func GetDraft(w http.ResponseWriter, r *http.Request) {
 	log.Println("get draft is called")
 	var draft Draft
 	params := mux.Vars(r)
-	Drafts = []Draft{}
-	rows, err := A.DB.Query("SELECT * FROM drafts WHERE user_id = $1", params["id"])
+	rows := A.DB.QueryRow("SELECT * FROM drafts WHERE user_id = $1;", params["id"])
+	err := rows.Scan(&draft.ID, &draft.UserId, &draft.Title, &draft.Overview, &draft.Link, &draft.Thought, pq.Array(&draft.Tags))
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer rows.Close()
-	for rows.Next() {
-		err := rows.Scan(&draft.ID, &draft.UserId, &draft.Title, &draft.Overview, &draft.Link, &draft.Thought, pq.Array(&draft.Tags))
-		if err != nil {
-			log.Fatal(err)
-		}
-		Drafts = append(Drafts, draft)
-	}
-	if err = rows.Err(); err != nil {
-		log.Println(err)
-	}
-	json.NewEncoder(w).Encode(Drafts)
+	json.NewEncoder(w).Encode(draft)
 }
 
 // RemoveDraft is a function to remove draft
 func RemoveDraft(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	log.Println("delete draft is called")
-	result, err := A.DB.Exec("DELETE FROM drafts WHERE draft_id= $1", params["id"])
+	result, err := A.DB.Exec("DELETE FROM drafts WHERE draft_id= $1;", params["id"])
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -477,15 +487,11 @@ func RemoveDraft(w http.ResponseWriter, r *http.Request) {
 // UpdateDraft is a function to update drafts
 func UpdateDraft(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
+	var draft Draft
 	log.Println("update draft is called")
-	tags := []string{}
-	for k, v := range r.Form {
-		if k == "Tags" {
-			tags = v
-		}
-	}
+	json.NewDecoder(r.Body).Decode(&draft)
 	result, err := A.DB.Exec("UPDATE drafts SET title=$1, overview=$2, link=$3, thought=$4, tags = $5 WHERE draft_id = $6",
-		r.FormValue("Title"), r.FormValue("Overview"), r.FormValue("Link"), r.FormValue("Thought"), pq.Array(tags), params["id"])
+		&draft.Title, &draft.Overview, &draft.Link, &draft.Thought, pq.Array(&draft.Tags), params["id"])
 	if err != nil {
 		log.Fatal(err)
 	}
