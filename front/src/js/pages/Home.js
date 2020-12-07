@@ -10,7 +10,7 @@ export default class Home extends React.Component{
         super()
         this.state = {show: false, wantread_show: false, title:"", overview:"", 
                     thought:"", link:"", tags : [], wantread_title: "", wantread_link: "", postList: [],
-                    yetPostList: [], user_name: "", user_bio : "", draft_exist: false, draft_click : false, draft_id : "",}
+                    yetPostList: [], user_name: "", user_bio : "", draft_click : false, draft_id : "",}
         this.handleClose = this.handleClose.bind(this);
         this.handleShow = this.handleShow.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -54,14 +54,6 @@ export default class Home extends React.Component{
         axios.get(userUrl).then((res) => {
             this.setState({user_bio : res.data.BIO, user_name : res.data.DisplayName });
         });
-        axios.get("http://localhost:5000/drafts/1").then(res => {
-            console.log(res);
-            if (res.data.length > 0){
-                this.setState({ draft_exist : true, draft_id:res.data[0].ID});
-            }
-        }).catch(err => {
-            console.log(err);
-        })
     }
     handleClose() {
         this.setState({show: false});
@@ -151,14 +143,22 @@ export default class Home extends React.Component{
         params.append("Thought", this.state.thought);
         console.log(params.getAll("Tags"))
 
-        if (this.state.draft_exist){
+        if (this.state.draft_click){
             var result = confirm("すでに下書きが存在します、上書きしますか？");
             if (!result){
                 alert("この下書きを削除します");
                 return
             }
             else{ //update draft
-                axios.put("http://localhost:5000/drafts/1",params,
+                axios.put("http://localhost:5000/drafts/1",
+                {
+                    "UserId":1,
+                    "Title": this.state.title,
+                    "Overview": this.state.overview, 
+                    "Link": this.state.link,
+                    "Thought": this.state.thought,
+                    "Tags":params.getAll("Tags"),
+                },
                 ).then(res =>{
                     console.log(res);
                 }).catch(err =>{
@@ -186,13 +186,13 @@ export default class Home extends React.Component{
         axios.get("http://localhost:5000/drafts/1").then(res => {
             console.log(res);
             var tagArr = new Array();
-            if (res.data[0].Tags.length > 0){
-                res.data[0].Tags.forEach(tag => {
+            if (res.data.Tags.length > 0){
+                res.data.Tags.forEach(tag => {
                     tagArr.push("#"+tag);
                 });
             }
-            this.setState({ title:res.data[0].Title, overview:res.data[0].Overview,  link: res.data[0].Link,
-                            thought : res.data[0].Thought, tags:tagArr, draft_id:res.data[0].ID});
+            this.setState({ title:res.data.Title, overview:res.data.Overview,  link: res.data.Link,
+                            thought : res.data.Thought, tags:tagArr, draft_id:res.data.ID});
         }).catch(err => {
             console.log(err);
         });
