@@ -9,7 +9,9 @@ export default class Layout extends React.Component {
     return (
         <div>
             <Navi />
+            <div id="test">
             {this.props.children}
+            </div>
         </div>
     );
   }

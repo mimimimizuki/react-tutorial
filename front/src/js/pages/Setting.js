@@ -67,9 +67,11 @@ export default class Setting extends React.Component{
                         change!
                 </Button>
             </Form>
-            <ChromePicker color={ this.state.backgroundColor }
+            <h1 style={{textAlign:"center"}}>change back ground color </h1>
+            <ChromePicker color={ this.state.backgroundColor } style={{left:"50%"}}
                                 onChangeComplete={ this.handleChange.bind(this) }/>
-            <ChromePicker color={this.state.navColor}
+            <h1 style={{textAlign:"center"}}>change navbar back ground color </h1>
+            <ChromePicker color={this.state.navColor} style={{textAlign:"center"}}
                                 onChangeComplete={ this.handleNavChange.bind(this) }/>
             {this.state.flg ? <Redirect to="/"/> : <></>}
             </div>

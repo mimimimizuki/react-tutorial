@@ -51,7 +51,7 @@ class Navi extends Component {
     }
     render() {
         return (
-            <Navbar collapseOnSelect expand="xl" id="navColor">
+            <Navbar collapseOnSelect expand="xl" id="navColor" variant="dark">
                 <LinkContainer to="/">
                     <Navbar.Brand>
                         <Image  roundedCircle

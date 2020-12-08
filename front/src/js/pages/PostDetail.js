@@ -1,13 +1,13 @@
 import React from "react";
 import axios from 'axios';
 import { withRouter } from 'react-router-dom';
-import { Card, Image ,OverlayTrigger, Tooltip, DropdownButton, Dropdown} from "react-bootstrap";
-import { BsFillReplyFill, BsFillHeartFill, BsHeart, BsThreeDots } from "react-icons/bs";
+import { Card, Image ,OverlayTrigger, Tooltip, Dropdown} from "react-bootstrap";
+import { BsFillReplyFill, BsFillHeartFill, BsHeart } from "react-icons/bs";
 class User extends React.Component{
     constructor(props) {
         super(props);
         this.state = {title:"", overview:"", 
-        thought:"", link:"", tags : [],me:false, post_id: "", liked : false, isOpen: false};
+        thought:"", link:"", tags : [], me:false, post_id: "", liked : false, isOpen: false, user_name : ""};
     }  
     componentDidMount(e) {
 
@@ -18,7 +18,13 @@ class User extends React.Component{
         axios.get(url).then((res) => {
             console.log(res.data);
             this.setState({ title:res.data.Title, overview:res.data.Overview, 
-            thought:res.data.Thought, link:res.data.Link, tags : res.data.Tags, post_id: res.data.ID})
+            thought:res.data.Thought, link:res.data.Link, tags : res.data.Tags, post_id: res.data.ID});
+            axios.get("http://localhost:5000/users/"+res.data.UserId).then(res => {
+                console.log(res);
+                this.setState({ user_name : res.data.DisplayName});
+            }).catch(err => {
+                console.log(err)
+            });
         }).catch((error) => {
             console.log(error)
         });
@@ -92,9 +98,6 @@ class User extends React.Component{
             console.log(err);
         });
     }
-    showDropDown() {
-        this.setState({ isOpen : !this.state.isOpen});
-    }
     render() {
         var ooo = "";
         if (this.state.tags != null) {
@@ -105,11 +108,23 @@ class User extends React.Component{
                 <div>
                 <Card >
                 {this.state.me ? 
+                        <div>
                         <Image src="../../images/logo.png"  roundedCircle onClick={() => this.handleOtherPage(id)}
-                        style={{ height: 50, width: 50}} />
+                            style={{ height: 50, width: 50}} /><h2 className="user_name">{this.state.user_name}</h2>
+                        <Dropdown>
+                            <Dropdown.Toggle className="detail"variant="dark">more action</Dropdown.Toggle>
+                            <Dropdown.Menu>
+                            <Dropdown.Item onClick={this.handleUpdateClick.bind(this)}>update</Dropdown.Item>
+                            <Dropdown.Item onClick={this.handleDeleteClick.bind(this)}>delete</Dropdown.Item>
+                            </Dropdown.Menu>
+                        </Dropdown>
+                        </div>
+                        
                     : 
+                    <div>
                     <Image src="../../images/logo2.png"  roundedCircle onClick={() => this.handleOtherPage(id)}
-                    style={{ height: 50, width: 50}} />
+                        style={{ height: 50, width: 50}} /><h2 className="user_name">{this.state.user_name}</h2>
+                    </div>
                 }
                     <Card.Body  id="post">
                         <Card.Title >{this.state.title}</Card.Title>
@@ -137,12 +152,6 @@ class User extends React.Component{
                     <OverlayTrigger overlay={<Tooltip id="tooltip-reply">reply this post</Tooltip>}>
                     <BsFillReplyFill size="30px" className="reply" color="dimgray"/>
                     </OverlayTrigger>
-                    {this.state.me &&
-                        <DropdownButton id="detail" title="mode action " variant="dark">
-                            <Dropdown.Item onClick={this.handleUpdateClick.bind(this)}>update</Dropdown.Item>
-                            <Dropdown.Item onClick={this.handleDeleteClick.bind(this)}>delete</Dropdown.Item>
-                        </DropdownButton>
-                    }
                     </div>
                 </Card>
                 </div>
