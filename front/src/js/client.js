@@ -9,6 +9,8 @@ import Setting from './pages/Setting';
 import NotFound from './pages/NotFound';
 import User from './pages/User';
 import Post from './pages/PostDetail';
+import SignUp from './pages/SignUp';
+import SignIn from './pages/SignIn';
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 const app = document.getElementById('app');
 ReactDOM.render(
@@ -18,6 +20,8 @@ ReactDOM.render(
             <Route exact path="/" component={Home}></Route>
             <Route exact path="/timeline" component={TimeLine}></Route>
             <Route exact path="/favorite" component={Favorite}></Route>
+            <Route path="/signin" component={SignIn}></Route>
+            <Route path="/signup" component={SignUp}></Route>
             <Route exact path="/result" component={Result}></Route>
             <Route exact path="/setting" component={Setting}></Route>
             <Route path="/user" component={User}></Route>

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Navbar, Nav, Form, FormControl, Button, Image } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import axios from 'axios';
-import { Redirect, withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 
 class Navi extends Component {
     constructor(props) {
@@ -74,17 +74,19 @@ class Navi extends Component {
                         <LinkContainer to="/favorite">
                             <Nav.Link>Favorite</Nav.Link>
                         </LinkContainer>
-                        <LinkContainer to={{
-                            pathname:"/setting",
-                            state:this.state.color}}
-                            >
+                        <LinkContainer to="/setting">
                             <Nav.Link>Setting</Nav.Link>
                         </LinkContainer>
                     </Nav>
+                    <Nav>
+                    <LinkContainer to="/signin" style={{ marginRight:"10px"}}>
+                    <Nav.Link >Log in</Nav.Link>
+                    </LinkContainer>
                     <Form inline onSubmit={this.formSubmit.bind(this)}>
                         <FormControl type="text" placeholder="調べたい論文のキーワード" className="mr-sm-2" id="search" value={this.state.form} onChange={this.handleChange.bind(this)}/>
-                        <Button variant="outline-info" type="submit">Search</Button>
+                        <Button variant="outline-info" type="submit" size="lg">Search</Button>
                     </Form>
+                    </Nav>
                 </Navbar.Collapse>
             </Navbar>
         );

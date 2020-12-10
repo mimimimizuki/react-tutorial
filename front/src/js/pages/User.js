@@ -1,5 +1,5 @@
 import React from "react";
-import { Image, CardGroup, Card } from "react-bootstrap";
+import { CardGroup, Card } from "react-bootstrap";
 import axios from 'axios';
 import MyInfo from '../components/MyInfo';
 import { withRouter } from 'react-router-dom';
