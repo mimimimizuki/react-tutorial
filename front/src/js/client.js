@@ -11,23 +11,27 @@ import User from './pages/User';
 import Post from './pages/PostDetail';
 import SignUp from './pages/SignUp';
 import SignIn from './pages/SignIn';
+import { Auth0Provider } from "@auth0/auth0-react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 const app = document.getElementById('app');
 ReactDOM.render(
-    <Router>
-        <Layout>
-        <Switch>
-            <Route exact path="/" component={Home}></Route>
-            <Route exact path="/timeline" component={TimeLine}></Route>
-            <Route exact path="/favorite" component={Favorite}></Route>
-            <Route path="/signin" component={SignIn}></Route>
-            <Route path="/signup" component={SignUp}></Route>
-            <Route exact path="/result" component={Result}></Route>
-            <Route exact path="/setting" component={Setting}></Route>
-            <Route path="/user" component={User}></Route>
-            <Route path="/posts" component={Post}></Route>
-            <Route path="/404" component={NotFound}/>
-        </Switch>
-        </Layout>
-    </Router>
+<Router>
+<Auth0Provider > 
+    <Layout>
+    <Switch>
+        <Route exact path="/" component={Home}></Route>
+        <Route exact path="/timeline" component={TimeLine}></Route>
+        <Route exact path="/favorite" component={Favorite}></Route>
+        <Route path="/signin" component={SignIn}></Route>
+        <Route path="/signup" component={SignUp}></Route>
+        <Route exact path="/result" component={Result}></Route>
+        <Route exact path="/setting" component={Setting}></Route>
+        <Route path="/user" component={User}></Route>
+        <Route path="/posts" component={Post}></Route>
+        <Route path="/404" component={NotFound}/>
+    </Switch>
+    </Layout>
+</Auth0Provider>
+</Router>
+
     , app);

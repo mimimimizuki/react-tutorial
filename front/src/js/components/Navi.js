@@ -3,7 +3,7 @@ import { Navbar, Nav, Form, FormControl, Button, Image } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import axios from 'axios';
 import { withRouter } from 'react-router-dom';
-
+import LoginButton from './LoginButton';
 class Navi extends Component {
     constructor(props) {
         super(props);
@@ -80,7 +80,7 @@ class Navi extends Component {
                     </Nav>
                     <Nav>
                     <LinkContainer to="/signin" style={{ marginRight:"10px"}}>
-                    <Nav.Link >Log in</Nav.Link>
+                    <Nav.Link>login</Nav.Link> 
                     </LinkContainer>
                     <Form inline onSubmit={this.formSubmit.bind(this)}>
                         <FormControl type="text" placeholder="調べたい論文のキーワード" className="mr-sm-2" id="search" value={this.state.form} onChange={this.handleChange.bind(this)}/>
