@@ -1,5 +1,5 @@
-/front/node_modules
+front/node_modules
 .DS_Store
-/back/dbInit.txt
-/back/Router.go
-/front/src/js/auth/.env
+back/dbInit.txt
+back/Router.go
+front/src/js/auth/.env
