@@ -15,29 +15,28 @@ import (
 // ============> Post
 
 // GetPosts is return all posts
+func GetPosts(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Get all posts")
+	var post Post
+	Posts = []Post{}
 
-// func GetPosts(w http.ResponseWriter, r *http.Request) {
-// 	log.Printf("Get all posts")
-// 	var post Post
-// 	Posts = []Post{}
-
-// 	rows, err := A.DB.Query("select * from posts;")
-// 	if err != nil {
-// 		log.Println(err)
-// 	}
-// 	defer rows.Close()
-// 	for rows.Next() {
-// 		err := rows.Scan(&post.ID, &post.UserId, &post.PostDate, &post.Title, &post.Overview, &post.Link, &post.Thought, pq.Array(&post.Tags))
-// 		if err != nil {
-// 			log.Println(err)
-// 		}
-// 		Posts = append(Posts, post)
-// 	}
-// 	if err = rows.Err(); err != nil {
-// 		log.Println(err)
-// 	}
-// 	json.NewEncoder(w).Encode(Posts)
-// }
+	rows, err := A.DB.Query("select * from posts;")
+	if err != nil {
+		log.Println(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&post.ID, &post.UserId, &post.PostDate, &post.Title, &post.Overview, &post.Link, &post.Thought, pq.Array(&post.Tags))
+		if err != nil {
+			log.Println(err)
+		}
+		Posts = append(Posts, post)
+	}
+	if err = rows.Err(); err != nil {
+		log.Println(err)
+	}
+	json.NewEncoder(w).Encode(Posts)
+}
 
 // GetPost is return one user's posts
 func GetPost(w http.ResponseWriter, r *http.Request) {

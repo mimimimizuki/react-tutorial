@@ -20,6 +20,7 @@ func main() {
 	router.Use(forCORS)
 	log.Println("listen sever .......")
 	log.Fatal(http.ListenAndServe(":5000", router))
+
 }
 
 // CORSのためのミドルウェア
