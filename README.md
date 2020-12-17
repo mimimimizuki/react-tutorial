@@ -1,10 +1,13 @@
 # react-tutorial
-## front 
+
+## front
+
 ```
 npm start
 ```
 
 ## back
+
 ```
-go run *.go
+go run .
 ```
