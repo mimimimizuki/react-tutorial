@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import MyInfo from "../components/MyInfo";
 import Posts from "../components/Posts";
 import YetPosts from "../components/YetPosts";
 import { Card, CardGroup, Button, Modal, Form} from "react-bootstrap";
 import axios from 'axios';
+// import { useAuth0 } from "@auth0/auth0-react";
 
 export default class Home extends React.Component{
     constructor(props){
@@ -220,6 +221,7 @@ export default class Home extends React.Component{
         this.setState({tags: e.target.value});
     }
     render(){
+        console.log(isAuthenticated);
         return (
             <div>
                 <Modal  style={{opacity:1}} show={this.state.show} onHide={this.handleClose} 

@@ -11,12 +11,13 @@ import User from './pages/User';
 import Post from './pages/PostDetail';
 import SignUp from './pages/SignUp';
 import SignIn from './pages/SignIn';
-import { Auth0Provider } from "@auth0/auth0-react";
+import History from './auth/History';
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 const app = document.getElementById('app');
+
 ReactDOM.render(
 <Router>
-<Auth0Provider > 
+    <History>
     <Layout>
     <Switch>
         <Route exact path="/" component={Home}></Route>
@@ -31,7 +32,6 @@ ReactDOM.render(
         <Route path="/404" component={NotFound}/>
     </Switch>
     </Layout>
-</Auth0Provider>
+    </History>
 </Router>
-
     , app);

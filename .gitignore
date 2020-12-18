@@ -2,4 +2,5 @@ front/node_modules
 .DS_Store
 back/dbInit.txt
 back/Router.go
+front/src/js/auth/config.json
 front/src/js/auth/.env
