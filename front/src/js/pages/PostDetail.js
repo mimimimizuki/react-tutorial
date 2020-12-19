@@ -3,7 +3,7 @@ import axios from 'axios';
 import { withRouter } from 'react-router-dom';
 import { Card, Image ,OverlayTrigger, Tooltip, Dropdown} from "react-bootstrap";
 import { BsFillReplyFill, BsFillHeartFill, BsHeart } from "react-icons/bs";
-class User extends React.Component{
+class PostDetail extends React.Component{
     constructor(props) {
         super(props);
         this.state = {title:"", overview:"", 
@@ -31,7 +31,10 @@ class User extends React.Component{
 
         //そのpostがファボしたものかを確認する
         const getUrl = "http://localhost:5000/favorites/1";
-        axios.get(getUrl).then((res) => {
+        const token = getTokenSilently();
+        axios.get(getUrl, {headers: {
+            Authorization: `Bearer ${token}`,
+        }}).then((res) => {
             res.data.forEach(doc => {
                 if (doc.ID == this.state.post_id){
                     this.setState({liked: true,});
@@ -46,11 +49,14 @@ class User extends React.Component{
     }
     handleClick(e) {
         console.log(this.state);
+        const token = getTokenSilently();
         if (!this.state.liked){ // add favorite 
             var params = new URLSearchParams();
             params.append("PostId", this.state.post_id);
             params.append("UserId", 1);
-            axios.post("http://localhost:5000/favorites", params)
+            axios.post("http://localhost:5000/favorites", params, {headers: {
+                Authorization: `Bearer ${token}`,
+            }})
             .then(response => {
                 console.log(response.data);
                 this.setState({like_id: response.data}); // get favorite id 
@@ -65,8 +71,9 @@ class User extends React.Component{
             fetch('http://localhost:5000/favorites',{
                 method: "DELETE",
                 body:params,
-                header: {
-                    'Content-Type': 'application/json; charset=UTF-8'
+                headers: {
+                    'Content-Type': 'application/json; charset=UTF-8',
+                    'Authorization': `Bearer ${token}`,
                   }
             }).then(response => {
                 console.log(response);
@@ -160,4 +167,4 @@ class User extends React.Component{
     }
 }
 
-export default withRouter(User);
+export default withRouter(PostDetail);

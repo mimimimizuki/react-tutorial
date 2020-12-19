@@ -94,6 +94,9 @@ var routes = Routes{
 		"OPTIONSUpdatePost", "OPTIONS", "/posts", OPTIONSUpdatePost, true,
 	},
 	Route{
+		"OPTIONSGetPost", "OPTIONS", "/posts/{id}", OPTIONSGetPost, true,
+	},
+	Route{
 		"AddDraft", "POST", "/drafts", AddDraft, true,
 	},
 	Route{

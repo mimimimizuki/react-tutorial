@@ -11,7 +11,6 @@ class User extends React.Component{
         }
     }  
     componentDidMount(e){
-        console.log("here")
         const query = new URLSearchParams(this.props.location.search);
         const user_id = query.get('id');
         axios.get("http://localhost:5000/users/" + user_id).then(res => {

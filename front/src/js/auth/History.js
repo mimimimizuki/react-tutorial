@@ -17,7 +17,7 @@ const History = ({ children }) => {
     <Auth0Provider
       domain={domain}
       clientId={clientId}
-      redirectUri={window.location.origin}
+      redirectUri="http://localhost:8080"
       audience={audience}
       onRedirectCallback={onRedirectCallback}
     >

@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/rs/cors"
 )
 
 var A App
@@ -17,10 +19,13 @@ func main() {
 		os.Getenv("APP_DB_NAME"))
 	A.Run(":5432")
 	router := NewRouter()
-	router.Use(forCORS)
+	corsWrapper := cors.New(cors.Options{
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE"},
+		AllowedHeaders: []string{"Content-Type", "Origin", "Accept", "*"},
+	})
+	// router.Use(forCORS)
 	log.Println("listen sever .......")
-	log.Fatal(http.ListenAndServe(":5000", router))
-
+	log.Fatal(http.ListenAndServe(":5000", corsWrapper.Handler(router)))
 }
 
 // CORSのためのミドルウェア
@@ -36,6 +41,8 @@ func forCORS(next http.Handler) http.Handler {
 			// プリフライトリクエストの対応
 			if r.Method == "OPTIONS" {
 				w.WriteHeader(http.StatusOK)
+				log.Println("options is called")
+				log.Println(r.Header.Get("authorization"))
 				return
 			}
 			next.ServeHTTP(w, r)

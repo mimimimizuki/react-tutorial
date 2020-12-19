@@ -4,7 +4,7 @@ import Posts from "../components/Posts";
 import YetPosts from "../components/YetPosts";
 import { Card, CardGroup, Button, Modal, Form} from "react-bootstrap";
 import axios from 'axios';
-// import { useAuth0 } from "@auth0/auth0-react";
+import { useAuth0 } from "@auth0/auth0-react";
 
 export default class Home extends React.Component{
     constructor(props){
@@ -25,11 +25,13 @@ export default class Home extends React.Component{
         this.wantread_link_handleChange = this.wantread_link_handleChange.bind(this);
         this.wantread_title_handleChange = this.wantread_title_handleChange.bind(this);
         this.wantread_handleSubmit = this.wantread_handleSubmit.bind(this);
-
         axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
-
+        const { getAccessTokenSilently } = useAuth0();
+        const token = getAccessTokenSilently();
         const url = "http://localhost:5000/posts/1";
-        axios.get(url)
+        axios.get(url, {headers: {
+            Authorization: `Bearer ${token}`,
+        }})
         .then((res) => {
             res.data.forEach((doc) => {
                 this.state.postList.push(
@@ -41,7 +43,9 @@ export default class Home extends React.Component{
             console.log(error)
         });
         const yeturl = "http://localhost:5000/wantReads/1";
-        axios.get(yeturl).then((res) => {
+        axios.get(yeturl, {headers: {
+            Authorization: `Bearer ${token}`,
+        }}).then((res) => {
             res.data.forEach((doc) => {
                 this.state.yetPostList.push(
                     <YetPosts key={doc.ID} title={doc.Title} link={doc.Link} id={doc.ID}/>
@@ -52,7 +56,9 @@ export default class Home extends React.Component{
             console.log(error)
         });
         const userUrl = "http://localhost:5000/users/1";
-        axios.get(userUrl).then((res) => {
+        axios.get(userUrl, {headers: {
+            Authorization: `Bearer ${token}`,
+        }}).then((res) => {
             this.setState({user_bio : res.data.BIO, user_name : res.data.DisplayName });
         });
     }
@@ -93,7 +99,9 @@ export default class Home extends React.Component{
                     console.log(error);
                   });
                 if (delete_draft){
-                    axios.delete("http://localhost:5000/drafts/"+this.state.draft_id).then(res =>{
+                    axios.delete("http://localhost:5000/drafts/"+this.state.draft_id, {headers: {
+                        Authorization: `Bearer ${token}`,
+                    }}).then(res =>{
                         console.log(res);
                     }).catch(err => {
                         console.log(err);
@@ -110,7 +118,9 @@ export default class Home extends React.Component{
         params.append("UserId", 1);
         params.append("Title", this.state.wantread_title);
         params.append("Link", this.state.wantread_link);
-        axios.post(submitUrl, params).then((res) => {
+        axios.post(submitUrl, params, {headers: {
+            Authorization: `Bearer ${token}`,
+        }}).then((res) => {
             console.log(res)
         }).catch(err => {
             console.log(err);
@@ -160,7 +170,10 @@ export default class Home extends React.Component{
                     "Thought": this.state.thought,
                     "Tags":params.getAll("Tags"),
                 },
-                ).then(res =>{
+                {headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+                }).then(res =>{
                     console.log(res);
                 }).catch(err =>{
                     console.log(err);
@@ -173,7 +186,9 @@ export default class Home extends React.Component{
             alert("いずれかの項目は入力してください")
         }
         else {
-            axios.post(submitUrl, params)
+            axios.post(submitUrl, params, {headers: {
+                Authorization: `Bearer ${token}`,
+            }})
                 .then( (response) => {
                     console.log(response);
                   })
@@ -184,7 +199,9 @@ export default class Home extends React.Component{
         this.setState({show: false});
     }
     handleSeeDrafts(e) {
-        axios.get("http://localhost:5000/drafts/1").then(res => {
+        axios.get("http://localhost:5000/drafts/1", {headers: {
+            Authorization: `Bearer ${token}`,
+        }}).then(res => {
             console.log(res);
             var tagArr = new Array();
             if (res.data.Tags.length > 0){
@@ -221,7 +238,6 @@ export default class Home extends React.Component{
         this.setState({tags: e.target.value});
     }
     render(){
-        console.log(isAuthenticated);
         return (
             <div>
                 <Modal  style={{opacity:1}} show={this.state.show} onHide={this.handleClose} 

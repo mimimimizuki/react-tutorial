@@ -92,6 +92,21 @@ var GetUsers = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(Users)
 })
 
+// GetUser is to get one user infomation about diaplayname or bio ...
+var GetUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	log.Println("Get user")
+	var user User
+	params := mux.Vars(r)
+	log.Println(params["id"])
+	rows := A.DB.QueryRow("select * from users where user_id = $1;", params["id"])
+	err := rows.Scan(&user.ID, &user.DisplayName, &user.Birthday, &user.Pass, &user.BIO)
+	if err != nil {
+		log.Println(err)
+	}
+
+	json.NewEncoder(w).Encode(&user)
+})
+
 // ============> wantread
 
 // GetWantReads is maybe not used
