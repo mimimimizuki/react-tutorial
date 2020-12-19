@@ -14,7 +14,7 @@ function Layout(props){
         <AuthNav />
       )}
 
-      {isAuthenticated && <Navi /> && props.children}
+      {isAuthenticated && <div><Navi /> {props.children}</div>}
     </div>
   );
 };
