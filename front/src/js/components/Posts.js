@@ -1,115 +1,114 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, Image ,OverlayTrigger, Tooltip} from "react-bootstrap";
 import { BsFillReplyFill, BsFillHeartFill, BsHeart } from "react-icons/bs";
 import axios from 'axios';
 import { withRouter } from 'react-router-dom';
-class Posts extends React.Component{
-    constructor (props) {
-        super(props)
-        this.state = {liked : false, post_id: "", me: false}
-        this.handleOtherPage = this.handleOtherPage.bind(this)
-        this.handleSeePost = this.handleSeePost.bind(this)
-    }
-    componentDidMount(e) {
-        const getUrl = "http://localhost:5000/favorites/1";
-        axios.get(getUrl).then((res) => {
-            res.data.forEach(doc => {
-                if (doc.ID == this.props.id){
-                    this.setState({liked: true, post_id: doc.ID});
+import { useAuth0 } from "@auth0/auth0-react";
+const Posts = (props) => {
+    const [liked, setLike] = useState(false);
+    const [liked_id, setLikeId] = useState("");
+    const [me, setMe] = useState(false);
+    const {id} = props;
+    const { getAccessTokenSilently } = useAuth0();
+    const [ooo, setOOO] = useState("");
+    useEffect(() => {
+        console.log("rendering posts")
+        const getFav = async () => {
+            const token = await getAccessTokenSilently();
+            const res = await axios.get("http://localhost:5000/favorites/1", {
+                headers: {
+                    Authorization: "Bearer " + token,
                 }
             });
-        }).catch(err => {
-            console.log(err)
-        });
-        if (this.props.me){
-            this.setState({me:true})
+            res.data.forEach(doc => {
+                if (doc.ID == props.id){
+                    setLike(true);
+                    setLikeId(doc.ID)
+                }
+            });
+            if (props.me){
+                setMe(true);
+            }
         }
-    }
-    handleClick(e) {
-        if (!this.state.liked){ // add favorite 
+        if (props.tags != null) {
+            setOOO(props.tags.map((tag, i) => <p key={i} className="tags">#{tag}</p>));
+        }
+        if (props.authorized) {
+            getFav();
+        }
+    }, []);
+    const handleClick = async (id) => {
+        const token = await getAccessTokenSilently();
+        if (!liked){ // add favorite 
             var params = new URLSearchParams();
-            params.append("PostId", this.props.id);
+            params.append("PostId", id);
             params.append("UserId", 1);
-            axios.post("http://localhost:5000/favorites", params)
-            .then(response => {
-                console.log(response.data);
-                this.setState({like_id: response.data}); // get favorite id 
-            }).catch(err => {
-                console.log(err);
-            });
-            this.setState({ liked : true})
+            const response = await axios.post("http://localhost:5000/favorites", params, {
+                headers: {
+                    Authorization: "Bearer " + token
+                }
+            })
+            setLikeId(response.data);
+            setLike(true);
         } else { //delete favorite
-            var params = new FormData();
-            params.append("PostId", this.state.post_id)
-            params.append("UserId", 1)
-            fetch('http://localhost:5000/favorites',{
+            const response = await fetch('http://localhost:5000/favorites/'+liked_id,{
                 method: "DELETE",
-                body:params,
-                header: {
-                    'Content-Type': 'application/json; charset=UTF-8'
+                headers: {
+                    'Content-Type': 'application/json; charset=UTF-8',
+                    Authorization : "Bearer " + token,
                   }
-            }).then(response => {
-                console.log(response);
-            }).catch(err => {
-                console.log(err);
             });
-
-            this.setState({ liked : false})
+            console.log(response);
+            setLike(false);
         }
     }
-    handleOtherPage(id) {
-        if (this.state.me){
-            this.props.history.push("/")
+    const handleOtherPage = (id) => {
+        if (me){
+            props.history.push("/")
         }
         else{
-            this.props.history.push("/user?id="+id);
+            props.history.push("/user?id="+id);
         }
     }
-    handleSeePost(id) {
-        this.props.history.push("/posts?id="+id);
+    const handleSeePost = (id) => {
+        props.history.push("/posts?id="+id);
     }
-
-    render(){
-        var ooo = "";
-        if (this.props.tags != null) {
-            ooo = this.props.tags.map((tag, i) => <p key={i} className="tags">#{tag}</p>);
+    return (
+        <div>
+        <Card >
+        {me ? <Image src="../../images/logo.png"  roundedCircle onClick={() => handleOtherPage(id)}
+            style={{ height: 50, width: 50}} /> : 
+            <Image src="../../images/logo2.png"  roundedCircle onClick={() => handleOtherPage(id)}
+            style={{ height: 50, width: 50}} />
         }
-        const { id } = this.props;
-        return (
-            <div>
-            <Card >
-            {this.state.me ? <Image src="../../images/logo.png"  roundedCircle onClick={() => this.handleOtherPage(id)}
-                style={{ height: 50, width: 50}} /> : 
-                <Image src="../../images/logo2.png"  roundedCircle onClick={() => this.handleOtherPage(id)}
-                style={{ height: 50, width: 50}} />
-            }
-                <Card.Body  id="post">
-                    <Card.Title onClick={() => this.handleSeePost(id)}>{this.props.title}</Card.Title>
-                    <Card.Subtitle className="mb-2 text-muted">{this.props.overview}</Card.Subtitle>
-                    <Card.Text>
-                    {this.props.thought}
-                    </Card.Text>
-                    {ooo}
-                    <br></br>
-                    <Card.Link href={this.props.link}>
-                        {this.props.link}
-                    </Card.Link>
-                    <br></br>
-                </Card.Body>
-                {this.state.liked ? 
-                    <BsFillHeartFill className="heart" color="#e57373" size="30px"  onClick={this.handleClick.bind(this)}/>
-                     : 
-                     <OverlayTrigger overlay={<Tooltip id="tooltip-like">like!</Tooltip>}>
-                     <BsHeart className="heart" size="30px" onClick={this.handleClick.bind(this)}/>
-                    </OverlayTrigger>
-                    
-                }
-                <OverlayTrigger overlay={<Tooltip id="tooltip-reply">reply this post</Tooltip>}>
-                <BsFillReplyFill size="30px" className="reply" color="dimgray"/>
+            <Card.Body  id="post">
+                <Card.Title onClick={() => handleSeePost(id)}>{props.title}</Card.Title>
+                <Card.Subtitle className="mb-2 text-muted">{props.overview}</Card.Subtitle>
+                <Card.Text>
+                {props.thought}
+                </Card.Text>
+                {ooo}
+                <br></br>
+                <Card.Link href={props.link}>
+                    {props.link}
+                </Card.Link>
+                <br></br>
+            </Card.Body>
+            {props.authorized &&
+                liked ? 
+                <BsFillHeartFill className="heart" color="#e57373" size="30px"  onClick={() => handleClick}/>
+                    : 
+                    <OverlayTrigger overlay={<Tooltip id="tooltip-like">like!</Tooltip>}>
+                    <BsHeart className="heart" size="30px" onClick={() => handleClick}/>
                 </OverlayTrigger>
-            </Card>
-            </div>
-        )
-    }
+            }
+            
+            <OverlayTrigger overlay={<Tooltip id="tooltip-reply">reply this post</Tooltip>}>
+            <BsFillReplyFill size="30px" className="reply" color="dimgray"/>
+            </OverlayTrigger>
+        </Card>
+        </div>
+    )
 }
+
 export default withRouter(Posts);

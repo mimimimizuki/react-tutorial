@@ -208,10 +208,8 @@ var AddFavorite = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) 
 // RemoveFavorite is a function to delete action which a user click a post to preserve favoritesList
 var RemoveFavorite = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	log.Println("delete favorite is called")
-	favorite := Favorite{}
-	favorite.PostId, _ = strconv.Atoi(r.FormValue("PostId"))
-	favorite.UserId, _ = strconv.Atoi(r.FormValue("UserId"))
-	result, err := A.DB.Exec("DELETE FROM favorites WHERE post_id= $1 and user_id = $2", favorite.PostId, favorite.UserId)
+	params := mux.Vars(r)
+	result, err := A.DB.Exec("DELETE FROM favorites WHERE favorite_id = $1", params["id"])
 	if err != nil {
 		log.Fatal(err)
 	}

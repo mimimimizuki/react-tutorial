@@ -7,10 +7,11 @@ import axios from 'axios';
 import { useAuth0 } from "@auth0/auth0-react";
 
 const newHome = () => {
+    console.log("render")
     const [show, setShow] = useState(false);
     const [wantReadShow, setWantReadShow] = useState(false);
     const [postList, setPosts] = useState([]);
-    const [yetPostList, setYesPosts] = useState([]);
+    const [yetPostList, setYetPosts] = useState([]);
     const [user, setUser] = useState([]);
     const [title, setTitle] = useState("");
     const [overview, setOverview] = useState("");
@@ -21,47 +22,56 @@ const newHome = () => {
     const [wantread_link, setWantreadLink] = useState("");
     axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
     const { getAccessTokenSilently } = useAuth0();
-    const token = getAccessTokenSilently();
     useEffect(() => {
-        axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
-        const url = "http://localhost:5000/posts/1";
-        console.log(token)
-        axios.get(url, {
-            headers: {
-            Authorization: "Bearer " + token ,
-        }})
-        .then((res) => {
+        console.log("useEffect")
+        const getPosts = async () => {
+            const token = await getAccessTokenSilently();
+            const res = await axios.get("http://localhost:5000/posts/1", {
+                headers: {
+                Authorization: "Bearer " + token ,
+            }});
             res.data.forEach((doc) => {
-                postList.push(<Posts key={doc.ID} title={doc.Title} overview={doc.Overview} link={doc.Link} thought={doc.Thought} tags={doc.Tags} id={doc.ID} me={true}
+                postList.push(<Posts key={doc.ID} title={doc.Title} overview={doc.Overview} link={doc.Link} thought={doc.Thought} tags={doc.Tags} id={doc.ID} me={true} authorized={true}
                     />);
-                setPosts(token);
+                setPosts(postList);
             });
-            console.log(postList)
-        }).catch((error) => {
-            console.log(error)
-            console.log(token)
-        });
-        const yeturl = "http://localhost:5000/wantReads/1";
-        axios.get(yeturl, {headers: {
-            Authorization: `Bearer ${token}`,
-        }}).then((res) => {
+            return (postList)
+        }
+        const getYetPosts = async () => {
+            const token = await getAccessTokenSilently();
+            const res = await axios.get("http://localhost:5000/wantReads/1", {headers: {
+                Authorization: `Bearer ${token}`,
+            }});
             res.data.forEach((doc) => {
                 yetPostList.push(<YetPosts key={doc.ID} title={doc.Title} link={doc.Link} id={doc.ID}/>
                     );
-                setYesPosts(yetPostList);
+                setYetPosts(yetPostList);
             });
-        }).catch((error) => {
-            console.log(error)
-        });
-        const userUrl = "http://localhost:5000/users/1";
-        axios.get(userUrl, {headers: {
-            Authorization: `Bearer ${token}`,
-        }}).then((res) => {
-            setUser(res.data)
-        });
+            return (yetPostList)
+        }
+        const getUser = async () => {
+            const token = await getAccessTokenSilently();
+            const res = await axios.get("http://localhost:5000/users/1", {headers: {
+                Authorization: `Bearer ${token}`,
+            }});
+            setUser(res.data);
+            return "ok"
+        }
+        const allset = async () => {
+            const post = await getPosts();
+            const yetpost = await getYetPosts();
+            const getuse = await getUser();
+            console.log(post+yetpost+getuse)
+        }
+        allset()
+        return () => {
+            window.removeEventListener('mousemove', () => {})
+        }
+        
     }, []);
     
-    const wantonSubmit = (data) => {
+    const wantonSubmit = async (data) => {
+        const token = await getAccessTokenSilently();
         const submitUrl = "http://localhost:5000/wantReads";
         var params = new URLSearchParams();
         params.append("UserId", 1);
@@ -109,7 +119,7 @@ const newHome = () => {
                 console.log('key not found');
         }
     }
-    const onSubmit = (data) => {
+    const onSubmit = () => {
         const submitUrl = "http://localhost:5000/posts";
         const time = new Date();
         var params = new URLSearchParams();
@@ -298,7 +308,7 @@ const newHome = () => {
                         </Form.Text>
                     </Form.Group>
                     
-                    <Button variant="secondary" onClick={setWantReadShow(false)}>
+                    <Button variant="secondary" onClick={() => setWantReadShow(false)}>
                         Close
                     </Button>
                 </Form>
