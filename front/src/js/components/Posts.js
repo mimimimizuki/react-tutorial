@@ -9,10 +9,12 @@ const Posts = (props) => {
     const [liked_id, setLikeId] = useState("");
     const [me, setMe] = useState(props.me);
     const {id} = props;
+    const [isLoading, setIsLoading] = useState(false);
     const { getAccessTokenSilently } = useAuth0();
     const [ooo, setOOO] = useState("");
     useEffect(() => {
         const getFav = async () => {
+            setIsLoading(true);
             const token = await getAccessTokenSilently();
             const res = await axios.get("http://localhost:5000/favorites/1", {
                 headers: {
@@ -28,6 +30,7 @@ const Posts = (props) => {
             if (props.me){
                 setMe(true);
             }
+            setIsLoading(false)
         }
         if (props.tags != null) {
             setOOO(props.tags.map((tag, i) => <p key={i} className="tags">#{tag}</p>));
@@ -74,38 +77,40 @@ const Posts = (props) => {
     }
     return (
         <div>
-        <Card >
-        {me ? <Image src="../../images/logo.png"  roundedCircle onClick={() => handleOtherPage(id)}
-            style={{ height: 50, width: 50}} /> : 
-            <Image src="../../images/logo2.png"  roundedCircle onClick={() => handleOtherPage(id)}
-            style={{ height: 50, width: 50}} />
-        }
-            <Card.Body  id="post">
-                <Card.Title onClick={() => handleSeePost(id)}>{props.title}</Card.Title>
-                <Card.Subtitle className="mb-2 text-muted">{props.overview}</Card.Subtitle>
-                <Card.Text>
-                {props.thought}
-                </Card.Text>
-                {ooo}
-                <br></br>
-                <Card.Link href={props.link}>
-                    {props.link}
-                </Card.Link>
-                <br></br>
-            </Card.Body>
-            {props.authorized &&
-                liked ? 
-                <BsFillHeartFill className="heart" color="#e57373" size="30px"  onClick={() => handleClick}/>
-                    : 
-                    <OverlayTrigger overlay={<Tooltip id="tooltip-like">like!</Tooltip>}>
-                    <BsHeart className="heart" size="30px" onClick={() => handleClick}/>
-                </OverlayTrigger>
+            {isLoading ? <>Loading...</> : 
+                    (<Card >
+                    {me ? <Image src="../../images/logo.png"  roundedCircle onClick={() => handleOtherPage(id)}
+                        style={{ height: 50, width: 50}} /> : 
+                        <Image src="../../images/logo2.png"  roundedCircle onClick={() => handleOtherPage(id)}
+                        style={{ height: 50, width: 50}} />
+                    }
+                        <Card.Body  id="post">
+                            <Card.Title onClick={() => handleSeePost(id)}>{props.title}</Card.Title>
+                            <Card.Subtitle className="mb-2 text-muted">{props.overview}</Card.Subtitle>
+                            <Card.Text>
+                            {props.thought}
+                            </Card.Text>
+                            {ooo}
+                            <br></br>
+                            <Card.Link href={props.link}>
+                                {props.link}
+                            </Card.Link>
+                            <br></br>
+                        </Card.Body>
+                        {props.authorized &&
+                            liked ? 
+                            <BsFillHeartFill className="heart" color="#e57373" size="30px"  onClick={() => handleClick}/>
+                                : 
+                                <OverlayTrigger overlay={<Tooltip id="tooltip-like">like!</Tooltip>}>
+                                <BsHeart className="heart" size="30px" onClick={() => handleClick}/>
+                            </OverlayTrigger>
+                        }
+                        
+                        <OverlayTrigger overlay={<Tooltip id="tooltip-reply">reply this post</Tooltip>}>
+                        <BsFillReplyFill size="30px" className="reply" color="dimgray"/>
+                        </OverlayTrigger>
+                    </Card>)
             }
-            
-            <OverlayTrigger overlay={<Tooltip id="tooltip-reply">reply this post</Tooltip>}>
-            <BsFillReplyFill size="30px" className="reply" color="dimgray"/>
-            </OverlayTrigger>
-        </Card>
         </div>
     )
 }

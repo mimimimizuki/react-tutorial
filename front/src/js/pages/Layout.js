@@ -1,6 +1,6 @@
 import React from "react";
-import AuthNav from "../components/AuthNav";
-import Navi from '../components/Navi';
+import AuthNav from "../components/Navi";
+import Navi from '../components/AuthNavi';
 import { useAuth0 } from "@auth0/auth0-react";
 
 function Layout(props){
@@ -14,7 +14,8 @@ function Layout(props){
         <AuthNav />
       )}
 
-      {isAuthenticated && <div><Navi /> {props.children}</div>}
+      {isAuthenticated && <Navi />}
+      {isAuthenticated && props.children }
     </div>
   );
 };

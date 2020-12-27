@@ -4,15 +4,15 @@ import axios from 'axios';
 import { useAuth0 } from '@auth0/auth0-react';
 import Posts from '../components/Posts';
 
-  
 const TimeLine = () => {
     console.log("render")
     const [ postList, setPosts ] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
     const { getAccessTokenSilently } = useAuth0();
-    var fill = false;
     useEffect( () => {
         console.log("caled")
         async function getPosts() {
+            setIsLoading(true)
             const token = getAccessTokenSilently();
             const res = await axios.get("http://localhost:5000/posts", {
                 headers: {
@@ -20,22 +20,30 @@ const TimeLine = () => {
                 }
             });
             res.data.forEach((doc) => {
-                postList.push(<Posts key={doc.ID} title={doc.Title} overview={doc.Overview} link={doc.Link} thought={doc.Thought} tags={doc.Tags} id={doc.ID} me={true} authorized={true}
-                    />);
+                console.log(doc)
+                if (doc.UserId == 1){
+                    postList.push(<Posts key={doc.ID} title={doc.Title} overview={doc.Overview} link={doc.Link} thought={doc.Thought} tags={doc.Tags} id={doc.ID} me={true} authorized={true}
+                        />);
+                } else {
+                    postList.push(<Posts key={doc.ID} title={doc.Title} overview={doc.Overview} link={doc.Link} thought={doc.Thought} tags={doc.Tags} id={doc.ID} me={false} authorized={true}
+                        />);
+                }
                 setPosts(postList);
-                fill = true;
+                setIsLoading(false);
             });
         }
         getPosts();
-    }, [fill]);
+    }, []);
     
     return(
         <div>
-        <Container >
+        {isLoading ? (<>Loading...</>) :
+            (<Container >
             <div className="timeline">
                 {postList}
             </div>
-        </Container>
+            </Container>)
+        }
         </div>
     )
 }
