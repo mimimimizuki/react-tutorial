@@ -69,7 +69,7 @@ class Navi extends Component {
                         <LinkContainer to="/">
                             <Nav.Link>Home</Nav.Link>
                         </LinkContainer>
-                        <LinkContainer to="/timeline-auth">
+                        <LinkContainer to="/timelines">
                             <Nav.Link>Timeline</Nav.Link>
                         </LinkContainer>
                         <LinkContainer to="/favorite">

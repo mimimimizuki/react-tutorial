@@ -2,7 +2,6 @@ import React from 'react';
 import Posts from '../components/Posts'
 import { Container} from "react-bootstrap";
 import axios from 'axios';
-// import { useAuth0 } from '@auth0/auth0-react';
 export default class TimeLine extends React.Component{
     constructor(props) {
         super()

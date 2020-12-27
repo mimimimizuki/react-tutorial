@@ -20,10 +20,8 @@ ReactDOM.render(
         <Layout>
         <Switch>
             <Route exact path="/" component={Home}></Route>
-            <Route path="/timeline-auth" component={AuthTimeLine}></Route>
+            <Route path="/timelines" component={AuthTimeLine}></Route>
             <Route exact path="/favorite" component={Favorite}></Route>
-            <Route path="/signin" component={SignIn}></Route>
-            <Route path="/signup" component={SignUp}></Route>
             <Route exact path="/result" component={Result}></Route>
             <Route exact path="/setting" component={Setting}></Route>
             <Route path="/user" component={User}></Route>
