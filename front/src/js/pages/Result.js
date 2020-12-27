@@ -4,13 +4,14 @@ import { Card , Container} from "react-bootstrap";
 import { withRouter } from 'react-router-dom';
 class Result extends React.Component{
     constructor(props) {
-        super(props)
+        super(props);
         this.state = {
             posts : [],
             ids : [],
         }
     }
     componentDidMount(e){
+        console.log(this.props.location.state.result[0]);
         for (let i = 0; i < this.props.location.state.result.length; i++){
             if (!this.state.ids.includes(this.props.location.state.result[i].ID)){
                 this.state.posts.push(

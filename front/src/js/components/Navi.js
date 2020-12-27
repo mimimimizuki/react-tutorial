@@ -1,25 +1,20 @@
-import React, { Component } from 'react';
+import React from 'react';
+import { useForm } from 'react-hook-form';
 import { Navbar, Nav, Form, FormControl, Button, Image } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import axios from 'axios';
 import { withRouter } from 'react-router-dom';
 import LogoutButton from './LogoutButton';
-import { useAuth0 } from '@auth0/auth0-react';
-class Navi extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            result : [],
-            form : "",
-        }
-    }
-    formSubmit(e) {
-        e.preventDefault()
+const Navi = (props) =>  {
+    const { register, handleSubmit, errors} = useForm();
+    const onSubmit = (data) => {
+        const result = new Array();
+        console.log(data.tags)
         var tagArr = new Array();
-        if (this.state.form.includes(",")){
-            tagArr = this.state.form.split(",")
+        if (data.tags.includes(",")){
+            tagArr = data.tags.split(",")
         } else{
-            tagArr = this.state.form.split(" ");
+            tagArr = data.tags.split(" ");
         }
         const searchUrl = "http://localhost:5000/search"
         var params = new URLSearchParams();
@@ -31,66 +26,65 @@ class Navi extends Component {
         }
         console.log(params.getAll("tags"))
         axios.get(searchUrl, {params: params}).then(res => {
-            console.log(res);
             if (res.data.length == 0){
                 alert("お探しの投稿はありません.")
                 return
             }
             else{
-                this.setState({ result : res.data});
-                return this.props.history.push({
-                    pathname : "/result", 
-                    state: {result: this.state.result}
+                res.data.forEach(doc => {
+                    result.push(doc)
+                });
+                console.log("authenticated")
+                return props.history.push({
+                    pathname : "/results", 
+                    state: {result: result}
                 })
             }
         }).catch(err => {
             console.log(err);
         });
-    }
-    handleChange(e){
-        this.setState({ form : e.target.value});
-    }
-    render() {
-        return (
-            <Navbar collapseOnSelect expand="xl" id="navColor" variant="dark">
-                <LinkContainer to="/">
-                    <Navbar.Brand>
-                        <Image  roundedCircle
-                            src='../../images/logo.png'
-                            width="50"
-                            height="50"
-                            alt="React Bootstrap logo"
-                        />
-                    </Navbar.Brand>
-                </LinkContainer>
-                <Navbar.Toggle aria-controls="responsive-navbar-nav" />
-                <Navbar.Collapse id="responsive-navbar-nav">
-                    <Nav className="mr-auto">
-                        <LinkContainer to="/">
-                            <Nav.Link>Home</Nav.Link>
-                        </LinkContainer>
-                        <LinkContainer to="/timelines">
-                            <Nav.Link>Timeline</Nav.Link>
-                        </LinkContainer>
-                        <LinkContainer to="/favorite">
-                            <Nav.Link>Favorite</Nav.Link>
-                        </LinkContainer>
-                        <LinkContainer to="/setting">
-                            <Nav.Link>Setting</Nav.Link>
-                        </LinkContainer>
-                    </Nav>
-                    <Nav>
-                    <Nav style={{ marginRight:"10px"}}>
-                    <LogoutButton />
-                    </Nav>
-                    <Form inline onSubmit={this.formSubmit.bind(this)}>
-                        <FormControl type="text" placeholder="調べたい論文のキーワード" className="mr-sm-2" id="search" value={this.state.form} onChange={this.handleChange.bind(this)}/>
-                        <Button variant="outline-info" type="submit" size="lg">Search</Button>
-                    </Form>
-                    </Nav>
-                </Navbar.Collapse>
-            </Navbar>
-        );
-    }
+    };
+
+    return (
+        <Navbar collapseOnSelect expand="xl" id="navColor" variant="dark">
+            <LinkContainer to="/">
+                <Navbar.Brand>
+                    <Image  roundedCircle
+                        src='../../images/logo.png'
+                        width="50"
+                        height="50"
+                        alt="React Bootstrap logo"
+                    />
+                </Navbar.Brand>
+            </LinkContainer>
+            <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+            <Navbar.Collapse id="responsive-navbar-nav">
+                <Nav className="mr-auto">
+                    <LinkContainer to="/">
+                        <Nav.Link>Home</Nav.Link>
+                    </LinkContainer>
+                    <LinkContainer to="/timelines">
+                        <Nav.Link>Timeline</Nav.Link>
+                    </LinkContainer>
+                    <LinkContainer to="/favorite">
+                        <Nav.Link>Favorite</Nav.Link>
+                    </LinkContainer>
+                    <LinkContainer to="/setting">
+                        <Nav.Link>Setting</Nav.Link>
+                    </LinkContainer>
+                </Nav>
+                <Nav>
+                <Nav style={{ marginRight:"10px"}}>
+                <LogoutButton />
+                </Nav>
+                <Form inline onSubmit={handleSubmit(onSubmit)}>
+                    <FormControl type="text" placeholder="調べたい論文のキーワード" className="mr-sm-2" id="search" name="tags" ref={register({ required: true})} />
+                    <Button variant="outline-info" type="submit" size="lg">Search</Button>
+                    {errors.title && <span>検索内容は必須です</span>}
+                </Form>
+                </Nav>
+            </Navbar.Collapse>
+        </Navbar>
+    );
 }
 export default withRouter(Navi);

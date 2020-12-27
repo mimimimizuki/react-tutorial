@@ -14,7 +14,7 @@ const Setting = () => {
     const [name, setName ] = useState("");
     const [ changeFlg, setFlg ] = useState(false);
     useEffect(() => {
-        const getInfo =async () => {
+        const getInfo = async () => {
             const token = await getAccessTokenSilently();
             axios.get("http://localhost:5000/users/1", {
                 headers: {

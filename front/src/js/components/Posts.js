@@ -20,13 +20,11 @@ const Posts = (props) => {
                 }
             });
             const ok = await res.data.forEach(doc => {
-                console.log(doc)
                 if (doc.ID == props.id){
                     setLike(true);
                     setLikeId(doc.ID)
                 }
             });
-            console.log(ok)
             if (props.me){
                 setMe(true);
             }

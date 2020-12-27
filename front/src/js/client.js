@@ -22,7 +22,7 @@ ReactDOM.render(
             <Route exact path="/" component={Home}></Route>
             <Route path="/timelines" component={AuthTimeLine}></Route>
             <Route exact path="/favorite" component={Favorite}></Route>
-            <Route exact path="/result" component={Result}></Route>
+            <Route exact path="/results" component={Result}></Route>
             <Route exact path="/setting" component={Setting}></Route>
             <Route path="/user" component={User}></Route>
             <Route path="/posts" component={Post}></Route>

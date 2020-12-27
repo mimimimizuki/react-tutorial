@@ -3,10 +3,9 @@ import { useForm } from 'react-hook-form';
 import { Navbar, Nav, Form, FormControl, Button, Image } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import axios from 'axios';
-import { Redirect, withRouter } from 'react-router-dom';
+import {  withRouter } from 'react-router-dom';
 import LoginButton from './LoginButton';
-import LogoutButton from './LogoutButton';
-const AuthNavi = () => {
+const AuthNavi = (props) => {
     const { register, handleSubmit, errors} = useForm();
     const onSubmit = (data) => {
         const result = new Array();
@@ -33,14 +32,14 @@ const AuthNavi = () => {
                 return
             }
             else{
-                result.push(res.data)
-                console.log("hes")
-                return (<Redirect
-                        to={{
-                            pathname: "/result",
-                            state: { result: result }
-                        }}
-                />)
+                res.data.forEach(doc => {
+                    result.push(doc)
+                });
+                console.log("not authenticated")
+                return props.history.push({
+                    pathname : "/result", 
+                    state: {result: result}
+                })
             }
         }).catch(err => {
             console.log(err);
