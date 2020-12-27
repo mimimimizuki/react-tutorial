@@ -15,7 +15,7 @@ class Result extends React.Component{
             if (!this.state.ids.includes(this.props.location.state.result[i].ID)){
                 this.state.posts.push(
                     <Posts key={this.props.location.state.result[i].ID} title={this.props.location.state.result[i].Title} overview={this.props.location.state.result[i].Overview}
-                    link={this.props.location.state.result[i].Link} thought={this.props.location.state.result[i].Thought} id={this.props.location.state.result[i].ID} tags={this.props.location.state.result[i].Tags} authorized={this.props.location.state.authorized} />
+                    link={this.props.location.state.result[i].Link} thought={this.props.location.state.result[i].Thought} id={this.props.location.state.result[i].ID} tags={this.props.location.state.result[i].Tags} authorized={this.props.location.state.authorized} me={this.props.location.state.me[i]}/>
                 );
                 this.state.ids.push(this.props.location.state.result[i].ID);
                 this.setState({posts: this.state.posts, ids: this.state.ids});

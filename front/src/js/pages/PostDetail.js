@@ -1,76 +1,101 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import axios from 'axios';
 import { withRouter } from 'react-router-dom';
 import { Card, Image ,OverlayTrigger, Tooltip, Dropdown} from "react-bootstrap";
 import { BsFillReplyFill, BsFillHeartFill, BsHeart } from "react-icons/bs";
-class PostDetail extends React.Component{
-    constructor(props) {
-        super(props);
-        this.state = {title:"", overview:"", 
-        thought:"", link:"", tags : [], me:false, post_id: "", liked : false, isOpen: false, user_name : ""};
-    }  
-    componentDidMount(e) {
-
-        // postを取得
-        const query = new URLSearchParams(this.props.location.search);
-        const post_id = query.get('id');
-        const url = "http://localhost:5000/posts/"+post_id+"/detail";
-        axios.get(url).then((res) => {
-            console.log(res.data);
-            this.setState({ title:res.data.Title, overview:res.data.Overview, 
-            thought:res.data.Thought, link:res.data.Link, tags : res.data.Tags, post_id: res.data.ID});
-            axios.get("http://localhost:5000/users/"+res.data.UserId).then(res => {
+import { useAuth0 } from "@auth0/auth0-react";
+const PostDetail = (props) => {
+    const [ data, setData ] = useState({user_name:"", user_id:""})
+    const [ me, setMe ] = useState(false);
+    const [ liked, setLike ] = useState(false);
+    const [ like_id, setLikeID ] = useState("");
+    const { getAccessTokenSilently } = useAuth0();
+    const [ ooo, setOOO ] = useState("");
+    const [ isLoading , setIsLoading ] = useState(false);
+    const [title, setTitle] = useState("");
+    const [overview, setOverview] = useState("");
+    const [link, setLink] = useState("");
+    const [thought, setThought] = useState("");
+    const [tags, setTags] = useState([]);
+    useEffect(() => {
+        const setInfo = (res) => {
+            setTitle(res.data.Title);
+            setLink(res.data.Link);
+            setOverview(res.data.Overview);
+            setThought(res.data.Thought);
+            setTags(res.data.Tags);
+            setData({user_id: res.data.UserId})
+        }
+        const getData = async (post_id) => { // postを取得
+            setIsLoading(true)
+            const token = await getAccessTokenSilently();
+            const url = "http://localhost:5000/posts/"+post_id+"/detail";
+            const res = await axios.get(url, {
+                headers:{
+                    Authorization : "Bearer "+token,
+                }
+            })
+            setInfo(res);
+            axios.get("http://localhost:5000/users/"+res.data.UserId, {
+                headers:{
+                    Authorization: "Bearer "+token
+                }
+            }).then(res => {
                 console.log(res);
-                this.setState({ user_name : res.data.DisplayName});
+                setData({...data, user_name: res.data.DisplayName})
             }).catch(err => {
                 console.log(err)
             });
-        }).catch((error) => {
-            console.log(error)
-        });
-
-        //そのpostがファボしたものかを確認する
-        const getUrl = "http://localhost:5000/favorites/1";
-        const token = getTokenSilently();
-        axios.get(getUrl, {headers: {
-            Authorization: `Bearer ${token}`,
-        }}).then((res) => {
-            res.data.forEach(doc => {
-                if (doc.ID == this.state.post_id){
-                    this.setState({liked: true,});
-                    if (doc.UserId == 1){
-                        this.setState({ me : true});
+        }
+        const getFav = async (post_id) => { //そのpostがファボしたものかを確認する
+            console.log(data)
+            const token = await getAccessTokenSilently();
+            const getUrl = "http://localhost:5000/favorites/1";
+            axios.get(getUrl, {headers: {
+                Authorization: `Bearer ${token}`,
+            }}).then((res) => {
+                res.data.forEach(doc => {
+                    if (doc.ID == post_id){
+                        setLike(true)
+                        if (doc.UserId == 1){
+                            setMe(true);
+                        }
                     }
-                }
+                });
+            }).catch(err => {
+                console.log(err)
             });
-        }).catch(err => {
-            console.log(err)
-        });
-    }
-    handleClick(e) {
-        console.log(this.state);
-        const token = getTokenSilently();
-        if (!this.state.liked){ // add favorite 
+            setIsLoading(false);
+        }
+        const query = new URLSearchParams(props.location.search);
+        const post_id = query.get('id');
+        getData(post_id);
+        getFav(post_id);
+        if (tags != null) {
+            setOOO(tags.map((tag, i) => <p key={i} className="tags">#{tag}</p>));
+        }
+        
+    }, [])
+
+    const handleClick = async () => {
+        const token = await getTokenSilently();
+        if (!liked){ // add favorite 
             var params = new URLSearchParams();
-            params.append("PostId", this.state.post_id);
+            params.append("PostId", post_id);
             params.append("UserId", 1);
             axios.post("http://localhost:5000/favorites", params, {headers: {
                 Authorization: `Bearer ${token}`,
             }})
             .then(response => {
-                console.log(response.data);
-                this.setState({like_id: response.data}); // get favorite id 
+                setLikeID(response.data.ID)
             }).catch(err => {
                 console.log(err);
             });
-            this.setState({ liked : true})
+            setLike(true);
         } else { //delete favorite
             var params = new FormData();
-            params.append("PostId", this.state.post_id)
-            params.append("UserId", 1)
-            fetch('http://localhost:5000/favorites',{
+            fetch('http://localhost:5000/favorites/'+like_id,{
                 method: "DELETE",
-                body:params,
                 headers: {
                     'Content-Type': 'application/json; charset=UTF-8',
                     'Authorization': `Bearer ${token}`,
@@ -80,91 +105,104 @@ class PostDetail extends React.Component{
             }).catch(err => {
                 console.log(err);
             });
-
-            this.setState({ liked : false})
+            setLike(false);
         }
     }
-    handleUpdateClick(e) {
+    const handleUpdateClick = async () => {
+        const token = await getAccessTokenSilently();
         axios.put("http://localhost:5000/posts",{
-            "PostId": this.state.post_id, 
-            "Title" : this.state.title, 
-            "Overview": this.state.overview,
-            "Link": this.state.link,
-            "Thought" : this.state.thought,
-            "Tags" : this.state.tags,
+            "PostId": data.post_id, 
+            "Title" : data.title, 
+            "Overview": data.overview,
+            "Link": data.link,
+            "Thought" : data.thought,
+            "Tags" : data.tags,
+        }, {
+            headers: {
+                Authorization: "Bearer "+token,
+            }
         }).then(res => {
             console.log(res);
         }).catch(err => {
             console.log(err);
         });
     }
-    handleDeleteClick(e) {
-        axios.delete("http://localhost:5000/posts/"+this.state.post_id).then(res => {
+    const handleDeleteClick = async () => {
+        const token = await getAccessTokenSilently();
+        axios.delete("http://localhost:5000/posts/"+post_id, {
+            headers: {
+                Authorization: "Bearer "+token,
+            }
+        }).then(res => {
             console.log(res);
         }).catch(err => {
             console.log(err);
         });
     }
-    render() {
-        var ooo = "";
-        if (this.state.tags != null) {
-            ooo = this.state.tags.map((tag, i) => <p key={i} className="tags">#{tag}</p>);
+    const handleOtherPage = (id) => {
+        if (me){
+            props.history.push("/")
         }
-        return (
-            <div>
-                <div>
-                <Card >
-                {this.state.me ? 
-                        <div>
-                        <Image src="../../images/logo.png"  roundedCircle onClick={() => this.handleOtherPage(id)}
-                            style={{ height: 50, width: 50}} /><h2 className="user_name">{this.state.user_name}</h2>
-                        <Dropdown>
-                            <Dropdown.Toggle className="detail"variant="dark">more action</Dropdown.Toggle>
-                            <Dropdown.Menu>
-                            <Dropdown.Item onClick={this.handleUpdateClick.bind(this)}>update</Dropdown.Item>
-                            <Dropdown.Item onClick={this.handleDeleteClick.bind(this)}>delete</Dropdown.Item>
-                            </Dropdown.Menu>
-                        </Dropdown>
-                        </div>
-                        
-                    : 
-                    <div>
-                    <Image src="../../images/logo2.png"  roundedCircle onClick={() => this.handleOtherPage(id)}
-                        style={{ height: 50, width: 50}} /><h2 className="user_name">{this.state.user_name}</h2>
-                    </div>
-                }
-                    <Card.Body  id="post">
-                        <Card.Title >{this.state.title}</Card.Title>
-                        <Card.Subtitle className="mb-2 text-muted">{this.state.overview}</Card.Subtitle>
-                        <Card.Text>
-                        {this.state.thought}
-                        </Card.Text>
-                        {ooo}
-                        <br></br>
-                        <Card.Link href={this.state.link}>
-                            {this.state.link}
-                        </Card.Link>
-                        <br></br>
-                    </Card.Body>
-                    <div>
-                    {this.state.liked ? 
-                        <BsFillHeartFill className="heart" color="#e57373" size="30px"  onClick={this.handleClick.bind(this)}/>
-                        : 
-                        <OverlayTrigger overlay={<Tooltip id="tooltip-like">like!</Tooltip>}>
-                        <BsHeart className="heart" size="30px" onClick={this.handleClick.bind(this)}/>
-                        </OverlayTrigger>
-                        
-                    }
-
-                    <OverlayTrigger overlay={<Tooltip id="tooltip-reply">reply this post</Tooltip>}>
-                    <BsFillReplyFill size="30px" className="reply" color="dimgray"/>
-                    </OverlayTrigger>
-                    </div>
-                </Card>
-                </div>
-            </div>
-        );
+        else{
+            props.history.push("/user?id="+id);
+        }
     }
-}
+    return (
+        <div>
+            {isLoading ? <>loading...</>:
+            <div>
+            <Card >
+            {me ? 
+                    <div>
+                    <Image src="../../images/logo.png"  roundedCircle onClick={() => handleOtherPage(data.user_id)}
+                        style={{ height: 50, width: 50}} /><h2 className="user_name" onClick={() => handleOtherPage(data.user_id)}>{data.user_name}</h2>
+                    <Dropdown>
+                        <Dropdown.Toggle className="detail"variant="dark">more action</Dropdown.Toggle>
+                        <Dropdown.Menu>
+                        <Dropdown.Item onClick={() => handleUpdateClick}>update</Dropdown.Item>
+                        <Dropdown.Item onClick={() => handleDeleteClick}>delete</Dropdown.Item>
+                        </Dropdown.Menu> 
+                    </Dropdown>
+                    </div>
+                    
+                : 
+                <div>
+                <Image src="../../images/logo2.png"  roundedCircle onClick={() => handleOtherPage(id)}
+                    style={{ height: 50, width: 50}} /><h2 className="user_name">{data.user_name}</h2>
+                </div>
+            }
+                <Card.Body  id="post">
+                    <Card.Title >{title}</Card.Title>
+                    <Card.Subtitle className="mb-2 text-muted">{overview}</Card.Subtitle>
+                    <Card.Text>
+                    {thought}
+                    </Card.Text>
+                    {ooo}
+                    <br></br>
+                    <Card.Link href={link}>
+                        {link}
+                    </Card.Link>
+                    <br></br>
+                </Card.Body>
+                <div>
+                {liked ? 
+                    <BsFillHeartFill className="heart" color="#e57373" size="30px"  onClick={() => handleClick}/>
+                    : 
+                    <OverlayTrigger overlay={<Tooltip id="tooltip-like">like!</Tooltip>}>
+                    <BsHeart className="heart" size="30px" onClick={() => handleClick}/>
+                    </OverlayTrigger>
+                    
+                }
+
+                <OverlayTrigger overlay={<Tooltip id="tooltip-reply">reply this post</Tooltip>}>
+                <BsFillReplyFill size="30px" className="reply" color="dimgray"/>
+                </OverlayTrigger>
+                </div>
+            </Card>
+            </div>
+            }
+        </div>
+        );
+} 
 
 export default withRouter(PostDetail);

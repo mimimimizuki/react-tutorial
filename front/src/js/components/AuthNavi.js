@@ -9,6 +9,7 @@ const AuthNavi = (props) =>  {
     const { register, handleSubmit, errors} = useForm();
     const onSubmit = (data) => {
         const result = new Array();
+        const Mes = new Array();
         console.log(data.tags)
         var tagArr = new Array();
         if (data.tags.includes(",")){
@@ -33,11 +34,17 @@ const AuthNavi = (props) =>  {
             else{
                 res.data.forEach(doc => {
                     result.push(doc)
+                    if (doc.UserId == 1){
+                        Mes.push(true);
+                    }
+                    else{
+                        Mes.push(false)
+                    }
                 });
                 console.log("authenticated")
                 return props.history.push({
                     pathname : "/results", 
-                    state: {result: result, authorized: true}
+                    state: {result: result, authorized: true, me: Mes}
                 })
             }
         }).catch(err => {

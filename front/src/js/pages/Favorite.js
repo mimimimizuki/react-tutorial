@@ -27,8 +27,8 @@ const Favorite = () => {
                 postList.push(<Posts key={doc.ID} title={doc.Title} overview={doc.Overview} link={doc.Link} thought={doc.Thought} tags={doc.Tags} id={doc.ID} me={flg} authorized={true}
                     />);
                 setPosts(postList);
-                setIsLoading(false);
             });
+            setIsLoading(false);
         }
         getPosts();
     },[]);

@@ -9,6 +9,7 @@ const Navi = (props) => {
     const { register, handleSubmit, errors} = useForm();
     const onSubmit = (data) => {
         const result = new Array();
+        const Mes = new Array();
         console.log(data.tags)
         var tagArr = new Array();
         if (data.tags.includes(",")){
@@ -33,12 +34,13 @@ const Navi = (props) => {
             }
             else{
                 res.data.forEach(doc => {
-                    result.push(doc)
+                    result.push(doc);
+                    Mes.push(false)
                 });
                 console.log("not authenticated")
                 return props.history.push({
                     pathname : "/result", 
-                    state: {result: result, authorized: false}
+                    state: {result: result, authorized: false, me: Mes}
                 })
             }
         }).catch(err => {

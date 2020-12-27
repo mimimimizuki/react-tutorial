@@ -22,15 +22,16 @@ const TimeLine = () => {
             res.data.forEach((doc) => {
                 console.log(doc)
                 if (doc.UserId == 1){
-                    postList.push(<Posts key={doc.ID} title={doc.Title} overview={doc.Overview} link={doc.Link} thought={doc.Thought} tags={doc.Tags} id={doc.ID} me={true} authorized={true}
-                        />);
+                    postList.push(<Posts key={doc.ID} title={doc.Title} overview={doc.Overview} link={doc.Link} thought={doc.Thought} tags={doc.Tags} id={doc.ID} me={true} authorized={true}/>)
+                    setPosts(postList);
                 } else {
                     postList.push(<Posts key={doc.ID} title={doc.Title} overview={doc.Overview} link={doc.Link} thought={doc.Thought} tags={doc.Tags} id={doc.ID} me={false} authorized={true}
                         />);
+                    setPosts(postList);
                 }
-                setPosts(postList);
-                setIsLoading(false);
+                
             });
+            setIsLoading(false);
         }
         getPosts();
     }, []);
