@@ -1,81 +1,99 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button, FormControl, Form } from "react-bootstrap";
 import { ChromePicker } from 'react-color';
 import axios from 'axios';
 import {Redirect} from 'react-router-dom';
-export default class Setting extends React.Component{
-    constructor(props) {
-        super(props);
-        this.state = {backgroundColor: {"h":250, "s":0, "l":1, "a":1 }, navColor: "black",  bio: "", name : "", flg : false} 
-    }
-    componentDidMount(e){
-        axios.get("http://localhost:5000/users/1").then(res => {
-            this.setState({ bio : res.data.BIO, name:res.data.DisplayName});
+import  { useAuth0 } from '@auth0/auth0-react';
+
+const Setting = () => {
+    const { getAccessTokenSlicely } = useAuth0();
+    const [backgroundColor, setBackColor ] = useState({"h":250, "s":0, "l":1, "a":1 });
+    const [navColor, setNavColor ] = useState("black");
+
+    const token = getAccessTokenSlicely();
+    const [bio, setBIO] = useState("");
+    const [name, setName ] = useState("");
+    const [ changeFlg, setFlg ] = useState(false);
+    useEffect(() => {
+        axios.get("http://localhost:5000/users/1", {
+            headers: {
+                Authorization : "Bearer " + token,
+            }
+        }).then(res => {
+            setBIO(res.data.BIO);
+            setName(res.data.DisplayName);
         });
-    }
-    handleChange(color){
+    })
+    const handleChange = (event) => {
+        switch (event.target.name) {
+            case 'bio':
+                setName(event.target.value);
+                break;
+            case 'name':
+                setBIO(event.target.value);
+                break;
+            default:
+                console.log('key not found');
+        }
+    };
+    const handleBackGroundChange = (color) => {
         const newColor = {
             "h":color.hsl.h, 
             "s":color.hsl.s,
             "l":color.hsl.l,
             "a":color.rgb.a
         }
-        this.setState({ backgroundColor: newColor});
+        setBackColor(newColor);
         document.body.style.backgroundColor = "rgb("+color.rgb.r+","+color.rgb.g+","+color.rgb.b+","+color.rgb.a + ")";
-        console.log(this.state.backgroundColor)
     }
-    handleNavChange(color) {
+    const handleNavChange = (color) => {
         const newColor = {
             "h":color.hsl.h, 
             "s":color.hsl.s,
             "l":color.hsl.l,
             "a":color.rgb.a
         }
-        this.setState({ navColor : newColor});
+        setNavColor(newColor);
         document.getElementById("navColor").style.backgroundColor = "rgb("+color.rgb.r+","+color.rgb.g+","+color.rgb.b+","+color.rgb.a + ")";
-        console.log(this.state.navColor);
     }
-    handleBIOChange(e) {
-        this.setState({ bio : e.target.value});
-    }
-    handleNameChange(e) {
-        this.setState({ name : e.target.value});
-    }
-    handleSubmit(e) {
-        e.preventDefault()
+    const handleSubmit = () => {
         const modify = {
-            "BIO" : this.state.bio,
-            "DisplayName" : this.state.name,
+            "BIO" : bio,
+            "DisplayName" : name,
         };
-        axios.put("http://localhost:5000/users/1", modify).then(res => {
+        axios.put("http://localhost:5000/users/1", modify, {
+            headers:{
+                Authorization : "Bearer : " + token,
+            }
+        }).then(res => {
             console.log(res);
-            this.setState({ flg : true})
+            setFlg(true);
         }).catch(err => {
             console.log(err);
         });
     }
-    render() {
-        return(
-            <div>
-            <h1 style={{textAlign:"center"}}>
-                change your bio
-            </h1>
-            <Form style={{textAlign:"center"}} onSubmit={this.handleSubmit.bind(this)} >
-                <FormControl type="text" onChange={this.handleBIOChange.bind(this)} value={this.state.bio} className="mr-sm-2" ></FormControl>
-                <FormControl type="text" onChange={this.handleNameChange.bind(this)} value={this.state.name} className="mr-sm-2" ></FormControl>
-                <Button variant="info" size="lg"　type="submit">
-                        change!
-                </Button>
-            </Form>
-            <h1 style={{textAlign:"center"}}>change back ground color </h1>
-            <ChromePicker color={ this.state.backgroundColor } style={{left:"50%"}}
-                                onChangeComplete={ this.handleChange.bind(this) }/>
-            <h1 style={{textAlign:"center"}}>change navbar back ground color </h1>
-            <ChromePicker color={this.state.navColor} style={{textAlign:"center"}}
-                                onChangeComplete={ this.handleNavChange.bind(this) }/>
-            {this.state.flg ? <Redirect to="/"/> : <></>}
-            </div>
-            
-        )
-    }
+    return(
+        <div>
+        <h1 style={{textAlign:"center"}}>
+            change your bio
+        </h1>
+        <Form style={{textAlign:"center"}} onSubmit={() => handleSubmit} >
+            <FormControl type="text" onChange={handleChange} value={bio} className="bio" ></FormControl>
+            <FormControl type="text" onChange={handleChange} value={name} className="name" ></FormControl>
+            <Button variant="info" size="lg"　type="submit">
+                    change!
+            </Button>
+        </Form>
+        <h1 style={{textAlign:"center"}}>change back ground color </h1>
+        <ChromePicker color={ backgroundColor } style={{left:"50%"}}
+                            onChangeComplete={handleBackGroundChange}/>
+        <h1 style={{textAlign:"center"}}>change navbar back ground color </h1>
+        <ChromePicker color={navColor} style={{textAlign:"center"}}
+                            onChangeComplete={ handleNavChange }/>
+        {changeFlg ? <Redirect to="/"/> : <></>}
+        </div>
+        
+    )
 }
+
+export default Setting

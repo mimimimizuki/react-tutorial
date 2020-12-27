@@ -7,12 +7,11 @@ import { useAuth0 } from "@auth0/auth0-react";
 const Posts = (props) => {
     const [liked, setLike] = useState(false);
     const [liked_id, setLikeId] = useState("");
-    const [me, setMe] = useState(false);
+    const [me, setMe] = useState(props.me);
     const {id} = props;
     const { getAccessTokenSilently } = useAuth0();
     const [ooo, setOOO] = useState("");
     useEffect(() => {
-        console.log("rendering posts")
         const getFav = async () => {
             const token = await getAccessTokenSilently();
             const res = await axios.get("http://localhost:5000/favorites/1", {
@@ -20,12 +19,14 @@ const Posts = (props) => {
                     Authorization: "Bearer " + token,
                 }
             });
-            res.data.forEach(doc => {
+            const ok = await res.data.forEach(doc => {
+                console.log(doc)
                 if (doc.ID == props.id){
                     setLike(true);
                     setLikeId(doc.ID)
                 }
             });
+            console.log(ok)
             if (props.me){
                 setMe(true);
             }

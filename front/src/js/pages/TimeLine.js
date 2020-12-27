@@ -11,9 +11,6 @@ export default class TimeLine extends React.Component{
     componentDidMount(e) {
         const postUrl = "http://localhost:5000/posts";
         axios.get(postUrl
-        //     , {headers: {
-        //     Authorization: `Bearer ${token}`,
-        // }}
         ).then((res) => {
             res.data.forEach(doc => {
                 var flg = false

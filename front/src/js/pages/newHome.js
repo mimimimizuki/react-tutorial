@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useForm } from 'react';
+import React, { useEffect, useState } from 'react';
 import MyInfo from '../components/MyInfo';
 import Posts from "../components/Posts";
 import YetPosts from "../components/YetPosts";
@@ -64,9 +64,6 @@ const newHome = () => {
             console.log(post+yetpost+getuse)
         }
         allset()
-        return () => {
-            window.removeEventListener('mousemove', () => {})
-        }
         
     }, []);
     
