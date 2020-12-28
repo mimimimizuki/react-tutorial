@@ -329,12 +329,12 @@ const newHome = () => {
                 <Form>
                     <Form.Group controlId="formTitile">
                         <Form.Label>その論文のタイトルは?</Form.Label>
-                        <Form.Control placeholder="Enter title" value={wantread_title} onChange={handleWantreadChange} style={{fontWeight:'bold'}}/>
+                        <Form.Control placeholder="Enter title" value={wantread_title} onChange={handleWantreadChange} style={{fontWeight:'bold'}} name="wantread_title" />
                     </Form.Group>
     
                     <Form.Group controlId="formLink">
                         <Form.Label>その論文のリンク</Form.Label>
-                        <Form.Control placeholder="http:///www.XXX" value={wantread_link} onChange={handleWantreadChange} />
+                        <Form.Control placeholder="http:///www.XXX" value={wantread_link} onChange={handleWantreadChange} name="wantread_link" />
                         <Form.Text className="text-muted">
                         正しいリンクを貼ってください
                         </Form.Text>

@@ -33,10 +33,10 @@ const Setting = () => {
     const handleChange = (event) => {
         switch (event.target.name) {
             case 'bio':
-                setName(event.target.value);
+                setBIO(event.target.value);
                 break;
             case 'name':
-                setBIO(event.target.value);
+                setName(event.target.value);
                 break;
             default:
                 console.log('key not found');
@@ -84,8 +84,8 @@ const Setting = () => {
             change your bio
         </h1>
         <Form style={{textAlign:"center"}} onSubmit={() => handleSubmit} >
-            <FormControl type="text" onChange={handleChange} value={bio} className="bio" ></FormControl>
-            <FormControl type="text" onChange={handleChange} value={name} className="name" ></FormControl>
+            <FormControl type="text" onChange={handleChange} value={bio} name="bio" ></FormControl>
+            <FormControl type="text" onChange={handleChange} value={name} name="name" ></FormControl>
             <Button variant="info" size="lg"　type="submit">
                     change!
             </Button>
