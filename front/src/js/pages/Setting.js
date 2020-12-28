@@ -6,23 +6,26 @@ import {Redirect} from 'react-router-dom';
 import  { useAuth0 } from '@auth0/auth0-react';
 
 const Setting = () => {
-    const { getAccessTokenSilently } = useAuth0();
+    const { getAccessTokenSilently, user } = useAuth0();
     const [backgroundColor, setBackColor ] = useState({"h":250, "s":0, "l":1, "a":1 });
     const [navColor, setNavColor ] = useState("black");
 
     const [bio, setBIO] = useState("");
     const [name, setName ] = useState("");
+    const [ user_id, setUserID] = useState("");
     const [ changeFlg, setFlg ] = useState(false);
     useEffect(() => {
         const getInfo = async () => {
             const token = await getAccessTokenSilently();
-            axios.get("http://localhost:5000/users/1", {
+            const Sub = await user.sub;
+            axios.get("http://localhost:5000/users/"+Sub+"/auth", {
                 headers: {
                     Authorization : "Bearer " + token,
                 }
             }).then(res => {
                 setBIO(res.data.BIO);
                 setName(res.data.DisplayName);
+                setUserID(res.data.ID);
             });   
         }
         getInfo();
@@ -64,7 +67,7 @@ const Setting = () => {
             "BIO" : bio,
             "DisplayName" : name,
         };
-        axios.put("http://localhost:5000/users/1", modify, {
+        axios.put("http://localhost:5000/users/"+user_id, modify, {
             headers:{
                 Authorization : "Bearer : " + token,
             }

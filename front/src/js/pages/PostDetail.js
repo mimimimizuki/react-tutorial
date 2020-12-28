@@ -9,7 +9,7 @@ const PostDetail = (props) => {
     const [ me, setMe ] = useState(false);
     const [ liked, setLike ] = useState(false);
     const [ like_id, setLikeID ] = useState("");
-    const { getAccessTokenSilently } = useAuth0();
+    const { getAccessTokenSilently, user } = useAuth0();
     const [ ooo, setOOO ] = useState("");
     const [ isLoading , setIsLoading ] = useState(false);
     const [title, setTitle] = useState("");
@@ -24,10 +24,9 @@ const PostDetail = (props) => {
             setOverview(res.data.Overview);
             setThought(res.data.Thought);
             setTags(res.data.Tags);
-            setData({user_id: res.data.UserId})
+            setData({user_id: res.data.UserId});
         }
-        const getData = async (post_id) => { // postを取得
-            setIsLoading(true)
+        const getData = async (post_id, user_id) => { // postを取得
             const token = await getAccessTokenSilently();
             const url = "http://localhost:5000/posts/"+post_id+"/detail";
             const res = await axios.get(url, {
@@ -36,30 +35,26 @@ const PostDetail = (props) => {
                 }
             })
             setInfo(res);
-            axios.get("http://localhost:5000/users/"+res.data.UserId, {
-                headers:{
-                    Authorization: "Bearer "+token
-                }
-            }).then(res => {
+            if (res.data.UserId == user_id){
+                setMe(true);
+            }
+            axios.get("http://localhost:5000/users/"+res.data.UserId).then(res => {
                 console.log(res);
                 setData({...data, user_name: res.data.DisplayName})
             }).catch(err => {
                 console.log(err)
             });
         }
-        const getFav = async (post_id) => { //そのpostがファボしたものかを確認する
+        const getFav = async (post_id, user_id) => { //そのpostがファボしたものかを確認する
             console.log(data)
             const token = await getAccessTokenSilently();
-            const getUrl = "http://localhost:5000/favorites/1";
+            const getUrl = "http://localhost:5000/favorites/"+user_id;
             axios.get(getUrl, {headers: {
                 Authorization: `Bearer ${token}`,
             }}).then((res) => {
                 res.data.forEach(doc => {
                     if (doc.ID == post_id){
                         setLike(true)
-                        if (doc.UserId == 1){
-                            setMe(true);
-                        }
                     }
                 });
             }).catch(err => {
@@ -69,8 +64,20 @@ const PostDetail = (props) => {
         }
         const query = new URLSearchParams(props.location.search);
         const post_id = query.get('id');
-        getData(post_id);
-        getFav(post_id);
+        const getSub = async (user) => {
+            const token = await getAccessTokenSilently();
+            setIsLoading(true);
+            const sub = await user.sub;
+            const res = await axios.get("http://localhost:5000/users/"+sub+"/auth", {
+                headers: {
+                    Authorization: "Bearer "+token,
+                }
+            });
+            getFav(post_id, res.data.ID);
+            getData(post_id, res.data.ID);
+            return res.ID
+        }
+        getSub(user);
         if (tags != null) {
             setOOO(tags.map((tag, i) => <p key={i} className="tags">#{tag}</p>));
         }
