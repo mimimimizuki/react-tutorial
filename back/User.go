@@ -5,6 +5,7 @@ type User struct {
 	DisplayName string
 	Birthday    string
 	Pass        string
+	BIO         string
 }
 
 var Users []User

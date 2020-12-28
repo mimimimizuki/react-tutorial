@@ -1,20 +1,38 @@
 import React from 'react';
-import Posts from '../components/Posts'
+import Posts from './../components/Posts'
 import { Card , Container} from "react-bootstrap";
-export default class TimeLine extends React.Component{
+import { withRouter } from 'react-router-dom';
+class Result extends React.Component{
+    constructor(props) {
+        super(props);
+        this.state = {
+            posts : [],
+            ids : [],
+        }
+    }
+    componentDidMount(e){
+        for (let i = 0; i < this.props.location.state.result.length; i++){
+            if (!this.state.ids.includes(this.props.location.state.result[i].ID)){
+                this.state.posts.push(
+                    <Posts key={this.props.location.state.result[i].ID} title={this.props.location.state.result[i].Title} overview={this.props.location.state.result[i].Overview}
+                    link={this.props.location.state.result[i].Link} thought={this.props.location.state.result[i].Thought} id={this.props.location.state.result[i].ID} tags={this.props.location.state.result[i].Tags} authorized={this.props.location.state.authorized} me={this.props.location.state.me[i]}/>
+                );
+                this.state.ids.push(this.props.location.state.result[i].ID);
+                this.setState({posts: this.state.posts, ids: this.state.ids});
+            }
+        }
+    }
     render() {
         return (
             <div>
-                検索結果
+                <h1 className="results">検索結果</h1>
                 <Container >
-                <Card.Header >
-                    <Posts title="a" overview="本物にはエントロピー大、偽物にはエントロピー小にする" link="http://www.aaa" thought="わからんかった、誰か知見ください"/>
-                    <Posts title="i" overview="SVMなどのマージン最大、最小化の理論をGANに応用したもの。" link="http://www.iii" thought="これは自分の研究にも応用できそう"/>
-                    <Posts title="u" overview="" link="http://www.uuu" thought="GANに３つ目の識別器を導入したのが新規性があると思った"/>
-                    <Posts title="e" overview="" link="http://www.eee" thought=""/>
-                </Card.Header>
+                    <div　className="results">
+                        {this.state.posts}
+                    </div>
                 </Container>
             </div>
         )
     }
 }
+export default withRouter(Result);

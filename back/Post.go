@@ -8,6 +8,7 @@ type Post struct {
 	Overview string
 	Link     string
 	Thought  string
+	Tags     []string
 }
 
 var Posts []Post

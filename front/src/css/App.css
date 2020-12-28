@@ -1,9 +1,71 @@
 .mypage {
-    text-align: center;
+  text-align: center;
 }
 .papers {
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center
+  text-align: center;
+  width: 100vw;
+}
+.timeline {
+  text-align: center;
+  margin: auto;
+  width: 50%;
+}
+.tags {
+  color: #7f1a1a;
+  display: inline;
+}
+.favorites {
+  text-align: center;
+  margin: auto;
+  width: 50%;
+}
+.results {
+  text-align: center;
+  margin: auto;
+  width: 50%;
+}
+.heart {
+  margin: 5px 10px 10px 10px;
+}
+.reply {
+  margin: 10px;
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+}
+#post {
+  position: relative;
+  top: -20px;
+}
+
+.otherUser {
+  position: relative;
+  top: -40px;
+  margin-bottom: 0px;
+}
+.navbar {
+  background-color: #4077bf;
+  font-size: large;
+  margin-bottom: 0px;
+}
+div.detail {
+  text-align: end;
+  display: inline;
+}
+.dropup .dropdown {
+  display: inline;
+}
+div.dropdown {
+  display: inline;
+  position: absolute;
+  right: 0%;
+}
+div.show.dropdown {
+  display: inline;
+}
+.show {
+  display: inline !important;
+}
+.user_name {
+  display: inline;
 }

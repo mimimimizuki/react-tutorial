@@ -9,54 +9,101 @@ type Route struct {
 	Method      string
 	Pattern     string
 	HandlerFunc http.HandlerFunc
+	Isprivate   bool
 }
 
 type Routes []Route
 
 var routes = Routes{
 	Route{
-		"GetPosts", "GET", "/posts", GetPosts,
+		"GetPosts", "GET", "/posts", GetPosts, false,
 	},
 	Route{
-		"GetPost", "GET", "/posts/{id}", GetPost,
+		"GetPost", "GET", "/posts/{id}", GetPost, true,
 	},
 	Route{
-		"AddPost", "POST", "/posts", AddPost,
+		"GetPostDetail", "GET", "/posts/{post_id}/detail", GetPostDetail, false,
 	},
 	Route{
-		"UpdatePost", "PUT", "/posts", UpdatePost,
+		"AddPost", "POST", "/posts", AddPost, true,
 	},
 	Route{
-		"RemovePost", "DELETE", "/posts/{id}", RemovePost,
+		"UpdatePost", "PUT", "/posts", UpdatePost, true,
 	},
 	Route{
-		"AddUser", "POST", "/users/", AddUser,
+		"RemovePost", "DELETE", "/posts/{id}", RemovePost, true,
 	},
 	Route{
-		"GetUsers", "GET", "/users/", GetUsers,
+		"AddUser", "POST", "/users", AddUser, false,
 	},
 	Route{
-		"GetUser", "GET", "/users/{id}", GetUser,
+		"GetUsers", "GET", "/users", GetUsers, false,
 	},
 	Route{
-		"UpdateUser", "PUT", "/users/{id}", UpdateUser,
+		"GetUser", "GET", "/users/{id}", GetUser, true,
 	},
 	Route{
-		"RemoveUser", "DELETE", "/users/{id}", RemoveUser,
+		"UpdateUser", "PUT", "/users/{id}", UpdateUser, true,
 	},
 	Route{
-		"GetWantReads", "GET", "/wantReads", GetWantReads,
+		"RemoveUser", "DELETE", "/users/{id}", RemoveUser, true,
 	},
 	Route{
-		"GetWantRead", "GET", "/wantReads/{id}", GetWantRead,
+		"GetWantReads", "GET", "/wantReads", GetWantReads, true,
 	},
 	Route{
-		"AddWantRead", "POST", "/wantReads", AddWantRead,
+		"GetWantRead", "GET", "/wantReads/{id}", GetWantRead, true,
 	},
 	Route{
-		"UpdateWantRead", "PUT", "/wantReads", UpdateWantRead,
+		"AddWantRead", "POST", "/wantReads", AddWantRead, true,
 	},
 	Route{
-		"RemoveWantRead", "DELETE", "/wantReads/{id}", RemoveWantRead,
+		"UpdateWantRead", "PUT", "/wantReads", UpdateWantRead, true,
+	},
+	Route{
+		"RemoveWantRead", "DELETE", "/wantReads/{id}", RemoveWantRead, true,
+	},
+	Route{
+		"AddFavorite", "POST", "/favorites", AddFavorite, true,
+	},
+	Route{
+		"GetFavorite", "GET", "/favorites/{id}", GetFavorite, true,
+	},
+	Route{
+		"RemoveFavorite", "DELETE", "/favorites/{id}", RemoveFavorite, true,
+	},
+	Route{
+		"GetSearchPost", "GET", "/search", GetSearchPost, false,
+	},
+	Route{
+		"OPTIONSFavorite", "OPTIONS", "/favorites", OPTIONSFavorite, true,
+	},
+	Route{
+		"OPTIONSUpdateUser", "OPTIONS", "/users/{id}", OPTIONSUpdateUser, true,
+	},
+	Route{
+		"OPTIONSUpdateDraft", "OPTIONS", "/drafts/{id}", OPTIONSUpdateDraft, true,
+	},
+	Route{
+		"OPTIONSRemoveDraft", "OPTIONS", "/drafts/{id}", OPTIONSRemoveDraft, true,
+	},
+	Route{
+		"OPTIONSRemovePost", "OPTIONS", "/posts/{id}", OPTIONSRemovePost, true,
+	},
+	Route{
+		"OPTIONSUpdatePost", "OPTIONS", "/posts", OPTIONSUpdatePost, true,
+	},
+	Route{
+		"OPTIONSGetPost", "OPTIONS", "/posts/{id}", OPTIONSGetPost, true,
+	},
+	Route{
+		"AddDraft", "POST", "/drafts", AddDraft, true,
+	},
+	Route{
+		"GetDraft", "GET", "/drafts/{id}", GetDraft, true,
+	}, Route{
+		"UpdateDraft", "PUT", "/drafts/{id}", UpdateDraft, true,
+	}, Route{
+		"RemoveDraft", "DELETE", "/drafts/{id}", RemoveDraft, true,
 	},
 }

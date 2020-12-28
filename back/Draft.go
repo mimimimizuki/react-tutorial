@@ -6,8 +6,8 @@ type Draft struct {
 	Title    string
 	Overview string
 	Link     string
-	PostDate string
 	Thought  string
+	Tags     []string
 }
 
 var Drafts []Draft
