@@ -40,7 +40,10 @@ var routes = Routes{
 		"GetUsers", "GET", "/users", GetUsers, false,
 	},
 	Route{
-		"GetUser", "GET", "/users/{id}", GetUser, true,
+		"GetUser", "GET", "/users/{id}/auth", GetUser, true,
+	},
+	Route{
+		"GetOtherUser", "GET", "/users/{id}", GetOtherUser, false,
 	},
 	Route{
 		"UpdateUser", "PUT", "/users/{id}", UpdateUser, true,
@@ -76,6 +79,18 @@ var routes = Routes{
 		"GetSearchPost", "GET", "/search", GetSearchPost, false,
 	},
 	Route{
+		"AddDraft", "POST", "/drafts", AddDraft, true,
+	},
+	Route{
+		"GetDraft", "GET", "/drafts/{id}", GetDraft, true,
+	},
+	Route{
+		"UpdateDraft", "PUT", "/drafts/{id}", UpdateDraft, true,
+	},
+	Route{
+		"RemoveDraft", "DELETE", "/drafts/{id}", RemoveDraft, true,
+	},
+	Route{
 		"OPTIONSFavorite", "OPTIONS", "/favorites", OPTIONSFavorite, true,
 	},
 	Route{
@@ -95,15 +110,5 @@ var routes = Routes{
 	},
 	Route{
 		"OPTIONSGetPost", "OPTIONS", "/posts/{id}", OPTIONSGetPost, true,
-	},
-	Route{
-		"AddDraft", "POST", "/drafts", AddDraft, true,
-	},
-	Route{
-		"GetDraft", "GET", "/drafts/{id}", GetDraft, true,
-	}, Route{
-		"UpdateDraft", "PUT", "/drafts/{id}", UpdateDraft, true,
-	}, Route{
-		"RemoveDraft", "DELETE", "/drafts/{id}", RemoveDraft, true,
 	},
 }

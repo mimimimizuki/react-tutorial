@@ -7,7 +7,6 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/lib/pq"
-	"golang.org/x/crypto/bcrypt"
 )
 
 // ============> Post
@@ -57,12 +56,8 @@ var AddUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	var userID int
 	log.Println("add user id called")
 	json.NewDecoder(r.Body).Decode(&user)
-	hash, err := bcrypt.GenerateFromPassword([]byte(user.Pass), 12)
-	if err != nil {
-		log.Fatal(err)
-	}
-	err1 := A.DB.QueryRow("INSERT INTO users (display_name, birthday, pass, bio) values ($1 , $2 , $3, $4) RETURNING user_id;",
-		user.DisplayName, user.Birthday, string(hash), user.BIO).Scan(&userID)
+	err1 := A.DB.QueryRow("INSERT INTO users (display_name, auth_id, bio) values ($1 , $2 , $3) RETURNING user_id;",
+		user.DisplayName, user.AuthID, user.BIO).Scan(&userID)
 	if err1 != nil {
 		log.Fatal(err1)
 	}
@@ -80,7 +75,7 @@ var GetUsers = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		err := rows.Scan(&user.ID, &user.DisplayName, &user.Birthday, &user.Pass, &user.BIO)
+		err := rows.Scan(&user.ID, &user.DisplayName, &user.AuthID, &user.BIO)
 		if err != nil {
 			log.Println(err)
 		}
@@ -92,14 +87,14 @@ var GetUsers = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(Users)
 })
 
-// GetUser is to get one user infomation about diaplayname or bio ...
-var GetUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+// GetOtherUser is to get Other user infomation about diaplayname or bio ...
+var GetOtherUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	log.Println("Get user")
 	var user User
 	params := mux.Vars(r)
 	log.Println(params["id"])
 	rows := A.DB.QueryRow("select * from users where user_id = $1;", params["id"])
-	err := rows.Scan(&user.ID, &user.DisplayName, &user.Birthday, &user.Pass, &user.BIO)
+	err := rows.Scan(&user.ID, &user.DisplayName, &user.BIO, &user.AuthID)
 	if err != nil {
 		log.Println(err)
 	}
@@ -160,15 +155,3 @@ var GetSearchPost = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request
 	}
 	json.NewEncoder(w).Encode(Posts)
 })
-
-// func passwordVerify(hash, pw string) error {
-// 	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(pw))
-// }
-
-// err := passwordVerify(hash, "入力されたパスワード")
-// if err != nil {
-//     panic(err)
-// }
-
-// println("認証しました")
-//https://tool-taro.com/hash/ SHA1 mizuki

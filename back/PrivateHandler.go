@@ -88,6 +88,20 @@ var RemovePost = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(rowsDeleted)
 })
 
+// GetUser is to get my infomation about diaplayname or bio ...
+var GetUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	log.Println("Get user")
+	var user User
+	params := mux.Vars(r)
+	log.Println(params["id"])
+	rows := A.DB.QueryRow("select * from users where auth_id = $1;", params["id"])
+	err := rows.Scan(&user.ID, &user.DisplayName, &user.BIO, &user.AuthID)
+	if err != nil {
+		log.Println(err)
+	}
+	json.NewEncoder(w).Encode(&user)
+})
+
 // UpdateUser is to update user infomation
 var UpdateUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	var user User
