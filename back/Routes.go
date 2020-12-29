@@ -46,7 +46,7 @@ var routes = Routes{
 		"GetOtherUser", "GET", "/users/{id}", GetOtherUser, false,
 	},
 	Route{
-		"UpdateUser", "PUT", "/users/{id}", UpdateUser, true,
+		"UpdateUser", "PUT", "/users/{id}/update", UpdateUser, true,
 	},
 	Route{
 		"RemoveUser", "DELETE", "/users/{id}", RemoveUser, true,
@@ -94,7 +94,7 @@ var routes = Routes{
 		"OPTIONSFavorite", "OPTIONS", "/favorites", OPTIONSFavorite, true,
 	},
 	Route{
-		"OPTIONSUpdateUser", "OPTIONS", "/users/{id}", OPTIONSUpdateUser, true,
+		"OPTIONSUpdateUser", "OPTIONS", "/users/{id}/update", OPTIONSUpdateUser, true,
 	},
 	Route{
 		"OPTIONSUpdateDraft", "OPTIONS", "/drafts/{id}", OPTIONSUpdateDraft, true,

@@ -12,13 +12,6 @@ const newHome = () => {
     const [postList, setPosts] = useState([]);
     const [yetPostList, setYetPosts] = useState([]);
     const [userInfo, setUser] = useState({DisplayName: "", BIO:"", ID: ""});
-    const [title, setTitle] = useState("");
-    const [overview, setOverview] = useState("");
-    const [link, setLink] = useState("");
-    const [thought, setThought] = useState("");
-    const [tags, setTags] = useState("");
-    const [wantread_title, setWantreadTitle] = useState("");
-    const [wantread_link, setWantreadLink] = useState("");
     const [ isLoading, setIsLoading] = useState(false);
     const [ draft_id, setDraftID] = useState("");
     const [ draft_click, setDraftClick ] = useState(false);
@@ -74,13 +67,15 @@ const newHome = () => {
         allset();
     }, []);
     
-    const wantonSubmit = async (data) => {
+    const wantonSubmit = async () => {
         const token = await getAccessTokenSilently();
         const submitUrl = "http://localhost:5000/wantReads";
         var params = new URLSearchParams();
-        params.append("UserId", data.ID);
-        params.append("Title", data.wantread_title);
-        params.append("Link", data.wantread_link);
+        params.append("UserId", userInfo.ID);
+        const wantread_title = await document.getElementsByClassName("wantread_title")[0].value;
+        const wantread_link = await document.getElementsByClassName("wantread_link")[0].value;
+        params.append("Title", wantread_title);
+        params.append("Link", wantread_link);
         axios.post(submitUrl, params, {headers: {
             Authorization: `Bearer ${token}`,
         }}).then((res) => {
@@ -91,43 +86,17 @@ const newHome = () => {
         setWantReadShow(false);
     }
 
-    const handleChange = (event) => {
-        switch (event.target.name) {
-            case 'title':
-                setTitle(...title, event.target.value);
-                break;
-            case 'overview':
-                setOverview(event.target.value);
-                break;
-            case 'link':
-                setLink(event.target.value);
-                break;
-            case 'thought':
-                setThought(event.target.value);
-                break;
-            case 'tags':
-                setTags(event.target.value);
-            default:
-                console.log('key not found');
-        }
-    };
-    const handleWantreadChange = (event) => {
-        switch (event.target.name) {
-            case 'wantread_title':
-                setWantreadTitle(event.target.value)
-                break;
-            case 'wantread_link':
-                setWantreadLink(event.target.value)
-                break;
-            default:
-                console.log('key not found');
-        }
-    }
-    const onSubmit = () => {
+    const onSubmit = async () => {
+        const token = await getAccessTokenSilently();
         const submitUrl = "http://localhost:5000/posts";
         const time = new Date();
         var params = new URLSearchParams();
-        params.append("UserId", data.ID);
+        const title = await document.getElementsByName("title")[0];
+        const overview = await document.getElementsByName("overview")[0];
+        const link = await document.getElementsByName("link")[0];
+        const thought = await document.getElementsByName("thought")[0];
+        const tags = await document.getElementsByName("tags")[0];
+        params.append("UserId", userInfo.ID);
         params.append("PostDate", time.getFullYear() + '-' + (time.getMonth()+1) + '-' + time.getDate());
         params.append("Title", title);
         params.append("Overview", overview);
@@ -139,8 +108,12 @@ const newHome = () => {
         }
         else{
             if (draft_click){
-                var delete_draft = confirm("下書きを削除しますか?");
-                axios.post(submitUrl, params)
+                var delete_draft = await confirm("下書きを削除しますか?");
+                axios.post(submitUrl, params, {
+                    headers : {
+                        Authorization : "Bearer " + token,
+                    }
+                })
                 .then( (response) => {
                     console.log(response);
                   })
@@ -162,7 +135,7 @@ const newHome = () => {
         setShow(false);
     }
 
-    const handleSeeDrafts = async () => {
+    const handleSeeDrafts = async (e) => {
         const token = await getAccessTokenSilently();
         axios.get("http://localhost:5000/drafts/"+userInfo.ID, {
             headers: {
@@ -175,23 +148,29 @@ const newHome = () => {
                     tagArr.push("#"+tag);
                 });
                 console.log(tagArr);
-                setTags(tagArr)
             }
-            setTitle(res.data.Title);
-            setOverview(res.data.Overview);
-            setLink(res.data.Link);
-            setThought(res.data.Thought);
-            setTags(tagArr);
             setDraftID(res.data.ID);
             setDraftClick(true);
+            document.getElementsByName("title")[0].value = res.data.Title;
+            document.getElementsByName("overview")[0].value = res.data.Overview;
+            document.getElementsByName("link")[0].value = res.data.Link;
+            document.getElementsByName("thought")[0].value = res.data.Thought;
+            document.getElementsByName("tags")[0].value = tagArr;
+            console.log("setted"+document.getElementsByName("tags")[0].value)
+            alert(document.getElementsByName("tags")[0].value)
         }).catch(err => {
             console.log(err)
         });
-
+        e.preventDefault();
     }
-    const draftonSubmit = (data) => {
+    const draftonSubmit = async () => {
         const submitUrl = "http://localhost:5000/drafts";
         var params = new URLSearchParams();
+        const title = await document.getElementsByName("title")[0];
+        const overview = await document.getElementsByName("overview")[0];
+        const link = await document.getElementsByName("link")[0];
+        const thought = await document.getElementsByName("thought")[0];
+        const tags = await document.getElementsByName("tags")[0];
         if (tags != ""){
             var tagArr = new Array();
             if (tags.includes(",")){
@@ -274,27 +253,27 @@ const newHome = () => {
                 <Form>
                     <Form.Group controlId="formTitile">
                         <Form.Label>その論文のタイトルは?</Form.Label>
-                        <Form.Control placeholder="Enter title" onChange={handleChange} value={title} name="title" />
+                        <Form.Control placeholder="Enter title" name="title" />
                     </Form.Group>
     
                     <Form.Group controlId="formOverview">
                         <Form.Label>どんな内容でしたか?</Form.Label>
-                        <Form.Control placeholder="overview" onChange={handleChange} value={overview} name="overview" />
+                        <Form.Control placeholder="overview" name="overview" />
                     </Form.Group>
                     <Form.Group controlId="formLink">
                         <Form.Label>その論文のリンク</Form.Label>
-                        <Form.Control placeholder="http:///www.XXX" onChange={handleChange} value={link} name="link" />
+                        <Form.Control placeholder="http:///www.XXX" name="link" />
                         <Form.Text className="text-muted">
                         正しいリンクを貼ってください
                         </Form.Text>
                     </Form.Group>
                     <Form.Group controlId="formthought">
                         <Form.Label>読んだ感想</Form.Label>
-                        <Form.Control placeholder="すごく難しかった。何ページ目がわからなかったので誰か教えて" onChange={handleChange} value={thought} name="thought" />
+                        <Form.Control placeholder="すごく難しかった。何ページ目がわからなかったので誰か教えて" name="thought" />
                     </Form.Group>
                     <Form.Group controlId="formTab">
                         <Form.Label>タグの追加</Form.Label>
-                        <Form.Control placeholder="#有機化学, #古典力学, #音声認識のように#をつけて最後はカンマで区切る" onChange={handleChange} value={tags} name="tags" />
+                        <Form.Control placeholder="#有機化学, #古典力学, #音声認識のように#をつけて最後はカンマで区切る" name="tags" />
                     </Form.Group>
                     <Button variant="secondary" onClick={() => setShow(false)}>
                         Close
@@ -329,12 +308,12 @@ const newHome = () => {
                 <Form>
                     <Form.Group controlId="formTitile">
                         <Form.Label>その論文のタイトルは?</Form.Label>
-                        <Form.Control placeholder="Enter title" value={wantread_title} onChange={handleWantreadChange} style={{fontWeight:'bold'}} name="wantread_title" />
+                        <Form.Control placeholder="Enter title" className="wantread_title" name="wantread_title" />
                     </Form.Group>
     
                     <Form.Group controlId="formLink">
                         <Form.Label>その論文のリンク</Form.Label>
-                        <Form.Control placeholder="http:///www.XXX" value={wantread_link} onChange={handleWantreadChange} name="wantread_link" />
+                        <Form.Control placeholder="http:///www.XXX" className="wantread_link" name="wantread_link" />
                         <Form.Text className="text-muted">
                         正しいリンクを貼ってください
                         </Form.Text>
