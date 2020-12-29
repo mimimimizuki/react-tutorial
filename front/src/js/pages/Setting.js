@@ -4,12 +4,13 @@ import { ChromePicker } from 'react-color';
 import axios from 'axios';
 import {Redirect} from 'react-router-dom';
 import  { useAuth0 } from '@auth0/auth0-react';
+import { useForm } from "react-hook-form";
 
 const Setting = () => {
     const { getAccessTokenSilently, user } = useAuth0();
     const [backgroundColor, setBackColor ] = useState({"h":250, "s":0, "l":1, "a":1 });
     const [navColor, setNavColor ] = useState("black");
-
+    const {register, handleSubmit} = useForm();
     const [bio, setBIO] = useState("");
     const [name, setName ] = useState("");
     const [ user_id, setUserID] = useState("");
@@ -30,18 +31,6 @@ const Setting = () => {
         }
         getInfo();
     })
-    const handleChange = (event) => {
-        switch (event.target.name) {
-            case 'bio':
-                setBIO(event.target.value);
-                break;
-            case 'name':
-                setName(event.target.value);
-                break;
-            default:
-                console.log('key not found');
-        }
-    };
     const handleBackGroundChange = (color) => {
         const newColor = {
             "h":color.hsl.h, 
@@ -62,10 +51,10 @@ const Setting = () => {
         setNavColor(newColor);
         document.getElementById("navColor").style.backgroundColor = "rgb("+color.rgb.r+","+color.rgb.g+","+color.rgb.b+","+color.rgb.a + ")";
     }
-    const handleSubmit = () => {
+    const onSubmit = (data) => {
         const modify = {
-            "BIO" : bio,
-            "DisplayName" : name,
+            "BIO" : data.bio,
+            "DisplayName" : data.name,
         };
         axios.put("http://localhost:5000/users/"+user_id, modify, {
             headers:{
@@ -83,9 +72,9 @@ const Setting = () => {
         <h1 style={{textAlign:"center"}}>
             change your bio
         </h1>
-        <Form style={{textAlign:"center"}} onSubmit={() => handleSubmit} >
-            <FormControl type="text" onChange={handleChange} value={bio} name="bio" ></FormControl>
-            <FormControl type="text" onChange={handleChange} value={name} name="name" ></FormControl>
+        <Form style={{textAlign:"center"}} onSubmit={handleSubmit(onSubmit)} >
+            <FormControl type="text" value={bio} name="bio" ref={register} ></FormControl>
+            <FormControl type="text" value={name} name="name" ref={register} ></FormControl>
             <Button variant="info" size="lg"　type="submit">
                     change!
             </Button>
