@@ -25,6 +25,7 @@ func main() {
 	})
 	// router.Use(forCORS)
 	log.Println("listen sever .......")
+	// log.Fatal(http.ListenAndServe(":5000", router))
 	log.Fatal(http.ListenAndServe(":5000", corsWrapper.Handler(router)))
 }
 
@@ -33,7 +34,7 @@ func forCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
-			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+			w.Header().Set("Access-Control-Allow-Headers", "*")
 			w.Header().Set("Access-Control-Allow-Methods", "OPTIONS,PUT,GET,DELETE,OPTIONS, POST")
 			w.Header().Set("Access-Control-Max-Age", "100000")
 			w.Header().Set("Access-Control-Allow-Credentials", "true")

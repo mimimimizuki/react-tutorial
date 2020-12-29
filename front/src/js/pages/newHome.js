@@ -84,6 +84,7 @@ const newHome = () => {
             console.log(err);
         });
         setWantReadShow(false);
+        location.reload();
     }
 
     const onSubmit = async () => {

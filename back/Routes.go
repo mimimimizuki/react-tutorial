@@ -31,7 +31,7 @@ var routes = Routes{
 		"UpdatePost", "PUT", "/posts", UpdatePost, true,
 	},
 	Route{
-		"RemovePost", "DELETE", "/posts/{id}", RemovePost, true,
+		"RemovePost", "DELETE", "/posts/{id}/remove", RemovePost, true,
 	},
 	Route{
 		"AddUser", "POST", "/users", AddUser, false,
@@ -64,7 +64,7 @@ var routes = Routes{
 		"UpdateWantRead", "PUT", "/wantReads", UpdateWantRead, true,
 	},
 	Route{
-		"RemoveWantRead", "DELETE", "/wantReads/{id}", RemoveWantRead, true,
+		"RemoveWantRead", "DELETE", "/wantReads/{id}/remove", RemoveWantRead, true,
 	},
 	Route{
 		"AddFavorite", "POST", "/favorites", AddFavorite, true,
@@ -104,6 +104,9 @@ var routes = Routes{
 	},
 	Route{
 		"OPTIONSRemovePost", "OPTIONS", "/posts/{id}", OPTIONSRemovePost, true,
+	},
+	Route{
+		"OPTIONSRemoveWantRead", "OPTIONS", "/posts/{id}", OPTIONSRemoveWantRead, true,
 	},
 	Route{
 		"OPTIONSUpdatePost", "OPTIONS", "/posts", OPTIONSUpdatePost, true,

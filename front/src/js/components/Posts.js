@@ -10,13 +10,20 @@ const Posts = (props) => {
     const [me, setMe] = useState(props.me);
     const {id} = props;
     const [isLoading, setIsLoading] = useState(false);
-    const { getAccessTokenSilently } = useAuth0();
+    const { getAccessTokenSilently, user } = useAuth0();
     const [ooo, setOOO] = useState("");
     useEffect(() => {
         const getFav = async () => {
             setIsLoading(true);
             const token = await getAccessTokenSilently();
-            const res = await axios.get("http://localhost:5000/favorites/1", {
+            const Sub = await user.sub;
+            const subRes = await axios.get("http://localhost:5000/users/"+Sub+"/auth", {
+                headers: {
+                    Authorization : "Bearer "+token,
+                }
+            })
+            const user_id = subRes.data.ID;
+            const res = await axios.get("http://localhost:5000/favorites/"+user_id, {
                 headers: {
                     Authorization: "Bearer " + token,
                 }

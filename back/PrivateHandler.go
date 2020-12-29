@@ -194,7 +194,7 @@ var UpdateWantRead = http.HandlerFunc(func(w http.ResponseWriter, r *http.Reques
 var RemoveWantRead = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	log.Println("delete wantread is called")
 	params := mux.Vars(r)
-	result, err := A.DB.Exec("DELETE FROM wantreads WHERE wantread_id = $1", params["id"])
+	result, err := A.DB.Exec("DELETE FROM wantreads WHERE want_id = $1", params["id"])
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -287,6 +287,10 @@ var OPTIONSRemoveDraft = http.HandlerFunc(func(w http.ResponseWriter, r *http.Re
 
 // OPTIONSRemovePost is preflight process
 var OPTIONSRemovePost = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+})
+
+var OPTIONSRemoveWantRead = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 })
 

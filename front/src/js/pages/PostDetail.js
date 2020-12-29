@@ -4,6 +4,7 @@ import { withRouter } from 'react-router-dom';
 import { Card, Image ,OverlayTrigger, Tooltip, Dropdown} from "react-bootstrap";
 import { BsFillReplyFill, BsFillHeartFill, BsHeart } from "react-icons/bs";
 import { useAuth0 } from "@auth0/auth0-react";
+import { PhotoshopPicker } from "react-color";
 const PostDetail = (props) => {
     const [ data, setData ] = useState({user_name:"", user_id:""})
     const [ me, setMe ] = useState(false);
@@ -136,7 +137,7 @@ const PostDetail = (props) => {
     }
     const handleDeleteClick = async () => {
         const token = await getAccessTokenSilently();
-        axios.delete("http://localhost:5000/posts/"+post_id, {
+        axios.delete("http://localhost:5000/posts/"+post_id+"/remove", {
             headers: {
                 Authorization: "Bearer "+token,
             }
@@ -145,6 +146,7 @@ const PostDetail = (props) => {
         }).catch(err => {
             console.log(err);
         });
+        props.history.push("/");
     }
     const handleOtherPage = (id) => {
         if (me){

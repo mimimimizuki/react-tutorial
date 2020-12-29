@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, Dropdown, Modal, Button, Form } from "react-bootstrap";
 import { useAuth0 } from '@auth0/auth0-react';
-
+import axios from 'axios';
 const YetPosts = (props) => {
     const [show, setShow] = useState(false);
     const [title, setTitle] = useState(props.title);
@@ -12,12 +12,12 @@ const YetPosts = (props) => {
     const { getAccessTokenSilently } = useAuth0();
     const handleDeleteClick = async () => {
         const token = await getAccessTokenSilently();
-        const res = await axios.delete("http://localhost:5000/wantreads/"+props.id, { headers : {
+        const res = await axios.delete("http://localhost:5000/wantReads/"+props.id+"/remove", { headers : {
                 Authorization : "Bearer "+token, 
             }
         });
         console.log(res);
-
+        location.reload();
     }
     const handleUpdateClick = async () => {
         const token = await getAccessTokenSilently();
@@ -31,7 +31,7 @@ const YetPosts = (props) => {
             Authorization: "Bearer "+token,
         }});
         console.log(res);
-        const deleteRes = await axios.delete("http://localhost:5000/wantreads/"+props.id, { headers : {
+        const deleteRes = await axios.delete("http://localhost:5000/wantReads/"+props.id, { headers : {
             Authorization : "Bearer "+token, 
         }
         });
@@ -192,7 +192,7 @@ const YetPosts = (props) => {
                 <Dropdown.Toggle className="detail"variant="secondary">more action</Dropdown.Toggle>
                 <Dropdown.Menu>
                 <Dropdown.Item onClick={() => setShow(true)}>読んだ！</Dropdown.Item>
-                <Dropdown.Item onClick={() => handleDeleteClick}>もう読まない</Dropdown.Item>
+                <Dropdown.Item onClick={handleDeleteClick}>もう読まない</Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>
             <Card.Body>
