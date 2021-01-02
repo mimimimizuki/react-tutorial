@@ -32,16 +32,7 @@ const Setting = () => {
         getInfo();
     }, [])
     const handleChange = (event) => {
-        switch (event.target.name) {
-            case 'bio':
-                setBIO(event.target.value);
-                break;
-            case 'name':
-                setName(event.target.value);
-                break;
-            default:
-                console.log('key not found');
-        }
+        document.getElementsByName(event.target.name)[0].value = event.target.value;
     };
     const handleBackGroundChange = (color) => {
         const newColor = {
@@ -66,13 +57,13 @@ const Setting = () => {
     const onSubmit = async () => {
         const token = await getAccessTokenSilently();
         const modify = {
-            "BIO" : bio,
-            "DisplayName" : name,
+            "BIO" : document.getElementsByName("bio")[0].value,
+            "DisplayName" : document.getElementsByName("name")[0].value,
         };
         axios.put("http://localhost:5000/users/"+user_id+"/update", modify, {
             headers:{
-                Authorization : "Bearer : " + token,
-            }
+                Authorization : `Bearer ${token}`,
+            },
         }).then(res => {
             console.log(res);
             setFlg(true);
@@ -86,8 +77,8 @@ const Setting = () => {
             change your bio
         </h1>
         <Form style={{textAlign:"center"}} onSubmit={handleSubmit(onSubmit)} >
-            <FormControl type="text" onChange={handleChange} value={bio} name="bio" ref={register()} ></FormControl>
-            <FormControl type="text" onChange={handleChange} value={name} name="name" ref={register()} ></FormControl>
+            <FormControl type="text" onChange={handleChange} defaultValue={bio} name="bio" ref={register()} ></FormControl>
+            <FormControl type="text" onChange={handleChange} defaultValue={name} name="name" ref={register()} ></FormControl>
             <Button variant="info" size="lg"　type="submit">
                     change!
             </Button>

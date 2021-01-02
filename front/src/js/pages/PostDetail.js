@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from "react";
 import axios from 'axios';
 import { withRouter } from 'react-router-dom';
-import { Card, Image ,OverlayTrigger, Tooltip, Dropdown} from "react-bootstrap";
+import { Card, Image ,OverlayTrigger, Tooltip, Dropdown, Modal, Form, Button} from "react-bootstrap";
 import { BsFillReplyFill, BsFillHeartFill, BsHeart } from "react-icons/bs";
 import { useAuth0 } from "@auth0/auth0-react";
-import { PhotoshopPicker } from "react-color";
 const PostDetail = (props) => {
-    const [ data, setData ] = useState({user_name:"", user_id:""})
+    const [ user_name, setName ] = useState("");
+    const [user_id, setUserID] = useState("");
+    const [post_id, setPostID] = useState("");
     const [ me, setMe ] = useState(false);
     const [ liked, setLike ] = useState(false);
     const [ like_id, setLikeID ] = useState("");
+    const [ show, setShow ] = useState(false);
     const { getAccessTokenSilently, user } = useAuth0();
     const [ ooo, setOOO ] = useState("");
     const [ isLoading , setIsLoading ] = useState(false);
@@ -25,9 +27,10 @@ const PostDetail = (props) => {
             setOverview(res.data.Overview);
             setThought(res.data.Thought);
             setTags(res.data.Tags);
-            setData({user_id: res.data.UserId});
+            setUserID(res.data.UserId);
         }
         const getData = async (post_id, user_id) => { // postを取得
+            setPostID(post_id);
             const token = await getAccessTokenSilently();
             const url = "http://localhost:5000/posts/"+post_id+"/detail";
             const res = await axios.get(url, {
@@ -41,13 +44,12 @@ const PostDetail = (props) => {
             }
             axios.get("http://localhost:5000/users/"+res.data.UserId).then(res => {
                 console.log(res);
-                setData({...data, user_name: res.data.DisplayName})
+                setName(res.data.DisplayName);
             }).catch(err => {
                 console.log(err)
             });
         }
         const getFav = async (post_id, user_id) => { //そのpostがファボしたものかを確認する
-            console.log(data)
             const token = await getAccessTokenSilently();
             const getUrl = "http://localhost:5000/favorites/"+user_id;
             axios.get(getUrl, {headers: {
@@ -88,7 +90,6 @@ const PostDetail = (props) => {
     const handleClick = async () => {
         const token = await getTokenSilently();
         if (!liked){ // add favorite 
-            var params = new URLSearchParams();
             params.append("PostId", post_id);
             params.append("UserId", 1);
             axios.post("http://localhost:5000/favorites", params, {headers: {
@@ -107,7 +108,7 @@ const PostDetail = (props) => {
                 headers: {
                     'Content-Type': 'application/json; charset=UTF-8',
                     'Authorization': `Bearer ${token}`,
-                  }
+            }
             }).then(response => {
                 console.log(response);
             }).catch(err => {
@@ -117,24 +118,32 @@ const PostDetail = (props) => {
         }
     }
     const handleUpdateClick = async () => {
+        const time = new Date();
         const token = await getAccessTokenSilently();
-        axios.put("http://localhost:5000/posts",{
-            "PostId": data.post_id, 
-            "Title" : data.title, 
-            "Overview": data.overview,
-            "Link": data.link,
-            "Thought" : data.thought,
-            "Tags" : data.tags,
+        axios.post("http://localhost:5000/posts/"+post_id,{
+            "PostId": post_id, 
+            "Title" : title, 
+            "PostDate" : time.getFullYear() + '-' + (time.getMonth()+1) + '-' + time.getDate(),
+            "Overview": overview,
+            "Link": link,
+            "Thought" : thought,
+            "Tags" : tags,
         }, {
             headers: {
-                Authorization: "Bearer "+token,
+                Authorization: `Bearer ${token}`,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-HTTP-Method-Override': 'PUT',
             }
         }).then(res => {
             console.log(res);
         }).catch(err => {
-            console.log(err);
+            alert(err);
         });
+        setShow(false);
     }
+
+
     const handleDeleteClick = async () => {
         const token = await getAccessTokenSilently();
         axios.delete("http://localhost:5000/posts/"+post_id+"/remove", {
@@ -156,19 +165,76 @@ const PostDetail = (props) => {
             props.history.push("/user?id="+id);
         }
     }
+
+    const UpdateModal = (props) => {
+        const handleChange= (e) => {
+            document.getElementsByName(e.target.name)[0].value = e.target.value;
+        }
+        return (
+            <Modal  {...props} style={{opacity:1}}
+                size="lg"
+                aria-labelledby="contained-modal-title-vcenter"
+                centered>
+            <Modal.Header >
+            <Modal.Title>読んだ論文について説明しましょう</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <div>
+                <Form>
+                    <Form.Group controlId="formTitile">
+                        <Form.Label>その論文のタイトルは?</Form.Label>
+                        <Form.Control placeholder="Enter title" name="title" type="text" defaultValue={title} onChange={handleChange} />
+                    </Form.Group>
+    
+                    <Form.Group controlId="formOverview">
+                        <Form.Label>どんな内容でしたか?</Form.Label>
+                        <Form.Control placeholder="overview" name="overview" defaultValue={overview} onChange={handleChange} />
+                    </Form.Group>
+                    <Form.Group controlId="formLink">
+                        <Form.Label>その論文のリンク</Form.Label>
+                        <Form.Control placeholder="http:///www.XXX" name="link" defaultValue={link} onChange={handleChange} />
+                        <Form.Text className="text-muted">
+                        正しいリンクを貼ってください
+                        </Form.Text>
+                    </Form.Group>
+                    <Form.Group controlId="formthought">
+                        <Form.Label>読んだ感想</Form.Label>
+                        <Form.Control placeholder="すごく難しかった。何ページ目がわからなかったので誰か教えて" name="thought" defaultValue={thought} onChange={handleChange} />
+                    </Form.Group>
+                    <Form.Group controlId="formTab">
+                        <Form.Label>タグの追加</Form.Label>
+                        <Form.Control placeholder="#有機化学, #古典力学, #音声認識のように#をつけて最後はカンマで区切る" name="tags" defaultValue={tags} onChange={handleChange} />
+                    </Form.Group>
+                    <Button variant="secondary" onClick={() => setShow(false)}>
+                        Close
+                    </Button>
+    
+                </Form>
+                </div>
+            </Modal.Body>
+            <Modal.Footer>
+            <Button variant="success" type="submit" onClick={handleUpdateClick}>
+                        Update
+            </Button>
+            </Modal.Footer>
+        </Modal>
+        )
+    }
     return (
         <div>
             {isLoading ? <>loading...</>:
             <div>
+                {me ? <UpdateModal show={show} onHide={() => setShow(false)} /> : <></>}
+                
             <Card >
             {me ? 
                     <div>
-                    <Image src="../../images/logo.png"  roundedCircle onClick={() => handleOtherPage(data.user_id)}
-                        style={{ height: 50, width: 50}} /><h2 className="user_name" onClick={() => handleOtherPage(data.user_id)}>{data.user_name}</h2>
+                    <Image src="../../images/logo.png"  roundedCircle onClick={() => handleOtherPage(user_id)}
+                        style={{ height: 50, width: 50}} /><h2 className="user_name" onClick={() => handleOtherPage(user_id)}>{user_name}</h2>
                     <Dropdown>
                         <Dropdown.Toggle className="detail"variant="dark">more action</Dropdown.Toggle>
                         <Dropdown.Menu>
-                        <Dropdown.Item onClick={() => handleUpdateClick}>update</Dropdown.Item>
+                        <Dropdown.Item onClick={() => setShow(true)}>update</Dropdown.Item>
                         <Dropdown.Item onClick={() => handleDeleteClick}>delete</Dropdown.Item>
                         </Dropdown.Menu> 
                     </Dropdown>
@@ -177,7 +243,7 @@ const PostDetail = (props) => {
                 : 
                 <div>
                 <Image src="../../images/logo2.png"  roundedCircle onClick={() => handleOtherPage(id)}
-                    style={{ height: 50, width: 50}} /><h2 className="user_name">{data.user_name}</h2>
+                    style={{ height: 50, width: 50}} /><h2 className="user_name">{user_name}</h2>
                 </div>
             }
                 <Card.Body  id="post">

@@ -117,10 +117,10 @@ const newHome = () => {
                 })
                 .then( (response) => {
                     console.log(response);
-                  })
-                  .catch( (error) => {
+                })
+                .catch( (error) => {
                     console.log(error);
-                  });
+                });
                 if (delete_draft){
                     axios.delete("http://localhost:5000/drafts/"+draft_id, {headers: {
                         Authorization: `Bearer ${token}`,

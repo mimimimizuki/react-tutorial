@@ -20,7 +20,7 @@ func main() {
 	A.Run(":5432")
 	router := NewRouter()
 	corsWrapper := cors.New(cors.Options{
-		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE"},
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "*"},
 		AllowedHeaders: []string{"Content-Type", "Origin", "Accept", "*"},
 	})
 	// router.Use(forCORS)

@@ -59,8 +59,9 @@ var UpdatePost = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	var post Post
 	log.Println("update post is called")
 	json.NewDecoder(r.Body).Decode(&post)
-	result, err := A.DB.Exec("UPDATE posts SET title=$1, overview=$2, link=$3, thought=$4 WHERE post_id=$5 RETURNING post_id",
-		&post.Title, &post.Overview, &post.Link, &post.Thought, &post.ID)
+	log.Println(post.Title, post.Overview, post.Link, post.Thought, post.ID)
+	result, err := A.DB.Exec("UPDATE posts SET title=$1, overview=$2, link=$3, thought=$4, tags=$5, post_time=$6 WHERE post_id=$7 RETURNING post_id",
+		&post.Title, &post.Overview, &post.Link, &post.Thought, pq.Array(&post.Tags), &post.PostDate, &post.ID)
 	if err != nil {
 		log.Println(err)
 	}
@@ -296,6 +297,7 @@ var OPTIONSRemoveWantRead = http.HandlerFunc(func(w http.ResponseWriter, r *http
 
 // OPTIONSUpdatePost is preflight process
 var OPTIONSUpdatePost = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	log.Println("preflight of updating post is called")
 	w.WriteHeader(http.StatusOK)
 })
 

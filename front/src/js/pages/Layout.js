@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import AuthNav from "../components/Navi";
-import Navi from '../components/AuthNavi';
+import AuthNavi from "../components/AuthNavi";
+import Navi from '../components/Navi';
 import { useAuth0 } from "@auth0/auth0-react";
 import axios from "axios";
 function Layout(props){
@@ -9,14 +9,16 @@ function Layout(props){
     return <div>Loading...</div>;
   }
   else{
-    getSub(user);
+    if (isAuthenticated){
+      getSub(user);
+    }
     return (
       <div className="App">
         {!isAuthenticated && (
-          <AuthNav />
+          <Navi />
         )}
   
-        {isAuthenticated && <Navi />}
+        {isAuthenticated && <AuthNavi />}
         {isAuthenticated && props.children }
       </div>
     );
