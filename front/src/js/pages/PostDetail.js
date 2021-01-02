@@ -28,6 +28,9 @@ const PostDetail = (props) => {
             setThought(res.data.Thought);
             setTags(res.data.Tags);
             setUserID(res.data.UserId);
+            if (res.data.Tags != null) {
+                setOOO(res.data.Tags.map((tag, i) => <p key={i} className="tags">#{tag}</p>));
+            }
         }
         const getData = async (post_id, user_id) => { // postを取得
             setPostID(Number(post_id));

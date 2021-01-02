@@ -5,10 +5,11 @@ import axios from 'axios';
 const YetPosts = (props) => {
     const [show, setShow] = useState(false);
     const [title, setTitle] = useState(props.title);
-    const [overview, setOverview] = useState("");
+    const [overview, setOverview] = useState(props.overview);
     const [link, setLink] = useState(props.link);
-    const [thought, setThought] = useState("");
-    const [tags, setTags] = useState("");
+    const [thought, setThought] = useState(props.thought);
+    const [tags, setTags] = useState(props.tags);
+    const [ooo, setOOO] = useState("");
     const { getAccessTokenSilently } = useAuth0();
     const handleDeleteClick = async () => {
         const token = await getAccessTokenSilently();
@@ -19,15 +20,15 @@ const YetPosts = (props) => {
         console.log(res);
         location.reload();
     }
-    const handleUpdateClick = async () => {
+    const handleUpdateClick = async (e) => {
         const token = await getAccessTokenSilently();
         const res = await axios.post("http://localhost:5000/posts",{
-            "Title" : title, 
-            "Overview": overview,
-            "Link": link,
-            "Thought" : thought,
+            "Title" : e.target.formTitle.value, 
+            "Overview": e.target.formOverview.value,
+            "Link": e.target.formLink.value,
+            "Thought" : e.target.formThought.value,
             "Tags" : tags,
-        }, {headers: {
+        }, { headers: {
             Authorization: "Bearer "+token,
         }});
         console.log(res);
@@ -136,35 +137,35 @@ const YetPosts = (props) => {
                 size="lg"
                 aria-labelledby="contained-modal-title-vcenter"
                 centered>
+            <Form onSubmit={handleUpdateClick}>
             <Modal.Header >
             <Modal.Title>読んだ論文について説明しましょう</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <div>
-                <Form>
                     <Form.Group controlId="formTitile">
                         <Form.Label>その論文のタイトルは?</Form.Label>
-                        <Form.Control placeholder="Enter title" onChange={handleChange} value={title} />
+                        <Form.Control placeholder="Enter title" onChange={handleChange} defaultValue={title} name="title" />
                     </Form.Group>
     
                     <Form.Group controlId="formOverview">
                         <Form.Label>どんな内容でしたか?</Form.Label>
-                        <Form.Control placeholder="overview" onChange={handleChange} value={overview} />
+                        <Form.Control placeholder="overview" onChange={handleChange} defaultValue={overview} name="overview" />
                     </Form.Group>
                     <Form.Group controlId="formLink">
                         <Form.Label>その論文のリンク</Form.Label>
-                        <Form.Control placeholder="http:///www.XXX" onChange={handleChange} value={link} />
+                        <Form.Control placeholder="http:///www.XXX" onChange={handleChange} defaultValue={link} name="link" />
                         <Form.Text className="text-muted">
                         正しいリンクを貼ってください
                         </Form.Text>
                     </Form.Group>
                     <Form.Group controlId="formthought">
                         <Form.Label>読んだ感想</Form.Label>
-                        <Form.Control placeholder="すごく難しかった。何ページ目がわからなかったので誰か教えて" onChange={handleChange} value={thought} />
+                        <Form.Control placeholder="すごく難しかった。何ページ目がわからなかったので誰か教えて" onChange={handleChange} defaultValue={thought} name="thought" />
                     </Form.Group>
                     <Form.Group controlId="formTab">
                         <Form.Label>タブの追加</Form.Label>
-                        <Form.Control placeholder="#有機化学, #古典力学, #音声認識のように#をつけて最後はカンマで区切る" onChange={handleChange} value={tags} />
+                        <Form.Control placeholder="#有機化学, #古典力学, #音声認識のように#をつけて最後はカンマで区切る" onChange={handleChange} defaultValue={tags} name="tags" />
                     </Form.Group>
                     <Button variant="secondary" onClick={() => setShow(false)}>
                         Close
@@ -172,15 +173,14 @@ const YetPosts = (props) => {
                     <Button variant="info" onClick={draftonSubmit}>
                         Save Changes
                     </Button>
-    
-                </Form>
                 </div>
             </Modal.Body>
             <Modal.Footer>
-            <Button variant="success" type="submit" onClick={handleUpdateClick}>
+            <Button variant="success" type="submit">
                         Post
             </Button>
             </Modal.Footer>
+            </Form>
         </Modal>
         )
     }
