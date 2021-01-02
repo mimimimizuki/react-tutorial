@@ -121,10 +121,10 @@ const YetPosts = (props) => {
             }})
                 .then( (response) => {
                     console.log(response);
-                  })
-                  .catch( (error) => {
-                    console.log(error);
-                  });
+                })
+                .catch( (error) => {
+                console.log(error);
+                });
         }
         this.setState({show: false});
     }

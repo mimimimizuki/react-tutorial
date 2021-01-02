@@ -65,8 +65,8 @@ var UpdatePost = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	var post Post
 	log.Println("update post is called")
 	json.NewDecoder(r.Body).Decode(&post)
-	log.Println(post.Title, post.Overview, post.Link, post.Thought, post.ID)
-	result, err := A.DB.Exec("UPDATE posts SET title=$1, overview=$2, link=$3, thought=$4, tags=$5, post_time=$6 WHERE post_id=$7 RETURNING post_id",
+	log.Println(post)
+	result, err := A.DB.Exec("UPDATE posts SET title=$1, overview=$2, link=$3, thought=$4, tags=$5, post_time=$6 WHERE post_id=$7;",
 		&post.Title, &post.Overview, &post.Link, &post.Thought, pq.Array(&post.Tags), &post.PostDate, &post.ID)
 	if err != nil {
 		log.Println(err)

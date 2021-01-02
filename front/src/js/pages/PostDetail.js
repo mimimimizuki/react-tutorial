@@ -6,8 +6,8 @@ import { BsFillReplyFill, BsFillHeartFill, BsHeart } from "react-icons/bs";
 import { useAuth0 } from "@auth0/auth0-react";
 const PostDetail = (props) => {
     const [ user_name, setName ] = useState("");
-    const [user_id, setUserID] = useState("");
-    const [post_id, setPostID] = useState("");
+    const [user_id, setUserID] = useState(0);
+    const [post_id, setPostID] = useState(0);
     const [ me, setMe ] = useState(false);
     const [ liked, setLike ] = useState(false);
     const [ like_id, setLikeID ] = useState("");
@@ -30,7 +30,7 @@ const PostDetail = (props) => {
             setUserID(res.data.UserId);
         }
         const getData = async (post_id, user_id) => { // postを取得
-            setPostID(post_id);
+            setPostID(Number(post_id));
             const token = await getAccessTokenSilently();
             const url = "http://localhost:5000/posts/"+post_id+"/detail";
             const res = await axios.get(url, {
@@ -84,7 +84,7 @@ const PostDetail = (props) => {
         if (tags != null) {
             setOOO(tags.map((tag, i) => <p key={i} className="tags">#{tag}</p>));
         }
-        
+        console.log(post_id)
     }, [])
 
     const handleClick = async () => {
@@ -117,30 +117,39 @@ const PostDetail = (props) => {
             setLike(false);
         }
     }
-    const handleUpdateClick = async () => {
+    const handleUpdateClick = async (e) => {
+        e.persist();
+        e.preventDefault();
+        const query = new URLSearchParams(props.location.search);
         const time = new Date();
         const token = await getAccessTokenSilently();
-        axios.post("http://localhost:5000/posts",{
-            "PostId": post_id, 
-            "Title" : title, 
+        var tagArr = new Array();
+        console.log(e.target)
+        e.target.formTag.value.split(",").forEach(tag => {
+            tag = tag.replace("#", "")
+            tagArr.push(tag)
+        });
+        axios.put("http://localhost:5000/posts", { 
+            "UserId": user_id,
+            "Title" : e.target.formTitle.value, 
             "PostDate" : time.getFullYear() + '-' + (time.getMonth()+1) + '-' + time.getDate(),
-            "Overview": overview,
-            "Link": link,
-            "Thought" : thought,
-            "Tags" : tags,
+            "Overview": e.target.formOverview.value,
+            "Link": e.target.formLink.value,
+            "Thought" : e.target.formThought.value,
+            "ID": post_id,
+            "Tags" : tagArr,
         }, {
             headers: {
                 Authorization: `Bearer ${token}`,
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
-                'X-HTTP-Method-Override': 'PUT',
             }
         }).then(res => {
             console.log(res);
         }).catch(err => {
-            alert(err);
+            console.log(err);
         });
-        setShow(false);
+        props.history.push("/")
     }
 
 
@@ -175,13 +184,13 @@ const PostDetail = (props) => {
                 size="lg"
                 aria-labelledby="contained-modal-title-vcenter"
                 centered>
+            <Form onSubmit={(e) => handleUpdateClick(e)}>
             <Modal.Header >
             <Modal.Title>読んだ論文について説明しましょう</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <div>
-                <Form>
-                    <Form.Group controlId="formTitile">
+                    <Form.Group controlId="formTitle">
                         <Form.Label>その論文のタイトルは?</Form.Label>
                         <Form.Control placeholder="Enter title" name="title" type="text" defaultValue={title} onChange={handleChange} />
                     </Form.Group>
@@ -197,26 +206,26 @@ const PostDetail = (props) => {
                         正しいリンクを貼ってください
                         </Form.Text>
                     </Form.Group>
-                    <Form.Group controlId="formthought">
+                    <Form.Group controlId="formThought">
                         <Form.Label>読んだ感想</Form.Label>
                         <Form.Control placeholder="すごく難しかった。何ページ目がわからなかったので誰か教えて" name="thought" defaultValue={thought} onChange={handleChange} />
                     </Form.Group>
-                    <Form.Group controlId="formTab">
+                    <Form.Group controlId="formTag">
                         <Form.Label>タグの追加</Form.Label>
                         <Form.Control placeholder="#有機化学, #古典力学, #音声認識のように#をつけて最後はカンマで区切る" name="tags" defaultValue={tags} onChange={handleChange} />
                     </Form.Group>
                     <Button variant="secondary" onClick={() => setShow(false)}>
                         Close
                     </Button>
-    
-                </Form>
+                
                 </div>
             </Modal.Body>
             <Modal.Footer>
-            <Button variant="success" type="submit" onClick={handleUpdateClick}>
+            <Button variant="success" type="submit">
                         Update
             </Button>
             </Modal.Footer>
+            </Form>
         </Modal>
         )
     }
@@ -235,7 +244,7 @@ const PostDetail = (props) => {
                         <Dropdown.Toggle className="detail"variant="dark">more action</Dropdown.Toggle>
                         <Dropdown.Menu>
                         <Dropdown.Item onClick={() => setShow(true)}>update</Dropdown.Item>
-                        <Dropdown.Item onClick={() => handleDeleteClick}>delete</Dropdown.Item>
+                        <Dropdown.Item onClick={handleDeleteClick}>delete</Dropdown.Item>
                         </Dropdown.Menu> 
                     </Dropdown>
                     </div>
