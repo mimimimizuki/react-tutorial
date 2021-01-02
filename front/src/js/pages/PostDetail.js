@@ -120,7 +120,7 @@ const PostDetail = (props) => {
     const handleUpdateClick = async () => {
         const time = new Date();
         const token = await getAccessTokenSilently();
-        axios.post("http://localhost:5000/posts/"+post_id,{
+        axios.post("http://localhost:5000/posts",{
             "PostId": post_id, 
             "Title" : title, 
             "PostDate" : time.getFullYear() + '-' + (time.getMonth()+1) + '-' + time.getDate(),

@@ -87,28 +87,37 @@ const newHome = () => {
         location.reload();
     }
 
-    const onSubmit = async () => {
+    const onSubmit = async (e) => {
+        e.persist();
+        e.preventDefault();
+        console.log("clicked")
         const token = await getAccessTokenSilently();
         const submitUrl = "http://localhost:5000/posts";
         const time = new Date();
         var params = new URLSearchParams();
-        const title = await document.getElementsByName("title")[0];
-        const overview = await document.getElementsByName("overview")[0];
-        const link = await document.getElementsByName("link")[0];
-        const thought = await document.getElementsByName("thought")[0];
-        const tags = await document.getElementsByName("tags")[0];
+        console.log(e.target.formLink)
+        const title = e.target.formTitle.value;
+        const overview = e.target.formOverview.value;
+        const link = e.target.formLink.value;
+        const thought = e.target.formThought.value;
+        var tagArr = new Array();
+        e.target.formTag.value.split(",").forEach(tag => {
+            tag = tag.replace("#", "")
+            tagArr.push(tag)
+        });
+        console.log(tagArr);
         params.append("UserId", userInfo.ID);
         params.append("PostDate", time.getFullYear() + '-' + (time.getMonth()+1) + '-' + time.getDate());
         params.append("Title", title);
         params.append("Overview", overview);
         params.append("Link", link);
         params.append("Thought", thought);
-        params.append("Tags", tags);
+        params.append("Tags", tagArr);
         if (title == "" || overview == "" || link == "" || thought == ""){
             alert("全ての項目を入力して下さい")
         }
         else{
-            if (draft_click){
+            if(draft_click){
                 var delete_draft = await confirm("下書きを削除しますか?");
                 axios.post(submitUrl, params, {
                     headers : {
@@ -130,6 +139,22 @@ const newHome = () => {
                         console.log(err);
                     });
                 }
+            }
+            else {
+                if (tagArr == ""){
+                    return
+                }
+                axios.post(submitUrl, params, {
+                    headers : {
+                        Authorization : "Bearer " + token,
+                    }
+                })
+                .then( (response) => {
+                    console.log(response);
+                })
+                .catch( (error) => {
+                    console.log(error);
+                });
             }
 
         }
@@ -233,10 +258,10 @@ const newHome = () => {
             }})
                 .then( (response) => {
                     console.log(response);
-                  })
-                  .catch( (error) => {
+                })
+                .catch( (error) => {
                     console.log(error);
-                  });
+                });
         }
         setShow(false);
     }
@@ -246,13 +271,14 @@ const newHome = () => {
                 size="lg"
                 aria-labelledby="contained-modal-title-vcenter"
                 centered>
+            <Form onSubmit={(e)=> onSubmit(e)}>
             <Modal.Header >
             <Modal.Title>読んだ論文について説明しましょう</Modal.Title><Button variant="dark" onClick={handleSeeDrafts}>see drafts</Button>
             </Modal.Header>
             <Modal.Body>
                 <div>
-                <Form>
-                    <Form.Group controlId="formTitile">
+                
+                    <Form.Group controlId="formTitle">
                         <Form.Label>その論文のタイトルは?</Form.Label>
                         <Form.Control placeholder="Enter title" name="title" />
                     </Form.Group>
@@ -268,11 +294,11 @@ const newHome = () => {
                         正しいリンクを貼ってください
                         </Form.Text>
                     </Form.Group>
-                    <Form.Group controlId="formthought">
+                    <Form.Group controlId="formThought">
                         <Form.Label>読んだ感想</Form.Label>
                         <Form.Control placeholder="すごく難しかった。何ページ目がわからなかったので誰か教えて" name="thought" />
                     </Form.Group>
-                    <Form.Group controlId="formTab">
+                    <Form.Group controlId="formTag">
                         <Form.Label>タグの追加</Form.Label>
                         <Form.Control placeholder="#有機化学, #古典力学, #音声認識のように#をつけて最後はカンマで区切る" name="tags" />
                     </Form.Group>
@@ -282,15 +308,12 @@ const newHome = () => {
                     <Button variant="info" onClick={draftonSubmit}>
                         Save Changes
                     </Button>
-    
-                </Form>
                 </div>
             </Modal.Body>
             <Modal.Footer>
-            <Button variant="success" type="submit" onClick={onSubmit}>
-                        Post
-            </Button>
+            <Button variant="success" type="submit"> Post </Button>
             </Modal.Footer>
+            </Form>
         </Modal>
         )
     }

@@ -46,10 +46,16 @@ var AddPost = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	post.Overview = r.FormValue("Overview")
 	post.Link = r.FormValue("Link")
 	post.Thought = r.FormValue("Thought")
+	tags := []string{}
+	for k, v := range r.Form {
+		if k == "Tags" {
+			tags = v
+		}
+	}
 	err := A.DB.QueryRow("INSERT INTO posts (user_id, post_time , title, overview, link, thought, tags) values($1, $2, $3, $4, $5, $6 , $7) RETURNING post_id;",
-		post.UserId, post.PostDate, post.Title, post.Overview, post.Link, post.Thought, pq.Array(r.FormValue("Tags"))).Scan(&postID)
+		post.UserId, post.PostDate, post.Title, post.Overview, post.Link, post.Thought, pq.Array(tags)).Scan(&postID)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	json.NewEncoder(w).Encode(postID)
 })
