@@ -111,7 +111,7 @@ const YetPosts = (props) => {
                 return
             }
             else{ //update draft
-                axios.put("http://localhost:5000/drafts/1",
+                axios.put("http://localhost:5000/drafts/"+draft_id,
                 {
                     "UserId":user_id,
                     "Title": title,

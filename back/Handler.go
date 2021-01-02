@@ -17,7 +17,7 @@ var GetPosts = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	var post Post
 	Posts = []Post{}
 
-	rows, err := A.DB.Query("select * from posts;")
+	rows, err := A.DB.Query("select * from posts order by post_time desc, post_id desc;")
 	if err != nil {
 		log.Println(err)
 	}

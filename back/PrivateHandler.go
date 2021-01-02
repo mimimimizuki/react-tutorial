@@ -17,7 +17,7 @@ var GetPost = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	var post Post
 	params := mux.Vars(r)
 	Posts = []Post{}
-	rows, err := A.DB.Query("select * from posts where user_id = $1;", params["id"])
+	rows, err := A.DB.Query("select * from posts where user_id = $1 order by post_time desc, post_id desc;", params["id"])
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -248,7 +248,7 @@ var GetFavorite = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) 
 	var favoritePost Post
 	Posts = []Post{}
 	log.Println("get favorites is called")
-	rows, err := A.DB.Query("SELECT * FROM posts where post_id = (SELECT post_id FROM favorites WHERE user_id = $1)", params["id"])
+	rows, err := A.DB.Query("SELECT * FROM posts where post_id = (SELECT post_id FROM favorites WHERE user_id = $1) order by post_time desc, post_id desc", params["id"])
 	if err != nil {
 		log.Fatal(err)
 	}
