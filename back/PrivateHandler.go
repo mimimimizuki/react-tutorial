@@ -230,7 +230,8 @@ var AddFavorite = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) 
 var RemoveFavorite = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	log.Println("delete favorite is called")
 	params := mux.Vars(r)
-	result, err := A.DB.Exec("DELETE FROM favorites WHERE favorite_id = $1", params["id"])
+	log.Println("DELETE FROM favorites WHERE user_id = $1 and post_id = $2", params["uid"], params["id"])
+	result, err := A.DB.Exec("DELETE FROM favorites WHERE user_id = $1 and post_id = $2", params["uid"], params["id"])
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -248,7 +249,7 @@ var GetFavorite = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) 
 	var favoritePost Post
 	Posts = []Post{}
 	log.Println("get favorites is called")
-	rows, err := A.DB.Query("SELECT * FROM posts where post_id = (SELECT post_id FROM favorites WHERE user_id = $1) order by post_time desc, post_id desc", params["id"])
+	rows, err := A.DB.Query("SELECT * FROM posts where post_id in (SELECT post_id FROM favorites WHERE user_id = $1) order by post_time desc, post_id desc", params["id"])
 	if err != nil {
 		log.Fatal(err)
 	}

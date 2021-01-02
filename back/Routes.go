@@ -73,7 +73,7 @@ var routes = Routes{
 		"GetFavorite", "GET", "/favorites/{id}", GetFavorite, true,
 	},
 	Route{
-		"RemoveFavorite", "DELETE", "/favorites/{id}", RemoveFavorite, true,
+		"RemoveFavorite", "DELETE", "/favoritesRemove/{id}/{uid}", RemoveFavorite, true,
 	},
 	Route{
 		"GetSearchPost", "GET", "/search", GetSearchPost, false,
@@ -91,7 +91,7 @@ var routes = Routes{
 		"RemoveDraft", "DELETE", "/drafts/{id}", RemoveDraft, true,
 	},
 	Route{
-		"OPTIONSFavorite", "OPTIONS", "/favorites", OPTIONSFavorite, true,
+		"OPTIONSFavorite", "OPTIONS", "/favoritesRemove/{id}/{uid}", OPTIONSFavorite, true,
 	},
 	Route{
 		"OPTIONSUpdateUser", "OPTIONS", "/users/{id}/update", OPTIONSUpdateUser, true,
