@@ -106,6 +106,14 @@ var GetUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	if user.ID == 0 {
+		name, BIO, err1 := AddUser(params["id"])
+		if err1 != nil {
+			log.Fatal(err1)
+		}
+		user.DisplayName = name
+		user.BIO = BIO
+	}
 	json.NewEncoder(w).Encode(&user)
 })
 
@@ -342,7 +350,7 @@ var GetDraft = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	rows := A.DB.QueryRow("SELECT * FROM drafts WHERE user_id = $1;", params["id"])
 	err := rows.Scan(&draft.ID, &draft.UserId, &draft.Title, &draft.Overview, &draft.Link, &draft.Thought, pq.Array(&draft.Tags))
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	json.NewEncoder(w).Encode(draft)
 })
@@ -370,7 +378,7 @@ var UpdateDraft = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) 
 	log.Println("update draft is called")
 	json.NewDecoder(r.Body).Decode(&draft)
 	result, err := A.DB.Exec("UPDATE drafts SET title=$1, overview=$2, link=$3, thought=$4, tags = $5 WHERE draft_id = $6",
-		&draft.Title, &draft.Overview, &draft.Link, &draft.Thought, pq.Array(&draft.Tags), params["id"])
+		&draft.Title, &draft.Overview, &draft.Link, &draft.Thought, pq.Array(&draft.Tags), params["draft_id"])
 	if err != nil {
 		log.Fatal(err)
 	}

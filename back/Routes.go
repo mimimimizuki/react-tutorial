@@ -33,9 +33,9 @@ var routes = Routes{
 	Route{
 		"RemovePost", "DELETE", "/posts/{id}/remove", RemovePost, true,
 	},
-	Route{
-		"AddUser", "POST", "/users", AddUser, false,
-	},
+	// Route{
+	// 	"AddUser", "POST", "/users", AddUser, false,
+	// },
 	Route{
 		"GetUsers", "GET", "/users", GetUsers, false,
 	},
@@ -85,7 +85,7 @@ var routes = Routes{
 		"GetDraft", "GET", "/drafts/{id}", GetDraft, true,
 	},
 	Route{
-		"UpdateDraft", "PUT", "/drafts/{id}", UpdateDraft, true,
+		"UpdateDraft", "PUT", "/drafts/{draft_id}", UpdateDraft, true,
 	},
 	Route{
 		"RemoveDraft", "DELETE", "/drafts/{id}", RemoveDraft, true,

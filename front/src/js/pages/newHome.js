@@ -161,42 +161,15 @@ const newHome = () => {
         setShow(false);
     }
 
-    const handleSeeDrafts = async (e) => {
-        const token = await getAccessTokenSilently();
-        axios.get("http://localhost:5000/drafts/"+userInfo.ID, {
-            headers: {
-            Authorization: `Bearer ${token}`,
-        }}).then(res => {
-            console.log(res);
-            var tagArr = new Array();
-            if (res.data.Tags.length > 0){
-                res.data.Tags.forEach(tag => {
-                    tagArr.push("#"+tag);
-                });
-                console.log(tagArr);
-            }
-            setDraftID(res.data.ID);
-            setDraftClick(true);
-            document.getElementsByName("title")[0].value = res.data.Title;
-            document.getElementsByName("overview")[0].value = res.data.Overview;
-            document.getElementsByName("link")[0].value = res.data.Link;
-            document.getElementsByName("thought")[0].value = res.data.Thought;
-            document.getElementsByName("tags")[0].value = tagArr;
-            console.log("setted"+document.getElementsByName("tags")[0].value)
-            alert(document.getElementsByName("tags")[0].value)
-        }).catch(err => {
-            console.log(err)
-        });
-        e.preventDefault();
-    }
     const draftonSubmit = async () => {
+        const token = await getAccessTokenSilently();
         const submitUrl = "http://localhost:5000/drafts";
         var params = new URLSearchParams();
-        const title = await document.getElementsByName("title")[0];
-        const overview = await document.getElementsByName("overview")[0];
-        const link = await document.getElementsByName("link")[0];
-        const thought = await document.getElementsByName("thought")[0];
-        const tags = await document.getElementsByName("tags")[0];
+        const title = await document.getElementById("formTitle").value;
+        const overview = await document.getElementById("formOverview").value;
+        const link = await document.getElementById("formLink").value;
+        const thought = await document.getElementById("formThought").value;
+        const tags = await document.getElementById("formTag").value;
         if (tags != ""){
             var tagArr = new Array();
             if (tags.includes(",")){
@@ -222,13 +195,17 @@ const newHome = () => {
         console.log(params.getAll("Tags"))
 
         if (draft_click){
-            var result = confirm("すでに下書きが存在します、上書きしますか？");
+            var result = confirm("すでに下書きが存在します(下書きは一件までしか保存できません)、上書きしますか？");
             if (!result){
-                alert("この下書きを削除します");
+                document.getElementById("formTitle").value = "";
+                document.getElementById("formOverview").value = "";
+                document.getElementById("formLink").value = "";
+                document.getElementById("formThought").value = "";
+                document.getElementById("formTag").value = "";
                 return
             }
             else{ //update draft
-                axios.put("http://localhost:5000/drafts/"+userInfo.ID,
+                axios.put("http://localhost:5000/drafts/"+draft_id,
                 {
                     "UserId":userInfo.ID,
                     "Title": title,
@@ -266,6 +243,36 @@ const newHome = () => {
         setShow(false);
     }
     const ModalPost = (props) => {
+        const handleSeeDrafts = async (e) => {
+            e.persist();
+            e.preventDefault();
+            const token = await getAccessTokenSilently();
+            axios.get("http://localhost:5000/drafts/"+userInfo.ID, {
+                headers: {
+                Authorization: `Bearer ${token}`,
+            }}).then(res => {
+                console.log(res);
+                if (res.data.ID  == 0) {
+                    alert("下書きはありません")
+                }
+                var tagArr = new Array();
+                if (res.data.Tags.length > 0){
+                    res.data.Tags.forEach(tag => {
+                        tagArr.push("#"+tag);
+                    });
+                    console.log(tagArr);
+                }
+                setDraftID(res.data.ID);
+                setDraftClick(true);
+                res.data.Title != null ? document.getElementById("formTitle").defaultValue = res.data.Title : "";
+                res.data.Overview != null ? document.getElementById("formOverview").defaultValue = res.data.Overview : "";
+                res.data.Link != null ? document.getElementById("formLink").defaultValue = res.data.Link : "";
+                res.data.Thought != null ? document.getElementById("formThought").defaultValue = res.data.Thought : "";
+                res.data.Tags.length > 0 ? document.getElementById("formTag").defaultValue = tagArr : ""; 
+            }).catch(err => {
+                console.log(err)
+            });
+        }
         return (
             <Modal  {...props} style={{opacity:1}}
                 size="lg"
@@ -273,11 +280,10 @@ const newHome = () => {
                 centered>
             <Form onSubmit={(e)=> onSubmit(e)}>
             <Modal.Header >
-            <Modal.Title>読んだ論文について説明しましょう</Modal.Title><Button variant="dark" onClick={handleSeeDrafts}>see drafts</Button>
+            <Modal.Title>読んだ論文について説明しましょう</Modal.Title><Button variant="dark" onClick={(e) => handleSeeDrafts(e)}>see drafts</Button>
             </Modal.Header>
             <Modal.Body>
                 <div>
-                
                     <Form.Group controlId="formTitle">
                         <Form.Label>その論文のタイトルは?</Form.Label>
                         <Form.Control placeholder="Enter title" name="title" />

@@ -1,7 +1,9 @@
 package main
 
 import (
+	"crypto/rand"
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 
@@ -51,18 +53,17 @@ var GetPostDetail = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request
 // ============> User
 
 // AddUser is to create new account
-var AddUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	var user User
+func AddUser(authID string) (string, string, error) {
 	var userID int
 	log.Println("add user id called")
-	json.NewDecoder(r.Body).Decode(&user)
-	err1 := A.DB.QueryRow("INSERT INTO users (display_name, auth_id, bio) values ($1 , $2 , $3) RETURNING user_id;",
-		user.DisplayName, user.AuthID, user.BIO).Scan(&userID)
+	displayName, _ := MakeRandomStr(6)
+	err1 := A.DB.QueryRow("INSERT INTO users (display_name, auth_id) values ($1 , $2) RETURNING user_id;",
+		displayName, authID).Scan(&userID)
 	if err1 != nil {
-		log.Fatal(err1)
+		return "", "", err1
 	}
-	json.NewEncoder(w).Encode(userID)
-})
+	return displayName, "", nil
+}
 
 // GetUsers is maybe not used
 var GetUsers = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -155,3 +156,21 @@ var GetSearchPost = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request
 	}
 	json.NewEncoder(w).Encode(Posts)
 })
+
+func MakeRandomStr(digit uint32) (string, error) {
+	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+	// 乱数を生成
+	b := make([]byte, digit)
+	if _, err := rand.Read(b); err != nil {
+		return "", errors.New("unexpected error...")
+	}
+
+	// letters からランダムに取り出して文字列を生成
+	var result string
+	for _, v := range b {
+		// index が letters の長さに収まるように調整
+		result += string(letters[int(v)%len(letters)])
+	}
+	return result, nil
+}
