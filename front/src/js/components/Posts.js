@@ -89,7 +89,11 @@ const Posts = (props) => {
                         style={{ height: 50, width: 50}} />
                     }
                         <Card.Body  id="post">
-                            <Card.Title onClick={() => handleSeePost(id)}>{props.title}</Card.Title>
+                            {props.authorized ? <Card.Title onClick={() => handleSeePost(id)}>{props.title}</Card.Title>
+                            :
+                            <Card.Title>{props.title}</Card.Title>
+                            }
+                            
                             <Card.Subtitle className="mb-2 text-muted">{props.overview}</Card.Subtitle>
                             <Card.Text>
                             {props.thought}
@@ -102,17 +106,19 @@ const Posts = (props) => {
                             <br></br>
                         </Card.Body>
                         {props.authorized &&
-                            liked ? 
+                            (liked ? 
                             <BsFillHeartFill className="heart" color="#e57373" size="30px"  onClick={() => handleClick(id)}/>
                                 : 
                                 <OverlayTrigger overlay={<Tooltip id="tooltip-like">like!</Tooltip>}>
                                 <BsHeart className="heart" size="30px" onClick={() => handleClick(id)}/>
+                            </OverlayTrigger>)
+                        }
+                        {props.authorized && 
+                            <OverlayTrigger overlay={<Tooltip id="tooltip-reply">reply this post</Tooltip>}>
+                            <BsFillReplyFill size="30px" className="reply" color="dimgray"/>
                             </OverlayTrigger>
                         }
                         
-                        <OverlayTrigger overlay={<Tooltip id="tooltip-reply">reply this post</Tooltip>}>
-                        <BsFillReplyFill size="30px" className="reply" color="dimgray"/>
-                        </OverlayTrigger>
                     </Card>)
             }
         </div>

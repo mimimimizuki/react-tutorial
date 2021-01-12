@@ -127,6 +127,7 @@ var GetWantReads = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request)
 
 // GetSearchPost is the most important , search function . now can search from tags
 var GetSearchPost = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	log.Println("search post is called")
 	var searchPost Post
 	var arr string
 	Posts = []Post{}
@@ -136,7 +137,7 @@ var GetSearchPost = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request
 		}
 		for i := range v {
 			rows, err := A.DB.Query("SELECT * FROM (SELECT * , unnest(tags) as arr FROM posts) as t WHERE arr LIKE $1;", v[i]+"%")
-
+			log.Println(v[i])
 			if err != nil {
 				log.Fatal(err)
 			}

@@ -21,7 +21,7 @@ const Navi = (props) => {
         var params = new URLSearchParams();
         for (let i = 0; i < tagArr.length; i ++) {
             if (tagArr[i].includes("#")){
-                tagArr.replace("#", "");
+                tagArr[i] = tagArr[i].replace("#", "");
             }
             params.append("tags", tagArr[i])
         }

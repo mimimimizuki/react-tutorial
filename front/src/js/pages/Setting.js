@@ -9,7 +9,6 @@ import {useForm} from 'react-hook-form';
 const Setting = () => {
     const { getAccessTokenSilently, user } = useAuth0();
     const { register, handleSubmit } = useForm();
-    const [backgroundColor, setBackColor ] = useState({"h":250, "s":0, "l":1, "a":1 });
     const [navColor, setNavColor ] = useState("black");
     const [bio, setBIO] = useState("");
     const [name, setName ] = useState("");
@@ -34,16 +33,6 @@ const Setting = () => {
     const handleChange = (event) => {
         document.getElementsByName(event.target.name)[0].value = event.target.value;
     };
-    const handleBackGroundChange = (color) => {
-        const newColor = {
-            "h":color.hsl.h, 
-            "s":color.hsl.s,
-            "l":color.hsl.l,
-            "a":color.rgb.a
-        }
-        setBackColor(newColor);
-        document.body.style.backgroundColor = "rgb("+color.rgb.r+","+color.rgb.g+","+color.rgb.b+","+color.rgb.a + ")";
-    }
     const handleNavChange = (color) => {
         const newColor = {
             "h":color.hsl.h, 
@@ -83,15 +72,11 @@ const Setting = () => {
                     change!
             </Button>
         </Form>
-        <h1 style={{textAlign:"center"}}>change back ground color </h1>
-        <ChromePicker color={ backgroundColor } style={{left:"50%"}}
-                            onChangeComplete={handleBackGroundChange}/>
         <h1 style={{textAlign:"center"}}>change navbar back ground color </h1>
         <ChromePicker color={navColor} style={{textAlign:"center"}}
                             onChangeComplete={ handleNavChange }/>
         {changeFlg ? <Redirect to="/"/> : <></>}
         </div>
-        
     )
 }
 
