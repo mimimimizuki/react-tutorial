@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { CardGroup, Card } from "react-bootstrap";
+import { CardGroup, Card, Button } from "react-bootstrap";
 import axios from 'axios';
 import Posts from '../components/Posts';
 import YetPosts from "../components/YetPosts";
@@ -10,8 +10,8 @@ const User = (props) => {
     const [ data , setData ] = useState({user_name:"", user_bio:""});
     const [ postList, setPosts ] = useState([]);
     const [ yetpostList, setYetPosts ] = useState([]);
-    const { getAccessTokenSilently } = useAuth0();
-    const [isLoading, setIsLoading] = useState(false);
+    const { getAccessTokenSilently, user } = useAuth0();
+    const [ isLoading, setIsLoading ] = useState(false);
     useEffect(() => {
         const getUserData = async (user_id) => {
             await setIsLoading(true)
@@ -69,11 +69,33 @@ const User = (props) => {
         const user_id = query.get('id');
         getUserData(user_id);
     }, [])
+    const handleFollow = async () => {
+        const token = await getAccessTokenSilently();
+        const Sub = await user.sub;
+        const subRes = await axios.get("http://localhost:5000/users/"+Sub+"/auth", {
+            headers: {
+                Authorization : "Bearer "+token,
+            }
+        })
+        const following = subRes.data.ID;
+        const query = new URLSearchParams(props.location.search);
+        const user_id = query.get('id');
+        axios.post("http://localhost:5000/follow/"+following+"/"+user_id, {
+            headers:{
+                Authorization : "Bearer "+token,
+            }
+        }).then(res => {
+            console.log(res)
+        }).catch(err => {
+            console.log(err)
+        })
+    }
     return (
         <div>
             {isLoading ? <>loading...</>
             :
             <div>
+                <Button color="green" size="lg" onClick={() => handleFollow()}>Follow </Button>
                 <MyInfo name={data.user_name} bio={data.user_bio} following="10" follower="10" other="yes"/>
                 <CardGroup className = 'm-4' style={{ width: '100vm' }}>
                         <Card.Header style={{ width: '50%' }}>

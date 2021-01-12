@@ -37,7 +37,6 @@ const Posts = (props) => {
             if (props.me){
                 setMe(true);
             }
-            console.log("id is", id)
             setIsLoading(false)
         }
         if (props.tags != null) {
