@@ -31,19 +31,22 @@ var routes = Routes{
 		"UpdatePost", "PUT", "/posts", UpdatePost, true,
 	},
 	Route{
-		"RemovePost", "DELETE", "/posts/{id}", RemovePost, true,
+		"RemovePost", "DELETE", "/posts/{id}/remove", RemovePost, true,
 	},
-	Route{
-		"AddUser", "POST", "/users", AddUser, false,
-	},
+	// Route{
+	// 	"AddUser", "POST", "/users", AddUser, false,
+	// },
 	Route{
 		"GetUsers", "GET", "/users", GetUsers, false,
 	},
 	Route{
-		"GetUser", "GET", "/users/{id}", GetUser, true,
+		"GetUser", "GET", "/users/{id}/auth", GetUser, true,
 	},
 	Route{
-		"UpdateUser", "PUT", "/users/{id}", UpdateUser, true,
+		"GetOtherUser", "GET", "/users/{id}", GetOtherUser, false,
+	},
+	Route{
+		"UpdateUser", "PUT", "/users/{id}/update", UpdateUser, true,
 	},
 	Route{
 		"RemoveUser", "DELETE", "/users/{id}", RemoveUser, true,
@@ -61,7 +64,7 @@ var routes = Routes{
 		"UpdateWantRead", "PUT", "/wantReads", UpdateWantRead, true,
 	},
 	Route{
-		"RemoveWantRead", "DELETE", "/wantReads/{id}", RemoveWantRead, true,
+		"RemoveWantRead", "DELETE", "/wantReads/{id}/remove", RemoveWantRead, true,
 	},
 	Route{
 		"AddFavorite", "POST", "/favorites", AddFavorite, true,
@@ -70,16 +73,28 @@ var routes = Routes{
 		"GetFavorite", "GET", "/favorites/{id}", GetFavorite, true,
 	},
 	Route{
-		"RemoveFavorite", "DELETE", "/favorites/{id}", RemoveFavorite, true,
+		"RemoveFavorite", "DELETE", "/favoritesRemove/{id}/{uid}", RemoveFavorite, true,
 	},
 	Route{
 		"GetSearchPost", "GET", "/search", GetSearchPost, false,
 	},
 	Route{
-		"OPTIONSFavorite", "OPTIONS", "/favorites", OPTIONSFavorite, true,
+		"AddDraft", "POST", "/drafts", AddDraft, true,
 	},
 	Route{
-		"OPTIONSUpdateUser", "OPTIONS", "/users/{id}", OPTIONSUpdateUser, true,
+		"GetDraft", "GET", "/drafts/{id}", GetDraft, true,
+	},
+	Route{
+		"UpdateDraft", "PUT", "/drafts/{draft_id}", UpdateDraft, true,
+	},
+	Route{
+		"RemoveDraft", "DELETE", "/drafts/{id}", RemoveDraft, true,
+	},
+	Route{
+		"OPTIONSFavorite", "OPTIONS", "/favoritesRemove/{id}/{uid}", OPTIONSFavorite, true,
+	},
+	Route{
+		"OPTIONSUpdateUser", "OPTIONS", "/users/{id}/update", OPTIONSUpdateUser, true,
 	},
 	Route{
 		"OPTIONSUpdateDraft", "OPTIONS", "/drafts/{id}", OPTIONSUpdateDraft, true,
@@ -91,19 +106,12 @@ var routes = Routes{
 		"OPTIONSRemovePost", "OPTIONS", "/posts/{id}", OPTIONSRemovePost, true,
 	},
 	Route{
+		"OPTIONSRemoveWantRead", "OPTIONS", "/posts/{id}", OPTIONSRemoveWantRead, true,
+	},
+	Route{
 		"OPTIONSUpdatePost", "OPTIONS", "/posts", OPTIONSUpdatePost, true,
 	},
 	Route{
 		"OPTIONSGetPost", "OPTIONS", "/posts/{id}", OPTIONSGetPost, true,
-	},
-	Route{
-		"AddDraft", "POST", "/drafts", AddDraft, true,
-	},
-	Route{
-		"GetDraft", "GET", "/drafts/{id}", GetDraft, true,
-	}, Route{
-		"UpdateDraft", "PUT", "/drafts/{id}", UpdateDraft, true,
-	}, Route{
-		"RemoveDraft", "DELETE", "/drafts/{id}", RemoveDraft, true,
 	},
 }

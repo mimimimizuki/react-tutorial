@@ -21,7 +21,7 @@ const Navi = (props) => {
         var params = new URLSearchParams();
         for (let i = 0; i < tagArr.length; i ++) {
             if (tagArr[i].includes("#")){
-                tagArr.replace("#", "");
+                tagArr[i] = tagArr[i].replace("#", "");
             }
             params.append("tags", tagArr[i])
         }
@@ -47,39 +47,39 @@ const Navi = (props) => {
             console.log(err);
         });
     };
-  return (
-      <Navbar collapseOnSelect expand="xl" id="navColor" variant="dark">
-          <LinkContainer to="/">
-              <Navbar.Brand>
-                  <Image  roundedCircle
-                      src='../../images/logo.png'
-                      width="50"
-                      height="50"
-                      alt="React Bootstrap logo"
-                  />
-              </Navbar.Brand>
-          </LinkContainer>
-          <Navbar.Toggle aria-controls="responsive-navbar-nav" />
-          <Navbar.Collapse id="responsive-navbar-nav">
-              <Nav className="mr-auto">
-                  <LinkContainer to="/timeline">
-                      <Nav.Link>Timeline</Nav.Link>
-                  </LinkContainer>
-              </Nav>
-              <Nav>
-              
-              <Nav style={{ marginRight:"10px"}} >
-              <LoginButton/>
-              </Nav>
-              <Form inline onSubmit={handleSubmit(onSubmit)}>
-                  <FormControl type="text" placeholder="調べたい論文のキーワード" className="mr-sm-2" id="search" ref={register({ required: true})} name="tags"/>
-                  <Button variant="outline-info" type="submit" size="lg">Search</Button>
-                  {errors.title && <span>検索内容は必須です</span>}
-              </Form>
-              </Nav>
-          </Navbar.Collapse>
-      </Navbar>
-  )
+    return (
+        <Navbar collapseOnSelect expand="xl" id="navColor" variant="dark">
+            <LinkContainer to="/">
+                <Navbar.Brand>
+                    <Image  roundedCircle
+                        src='../../images/logo.png'
+                        width="50"
+                        height="50"
+                        alt="React Bootstrap logo"
+                    />
+                </Navbar.Brand>
+            </LinkContainer>
+            <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+            <Navbar.Collapse id="responsive-navbar-nav">
+                <Nav className="mr-auto">
+                    <LinkContainer to="/timeline">
+                        <Nav.Link>Timeline</Nav.Link>
+                    </LinkContainer>
+                </Nav>
+                <Nav>
+                
+                <Nav style={{ marginRight:"10px"}} >
+                <LoginButton/>
+                </Nav>
+                <Form inline onSubmit={handleSubmit(onSubmit)}>
+                    <FormControl type="text" placeholder="調べたい論文のキーワード" className="mr-sm-2" id="search" ref={register({ required: true})} name="tags"/>
+                    <Button variant="outline-info" type="submit" size="lg">Search</Button>
+                    {errors.title && <span>検索内容は必須です</span>}
+                </Form>
+                </Nav>
+            </Navbar.Collapse>
+        </Navbar>
+    ) 
 }
 
 export default withRouter(Navi);

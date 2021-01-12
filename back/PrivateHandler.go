@@ -17,7 +17,7 @@ var GetPost = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	var post Post
 	params := mux.Vars(r)
 	Posts = []Post{}
-	rows, err := A.DB.Query("select * from posts where user_id = $1;", params["id"])
+	rows, err := A.DB.Query("select * from posts where user_id = $1 order by post_time desc, post_id desc;", params["id"])
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -46,10 +46,16 @@ var AddPost = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	post.Overview = r.FormValue("Overview")
 	post.Link = r.FormValue("Link")
 	post.Thought = r.FormValue("Thought")
+	tags := []string{}
+	for k, v := range r.Form {
+		if k == "Tags" {
+			tags = v
+		}
+	}
 	err := A.DB.QueryRow("INSERT INTO posts (user_id, post_time , title, overview, link, thought, tags) values($1, $2, $3, $4, $5, $6 , $7) RETURNING post_id;",
-		post.UserId, post.PostDate, post.Title, post.Overview, post.Link, post.Thought, pq.Array(r.FormValue("Tags"))).Scan(&postID)
+		post.UserId, post.PostDate, post.Title, post.Overview, post.Link, post.Thought, pq.Array(tags)).Scan(&postID)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	json.NewEncoder(w).Encode(postID)
 })
@@ -59,8 +65,9 @@ var UpdatePost = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	var post Post
 	log.Println("update post is called")
 	json.NewDecoder(r.Body).Decode(&post)
-	result, err := A.DB.Exec("UPDATE posts SET title=$1, overview=$2, link=$3, thought=$4 WHERE post_id=$5 RETURNING post_id",
-		&post.Title, &post.Overview, &post.Link, &post.Thought, &post.ID)
+	log.Println(post)
+	result, err := A.DB.Exec("UPDATE posts SET title=$1, overview=$2, link=$3, thought=$4, tags=$5, post_time=$6 WHERE post_id=$7;",
+		&post.Title, &post.Overview, &post.Link, &post.Thought, pq.Array(&post.Tags), &post.PostDate, &post.ID)
 	if err != nil {
 		log.Println(err)
 	}
@@ -86,6 +93,28 @@ var RemovePost = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Println("rowsDeleted", rowsDeleted)
 	json.NewEncoder(w).Encode(rowsDeleted)
+})
+
+// GetUser is to get my infomation about diaplayname or bio ...
+var GetUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	log.Println("Get user")
+	var user User
+	params := mux.Vars(r)
+	log.Println(params["id"])
+	rows := A.DB.QueryRow("select * from users where auth_id = $1;", params["id"])
+	err := rows.Scan(&user.ID, &user.DisplayName, &user.BIO, &user.AuthID)
+	if err != nil {
+		log.Println(err)
+	}
+	if user.ID == 0 {
+		name, BIO, err1 := AddUser(params["id"])
+		if err1 != nil {
+			log.Fatal(err1)
+		}
+		user.DisplayName = name
+		user.BIO = BIO
+	}
+	json.NewEncoder(w).Encode(&user)
 })
 
 // UpdateUser is to update user infomation
@@ -180,7 +209,7 @@ var UpdateWantRead = http.HandlerFunc(func(w http.ResponseWriter, r *http.Reques
 var RemoveWantRead = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	log.Println("delete wantread is called")
 	params := mux.Vars(r)
-	result, err := A.DB.Exec("DELETE FROM wantreads WHERE wantread_id = $1", params["id"])
+	result, err := A.DB.Exec("DELETE FROM wantreads WHERE want_id = $1", params["id"])
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -209,7 +238,8 @@ var AddFavorite = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) 
 var RemoveFavorite = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	log.Println("delete favorite is called")
 	params := mux.Vars(r)
-	result, err := A.DB.Exec("DELETE FROM favorites WHERE favorite_id = $1", params["id"])
+	log.Println("DELETE FROM favorites WHERE user_id = $1 and post_id = $2", params["uid"], params["id"])
+	result, err := A.DB.Exec("DELETE FROM favorites WHERE user_id = $1 and post_id = $2", params["uid"], params["id"])
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -227,7 +257,7 @@ var GetFavorite = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) 
 	var favoritePost Post
 	Posts = []Post{}
 	log.Println("get favorites is called")
-	rows, err := A.DB.Query("SELECT * FROM posts where post_id = (SELECT post_id FROM favorites WHERE user_id = $1)", params["id"])
+	rows, err := A.DB.Query("SELECT * FROM posts where post_id in (SELECT post_id FROM favorites WHERE user_id = $1) order by post_time desc, post_id desc", params["id"])
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -276,8 +306,13 @@ var OPTIONSRemovePost = http.HandlerFunc(func(w http.ResponseWriter, r *http.Req
 	w.WriteHeader(http.StatusOK)
 })
 
+var OPTIONSRemoveWantRead = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+})
+
 // OPTIONSUpdatePost is preflight process
 var OPTIONSUpdatePost = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	log.Println("preflight of updating post is called")
 	w.WriteHeader(http.StatusOK)
 })
 
@@ -315,7 +350,7 @@ var GetDraft = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	rows := A.DB.QueryRow("SELECT * FROM drafts WHERE user_id = $1;", params["id"])
 	err := rows.Scan(&draft.ID, &draft.UserId, &draft.Title, &draft.Overview, &draft.Link, &draft.Thought, pq.Array(&draft.Tags))
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	json.NewEncoder(w).Encode(draft)
 })
@@ -343,7 +378,7 @@ var UpdateDraft = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) 
 	log.Println("update draft is called")
 	json.NewDecoder(r.Body).Decode(&draft)
 	result, err := A.DB.Exec("UPDATE drafts SET title=$1, overview=$2, link=$3, thought=$4, tags = $5 WHERE draft_id = $6",
-		&draft.Title, &draft.Overview, &draft.Link, &draft.Thought, pq.Array(&draft.Tags), params["id"])
+		&draft.Title, &draft.Overview, &draft.Link, &draft.Thought, pq.Array(&draft.Tags), params["draft_id"])
 	if err != nil {
 		log.Fatal(err)
 	}

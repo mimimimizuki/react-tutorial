@@ -1,13 +1,14 @@
 package main
 
 import (
+	"crypto/rand"
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
 	"github.com/lib/pq"
-	"golang.org/x/crypto/bcrypt"
 )
 
 // ============> Post
@@ -18,7 +19,7 @@ var GetPosts = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	var post Post
 	Posts = []Post{}
 
-	rows, err := A.DB.Query("select * from posts;")
+	rows, err := A.DB.Query("select * from posts order by post_time desc, post_id desc;")
 	if err != nil {
 		log.Println(err)
 	}
@@ -52,22 +53,17 @@ var GetPostDetail = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request
 // ============> User
 
 // AddUser is to create new account
-var AddUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	var user User
+func AddUser(authID string) (string, string, error) {
 	var userID int
 	log.Println("add user id called")
-	json.NewDecoder(r.Body).Decode(&user)
-	hash, err := bcrypt.GenerateFromPassword([]byte(user.Pass), 12)
-	if err != nil {
-		log.Fatal(err)
-	}
-	err1 := A.DB.QueryRow("INSERT INTO users (display_name, birthday, pass, bio) values ($1 , $2 , $3, $4) RETURNING user_id;",
-		user.DisplayName, user.Birthday, string(hash), user.BIO).Scan(&userID)
+	displayName, _ := MakeRandomStr(6)
+	err1 := A.DB.QueryRow("INSERT INTO users (display_name, auth_id) values ($1 , $2) RETURNING user_id;",
+		displayName, authID).Scan(&userID)
 	if err1 != nil {
-		log.Fatal(err1)
+		return "", "", err1
 	}
-	json.NewEncoder(w).Encode(userID)
-})
+	return displayName, "", nil
+}
 
 // GetUsers is maybe not used
 var GetUsers = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -80,7 +76,7 @@ var GetUsers = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		err := rows.Scan(&user.ID, &user.DisplayName, &user.Birthday, &user.Pass, &user.BIO)
+		err := rows.Scan(&user.ID, &user.DisplayName, &user.AuthID, &user.BIO)
 		if err != nil {
 			log.Println(err)
 		}
@@ -92,14 +88,14 @@ var GetUsers = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(Users)
 })
 
-// GetUser is to get one user infomation about diaplayname or bio ...
-var GetUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+// GetOtherUser is to get Other user infomation about diaplayname or bio ...
+var GetOtherUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	log.Println("Get user")
 	var user User
 	params := mux.Vars(r)
 	log.Println(params["id"])
 	rows := A.DB.QueryRow("select * from users where user_id = $1;", params["id"])
-	err := rows.Scan(&user.ID, &user.DisplayName, &user.Birthday, &user.Pass, &user.BIO)
+	err := rows.Scan(&user.ID, &user.DisplayName, &user.BIO, &user.AuthID)
 	if err != nil {
 		log.Println(err)
 	}
@@ -131,6 +127,7 @@ var GetWantReads = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request)
 
 // GetSearchPost is the most important , search function . now can search from tags
 var GetSearchPost = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	log.Println("search post is called")
 	var searchPost Post
 	var arr string
 	Posts = []Post{}
@@ -140,7 +137,7 @@ var GetSearchPost = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request
 		}
 		for i := range v {
 			rows, err := A.DB.Query("SELECT * FROM (SELECT * , unnest(tags) as arr FROM posts) as t WHERE arr LIKE $1;", v[i]+"%")
-
+			log.Println(v[i])
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -161,14 +158,20 @@ var GetSearchPost = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request
 	json.NewEncoder(w).Encode(Posts)
 })
 
-// func passwordVerify(hash, pw string) error {
-// 	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(pw))
-// }
+func MakeRandomStr(digit uint32) (string, error) {
+	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-// err := passwordVerify(hash, "入力されたパスワード")
-// if err != nil {
-//     panic(err)
-// }
+	// 乱数を生成
+	b := make([]byte, digit)
+	if _, err := rand.Read(b); err != nil {
+		return "", errors.New("unexpected error...")
+	}
 
-// println("認証しました")
-//https://tool-taro.com/hash/ SHA1 mizuki
+	// letters からランダムに取り出して文字列を生成
+	var result string
+	for _, v := range b {
+		// index が letters の長さに収まるように調整
+		result += string(letters[int(v)%len(letters)])
+	}
+	return result, nil
+}

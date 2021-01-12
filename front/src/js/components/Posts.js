@@ -6,17 +6,25 @@ import { withRouter } from 'react-router-dom';
 import { useAuth0 } from "@auth0/auth0-react";
 const Posts = (props) => {
     const [liked, setLike] = useState(false);
-    const [liked_id, setLikeId] = useState("");
     const [me, setMe] = useState(props.me);
     const {id} = props;
     const [isLoading, setIsLoading] = useState(false);
-    const { getAccessTokenSilently } = useAuth0();
+    const { getAccessTokenSilently, user } = useAuth0();
+    const [user_id ,setUserID] = useState(0);
     const [ooo, setOOO] = useState("");
     useEffect(() => {
         const getFav = async () => {
             setIsLoading(true);
             const token = await getAccessTokenSilently();
-            const res = await axios.get("http://localhost:5000/favorites/1", {
+            const Sub = await user.sub;
+            const subRes = await axios.get("http://localhost:5000/users/"+Sub+"/auth", {
+                headers: {
+                    Authorization : "Bearer "+token,
+                }
+            })
+            setUserID(Number(subRes.data.ID))
+            const user_id = subRes.data.ID;
+            const res = await axios.get("http://localhost:5000/favorites/"+user_id, {
                 headers: {
                     Authorization: "Bearer " + token,
                 }
@@ -24,7 +32,6 @@ const Posts = (props) => {
             const ok = await res.data.forEach(doc => {
                 if (doc.ID == props.id){
                     setLike(true);
-                    setLikeId(doc.ID)
                 }
             });
             if (props.me){
@@ -41,24 +48,21 @@ const Posts = (props) => {
     }, []);
     const handleClick = async (id) => {
         const token = await getAccessTokenSilently();
+        var params = new URLSearchParams();
+        params.append("PostId", (id));
+        params.append("UserId", String(user_id));
         if (!liked){ // add favorite 
-            var params = new URLSearchParams();
-            params.append("PostId", id);
-            params.append("UserId", 1);
             const response = await axios.post("http://localhost:5000/favorites", params, {
                 headers: {
-                    Authorization: "Bearer " + token
+                    Authorization: `Bearer ${token}`,
                 }
             })
-            setLikeId(response.data);
             setLike(true);
         } else { //delete favorite
-            const response = await fetch('http://localhost:5000/favorites/'+liked_id,{
-                method: "DELETE",
+            const response = await axios.delete('http://localhost:5000/favoritesRemove/'+id+"/"+String(user_id), {
                 headers: {
-                    'Content-Type': 'application/json; charset=UTF-8',
-                    Authorization : "Bearer " + token,
-                  }
+                    Authorization : `Bearer ${token}`,
+                }
             });
             console.log(response);
             setLike(false);
@@ -85,7 +89,11 @@ const Posts = (props) => {
                         style={{ height: 50, width: 50}} />
                     }
                         <Card.Body  id="post">
-                            <Card.Title onClick={() => handleSeePost(id)}>{props.title}</Card.Title>
+                            {props.authorized ? <Card.Title onClick={() => handleSeePost(id)}>{props.title}</Card.Title>
+                            :
+                            <Card.Title>{props.title}</Card.Title>
+                            }
+                            
                             <Card.Subtitle className="mb-2 text-muted">{props.overview}</Card.Subtitle>
                             <Card.Text>
                             {props.thought}
@@ -98,17 +106,19 @@ const Posts = (props) => {
                             <br></br>
                         </Card.Body>
                         {props.authorized &&
-                            liked ? 
-                            <BsFillHeartFill className="heart" color="#e57373" size="30px"  onClick={() => handleClick}/>
+                            (liked ? 
+                            <BsFillHeartFill className="heart" color="#e57373" size="30px"  onClick={() => handleClick(id)}/>
                                 : 
                                 <OverlayTrigger overlay={<Tooltip id="tooltip-like">like!</Tooltip>}>
-                                <BsHeart className="heart" size="30px" onClick={() => handleClick}/>
+                                <BsHeart className="heart" size="30px" onClick={() => handleClick(id)}/>
+                            </OverlayTrigger>)
+                        }
+                        {props.authorized && 
+                            <OverlayTrigger overlay={<Tooltip id="tooltip-reply">reply this post</Tooltip>}>
+                            <BsFillReplyFill size="30px" className="reply" color="dimgray"/>
                             </OverlayTrigger>
                         }
                         
-                        <OverlayTrigger overlay={<Tooltip id="tooltip-reply">reply this post</Tooltip>}>
-                        <BsFillReplyFill size="30px" className="reply" color="dimgray"/>
-                        </OverlayTrigger>
                     </Card>)
             }
         </div>
