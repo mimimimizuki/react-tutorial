@@ -9,6 +9,7 @@ const YetPosts = (props) => {
     const link = props.link;
     const thought = props.thought;
     const tags = props.tags;
+    const me = props.me;
     const { getAccessTokenSilently, user } = useAuth0();
     const [isLoading, setIsLoading] = useState(false);
     const [user_id, setUserID] = useState(0);
@@ -209,6 +210,7 @@ const YetPosts = (props) => {
             <div>
             <ModalPost show={show} onHide={() => setShow(false)} />
             <Card>
+            {me ? 
             <Dropdown>
                 <Dropdown.Toggle className="detail"variant="secondary">more action</Dropdown.Toggle>
                 <Dropdown.Menu>
@@ -216,6 +218,10 @@ const YetPosts = (props) => {
                 <Dropdown.Item onClick={handleDeleteClick}>もう読まない</Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>
+            :
+            <></>
+            }
+            
             <Card.Body>
                 <Card.Title>{props.title}
                 </Card.Title>

@@ -37,7 +37,7 @@ const newHome = () => {
                 Authorization: `Bearer ${token}`,
             }});
             res.data.forEach((doc) => {
-                yetPostList.push(<YetPosts key={doc.ID} title={doc.Title} link={doc.Link} id={doc.ID}/>
+                yetPostList.push(<YetPosts key={doc.ID} title={doc.Title} link={doc.Link} id={doc.ID} me={true}/>
                     );
                 setYetPosts(yetPostList);
             });

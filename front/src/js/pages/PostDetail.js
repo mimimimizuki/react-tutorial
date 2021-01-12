@@ -66,6 +66,7 @@ const PostDetail = (props) => {
             }).catch(err => {
                 console.log(err)
             });
+            console.log("this post is written by "+user_id)
             setIsLoading(false);
         }
         const query = new URLSearchParams(props.location.search);
@@ -169,12 +170,13 @@ const PostDetail = (props) => {
         });
         props.history.push("/");
     }
-    const handleOtherPage = (id) => {
-        if (me){
+    const handleOtherPage = (user_id) => {
+        console.log("here")
+        if (user_id == 0){
             props.history.push("/")
         }
         else{
-            props.history.push("/user?id="+id);
+            props.history.push("/user?id="+user_id);
         }
     }
 
@@ -241,8 +243,8 @@ const PostDetail = (props) => {
             <Card >
             {me ? 
                     <div>
-                    <Image src="../../images/logo.png"  roundedCircle onClick={() => handleOtherPage(user_id)}
-                        style={{ height: 50, width: 50}} /><h2 className="user_name" onClick={() => handleOtherPage(user_id)}>{user_name}</h2>
+                    <Image src="../../images/logo.png"  roundedCircle onClick={() => handleOtherPage(0)}
+                        style={{ height: 50, width: 50}} /><h2 className="user_name" onClick={() => handleOtherPage(0)}>{user_name}</h2>
                     <Dropdown>
                         <Dropdown.Toggle className="detail"variant="dark">more action</Dropdown.Toggle>
                         <Dropdown.Menu>
@@ -254,7 +256,7 @@ const PostDetail = (props) => {
                     
                 : 
                 <div>
-                <Image src="../../images/logo2.png"  roundedCircle onClick={() => handleOtherPage(id)}
+                <Image src="../../images/logo2.png"  roundedCircle onClick={() => handleOtherPage(user_id)}
                     style={{ height: 50, width: 50}} /><h2 className="user_name">{user_name}</h2>
                 </div>
             }
