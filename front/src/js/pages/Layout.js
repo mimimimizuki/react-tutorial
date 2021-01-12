@@ -3,6 +3,7 @@ import AuthNavi from "../components/AuthNavi";
 import Navi from '../components/Navi';
 import { useAuth0 } from "@auth0/auth0-react";
 import axios from "axios";
+import {Redirect} from 'react-router-dom';
 function Layout(props){
   const { isAuthenticated, isLoading, user } = useAuth0();
   if (isLoading) {
@@ -14,9 +15,8 @@ function Layout(props){
     }
     return (
       <div className="App">
-        {!isAuthenticated && (
-          <Navi />
-        )}
+        {!isAuthenticated && <Navi /> }
+        {!isAuthenticated && <Redirect to="/timeline" />}
   
         {isAuthenticated && <AuthNavi />}
         {isAuthenticated && props.children }
