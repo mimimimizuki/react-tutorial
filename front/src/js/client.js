@@ -13,6 +13,7 @@ import Post from './pages/PostDetail';
 import History from './auth/History';
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import Search from "./pages/Search";
+import AuthSearch from "./pages/AuthSearch";
 const app = document.getElementById('app');
 
 ReactDOM.render(
@@ -27,6 +28,7 @@ ReactDOM.render(
             <Route exact path="/setting" component={Setting}></Route>
             <Route path="/user" component={User}></Route>
             <Route path="/posts" component={Post}></Route>
+            <Route path="/searches" component={AuthSearch}></Route>
             <Route path="/404" component={NotFound}/>
         </Switch>
         </Layout>

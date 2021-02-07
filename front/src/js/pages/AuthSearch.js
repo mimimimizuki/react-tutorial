@@ -4,10 +4,22 @@ import { useForm } from 'react-hook-form';
 import { withRouter } from 'react-router-dom';
 import Posts from "../components/Posts";
 import axios from 'axios';
+import { useAuth0 } from '@auth0/auth0-react';
+
 const Search = ()  => {
     const [post, setPost] = useState([]);
     const { register, handleSubmit, errors} = useForm();
-    const onSubmit = (data) => {
+    const { getAccessTokenSilently, user } = useAuth0();
+
+    const onSubmit = async (data) => {
+            const token = await getAccessTokenSilently();
+            const sub = await user.sub;
+            const res = await axios.get("http://localhost:5000/users/"+sub+"/auth", {
+                headers: {
+                    Authorization : "Bearer "+token,
+                }
+            });
+            const user_id = res.data.ID;
             const result = new Array();
             console.log(data.tags)
             var tagArr = new Array();
@@ -34,7 +46,14 @@ const Search = ()  => {
                 }
                 else{
                     res.data.forEach(doc => {
-                        result.push(<Posts key={doc.ID}  title={doc.Title} overview={doc.Overview} link={doc.Link} thought={doc.Thought} tags={doc.Tags} id={doc.ID} me={false}/>);
+                        var me = false;
+                        if (doc.UserId == user_id){
+                            me = true;
+                        }
+                        else{
+                            me = false;
+                        }
+                        result.push(<Posts key={doc.ID}  title={doc.Title} overview={doc.Overview} link={doc.Link} thought={doc.Thought} tags={doc.Tags} id={doc.ID} me={me} authorized={true}/>);
                     });
                     setPost(result);
                 }
