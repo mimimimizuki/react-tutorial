@@ -12,6 +12,7 @@ import User from './pages/User';
 import Post from './pages/PostDetail';
 import History from './auth/History';
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import Search from "./pages/Search";
 const app = document.getElementById('app');
 
 ReactDOM.render(
@@ -32,5 +33,6 @@ ReactDOM.render(
         </History>
         <Route exact path="/result" component={Result}></Route>
         <Route path="/timeline" component={TimeLine}></Route>
+        <Route exact path = "/search" component={Search}></Route>
     </Router>
     , app);

@@ -114,7 +114,7 @@ var routes = Routes{
 	Route{
 		"OPTIONSGetPost", "OPTIONS", "/posts/{id}", OPTIONSGetPost, true,
 	},
-	Route{
-		"AddFollow", "POST", "/follow/{following_id}/{follower_id}", AddFollow, true,
-	},
+	// Route{
+	// 	"AddFollow", "POST", "/follow/{following_id}/{follower_id}", AddFollow, true,
+	// },
 }
