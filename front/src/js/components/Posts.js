@@ -69,7 +69,7 @@ const Posts = (props) => {
         }
     }
     const handleSeePost = (id) => {
-        props.history.push("/posts?id="+id);
+        props.history.push("/posts/"+id);
     }
     return (
         <div>

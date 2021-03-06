@@ -70,6 +70,8 @@ var GetUsers = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Get all users")
 	var user User
 	Users = []User{}
+	var followerNum int
+	var followingNum int
 	rows, err := A.DB.Query("select * from users;")
 	if err != nil {
 		log.Println(err)
@@ -80,6 +82,9 @@ var GetUsers = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println(err)
 		}
+		followerNum, followingNum = countFollowNum(user.ID)
+		user.FollowerNum = followerNum
+		user.FollowingNum = followingNum
 		Users = append(Users, user)
 	}
 	if err = rows.Err(); err != nil {
@@ -92,6 +97,8 @@ var GetUsers = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 var GetOtherUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	log.Println("Get user")
 	var user User
+	var followerNum int
+	var followingNum int
 	params := mux.Vars(r)
 	log.Println(params["id"])
 	rows := A.DB.QueryRow("select * from users where user_id = $1;", params["id"])
@@ -99,7 +106,9 @@ var GetOtherUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		log.Println(err)
 	}
-
+	followerNum, followingNum = countFollowNum(user.ID)
+	user.FollowerNum = followerNum
+	user.FollowingNum = followingNum
 	json.NewEncoder(w).Encode(&user)
 })
 
@@ -174,4 +183,19 @@ func MakeRandomStr(digit uint32) (string, error) {
 		result += string(letters[int(v)%len(letters)])
 	}
 	return result, nil
+}
+
+func countFollowNum(userID int) (int, int) {
+	var followerNum int
+	var followingNum int
+
+	err1 := A.DB.QueryRow("select count(*) from follows where follows.follower_id = $1;", userID).Scan(&followerNum)
+	if err1 != nil {
+		followerNum = 0
+	}
+	err2 := A.DB.QueryRow("select count(*) from follows where follows.following_id = $1;", userID).Scan(&followingNum)
+	if err2 != nil {
+		followingNum = 0
+	}
+	return followerNum, followingNum
 }

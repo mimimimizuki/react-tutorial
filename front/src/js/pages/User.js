@@ -7,9 +7,9 @@ import MyInfo from '../components/MyInfo';
 import { withRouter } from 'react-router-dom';
 import { useAuth0 } from "@auth0/auth0-react";
 const User = (props) => {
-    const [ data , setData ] = useState({user_name:"", user_bio:""});
-    const [ postList, setPosts ] = useState([]);
-    const [ yetpostList, setYetPosts ] = useState([]);
+    const [ data , setData ] = useState({user_name:"", user_bio:"", following:"0", follower:"0"});
+    const [ posts, setPosts ] = useState([]);
+    const [ yets, setYetPosts ] = useState([]);
     const { getAccessTokenSilently, user } = useAuth0();
     const [ isLoading, setIsLoading ] = useState(false);
     useEffect(() => {
@@ -24,7 +24,7 @@ const User = (props) => {
                 console.log(err)
                 props.history.push("/404");
             });
-            setData({user_name: res.data.DisplayName, user_bio: res.data.BIO});
+            setData({user_name: res.data.DisplayName, user_bio: res.data.BIO, following: res.data.FollowingNum, follower: res.data.FollowerNum});
             await fetchPost(user_id);
             await fetchYetPost(user_id);
         }
@@ -37,12 +37,16 @@ const User = (props) => {
                 }
             }).then((res) => {
                 res.data.forEach((doc) => {
-                    postList.push(
-                    <Posts key={doc.ID} title={doc.Title} overview={doc.Overview} link={doc.Link} thought={doc.Thought} tags={doc.Tags} id={doc.ID} me={false} authorized={true}
-                    />);
-                    setPosts(postList);
+                    posts.push({
+                        "post" : doc,
+                        "me" : false,
+                        "authorized" : true,
+                    });
+                    // postList.push(
+                    // <Posts key={doc.ID} title={doc.Title} overview={doc.Overview} link={doc.Link} thought={doc.Thought} tags={doc.Tags} id={doc.ID} me={false} authorized={true}
+                    // />);
+                    setPosts(posts);
                 });
-                console.log(postList)
             }).catch((error) => {
                 console.log(error)
             });
@@ -53,22 +57,26 @@ const User = (props) => {
             const res = await axios.get(yeturl, {
                 headers: {
                     Authorization: "Bearer "+token,
+                    'Content-Type': 'application/json',
                 }
             }).catch((error) => {
                 console.log(error)
             });
             res.data.forEach((doc) => {
-                yetpostList.push(
-                    <YetPosts key={doc.ID} title={doc.Title} link={doc.Link} id={doc.ID} me={false}/>
-                );
-                setYetPosts(yetpostList);
+                yets.push({
+                    "projects" : doc,
+                    "me" : false
+                });
+                setYetPosts(yets);
+                console.log(yets)
             })
             setIsLoading(false);
         }
-        const query = new URLSearchParams(props.location.search);
-        const user_id = query.get('id');
+        const user_id = parseInt(props.match.params.id)
+        // const query = new URLSearchParams(props.location.search);
+        // const user_id = query.get('id');
         getUserData(user_id);
-    }, [])
+    }, [yets, posts])
     const handleFollow = async () => {
         const token = await getAccessTokenSilently();
         const Sub = await user.sub;
@@ -78,17 +86,20 @@ const User = (props) => {
             }
         })
         const following = subRes.data.ID;
-        const query = new URLSearchParams(props.location.search);
-        const user_id = query.get('id');
-        axios.post("http://localhost:5000/follow/"+following+"/"+user_id, {
-            headers:{
-                Authorization : "Bearer "+token,
+        addFollow(following);
+    }
+    const addFollow = async (following_id) => {
+        const token = await getAccessTokenSilently();
+        const follower = parseInt(props.match.params.id);
+        var params = new URLSearchParams();
+        params.append('following', following_id);
+        params.append('follower', follower);
+        const postRes = await axios.post("http://localhost:5000/follow", params, {
+            headers: {
+                Authorization : `Bearer ${token}`,
             }
-        }).then(res => {
-            console.log(res)
-        }).catch(err => {
-            console.log(err)
-        })
+        });
+        console.log(postRes)
     }
     return (
         <div>
@@ -96,20 +107,36 @@ const User = (props) => {
             :
             <div>
                 <Button color="green" size="lg" onClick={() => handleFollow()}>Follow </Button>
-                <MyInfo name={data.user_name} bio={data.user_bio} following="10" follower="10" other="yes"/>
+                <MyInfo name={data.user_name} bio={data.user_bio} following={data.following} follower={data.follower} other="yes"/>
                 <CardGroup className = 'm-4' style={{ width: '100vm' }}>
                         <Card.Header style={{ width: '50%' }}>
-                                {
-                                postList.length == 0 ? "no post"
-                                :
-                                <div>{postList}</div>
-                                }
+                            {posts.length > 0 ? (
+                                posts.map((post, i) => {
+                                    return (
+                                        <Posts key={post.post.ID} title={post.post.Title} overview={post.post.Overview} link={post.post.Link} thought={post.post.Thought} tags={post.post.Tags} id={post.post.ID} me={post.me} authorized={post.authorized} index={i} />
+                                    );
+                                })
+                            ) : (
+                                "no post"
+                            )
+                            }
                         </Card.Header>
                         <Card.Header style={{ width: '50%', position:'relative', right: '0px' }}>
                                 {
-                                yetpostList.length == 0 ? "no post"
+                                yets.length > 0 ? (
+                                    yets.map((projects, i) => {
+                                        return(
+                                            <div>
+                                            <YetPosts key={i} title={projects.projects.Title} link={projects.projects.Link} id={projects.projects.ID} me={projects.me} />
+                                            </div>
+                                        );
+                                    })
+                                )
                                 :
-                                <div>{yetpostList}</div>
+                                "no post"
+                                // yetpostList.length == 0 ? "no post"
+                                // :
+                                // <div>{yetpostList}</div>
                                 }
                         </Card.Header>
                 </CardGroup>

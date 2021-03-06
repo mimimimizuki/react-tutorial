@@ -69,8 +69,9 @@ const PostDetail = (props) => {
             console.log("this post is written by "+user_id)
             setIsLoading(false);
         }
-        const query = new URLSearchParams(props.location.search);
-        const post_id = query.get('id');
+        const post_id = parseInt(props.match.params.id)
+        // const query = new URLSearchParams(props.location.search);
+        // const post_id = query.get('id');
         const getSub = async (user) => {
             const token = await getAccessTokenSilently();
             setIsLoading(true);
@@ -176,7 +177,7 @@ const PostDetail = (props) => {
             props.history.push("/")
         }
         else{
-            props.history.push("/user?id="+user_id);
+            props.history.push("/user/"+user_id);
         }
     }
 

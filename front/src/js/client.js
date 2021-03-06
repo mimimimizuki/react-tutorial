@@ -17,7 +17,7 @@ import AuthSearch from "./pages/AuthSearch";
 const app = document.getElementById('app');
 
 ReactDOM.render(
-    <Router>
+<Router>
         <History>
         <Layout>
         <Switch>
@@ -26,8 +26,8 @@ ReactDOM.render(
             <Route exact path="/favorite" component={Favorite}></Route>
             <Route exact path="/results" component={Result}></Route>
             <Route exact path="/setting" component={Setting}></Route>
-            <Route path="/user" component={User}></Route>
-            <Route path="/posts" component={Post}></Route>
+            <Route path="/user/:id" component={User}></Route>
+            <Route path="/posts/:id" component={Post}></Route>
             <Route path="/searches" component={AuthSearch}></Route>
             <Route path="/404" component={NotFound}/>
         </Switch>
