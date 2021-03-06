@@ -76,7 +76,7 @@ const User = (props) => {
         // const query = new URLSearchParams(props.location.search);
         // const user_id = query.get('id');
         getUserData(user_id);
-    }, [yets, posts])
+    }, [])
     const handleFollow = async () => {
         const token = await getAccessTokenSilently();
         const Sub = await user.sub;
