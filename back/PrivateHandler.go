@@ -412,6 +412,17 @@ var AddFollow = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(followID)
 })
 
+var CheckFollow = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	var followFlg int
+	log.Println("check follow is called")
+	params := mux.Vars(r)
+	err := A.DB.QueryRow("SELECT count(*) FROM follows WHERE following_id = $1 and follower_id = $2 ;", params["following_id"], params["follower_id"]).Scan(&followFlg)
+	if err != nil {
+		log.Fatal(err)
+	}
+	json.NewEncoder(w).Encode(followFlg)
+})
+
 var OPTIONSAddFollow = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	log.Println("options get post is called")
 	w.WriteHeader(http.StatusOK)

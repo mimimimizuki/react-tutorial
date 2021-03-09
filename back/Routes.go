@@ -94,6 +94,9 @@ var routes = Routes{
 		"AddFollow", "POST", "/follow", AddFollow, true,
 	},
 	Route{
+		"CheckFollow", "GET", "/following/{following_id}/{follower_id}", CheckFollow, true,
+	},
+	Route{
 		"OPTIONSFavorite", "OPTIONS", "/favoritesRemove/{id}/{uid}", OPTIONSFavorite, true,
 	},
 	Route{

@@ -12,6 +12,8 @@ const User = (props) => {
     const [ yets, setYetPosts ] = useState([]);
     const { getAccessTokenSilently, user } = useAuth0();
     const [ isLoading, setIsLoading ] = useState(false);
+    const [ loggingUser, setUser ] = useState("");
+    const [ followFlg , setFlg ] = useState(false);
     useEffect(() => {
         const getUserData = async (user_id) => {
             await setIsLoading(true)
@@ -26,6 +28,7 @@ const User = (props) => {
             });
             setData({user_name: res.data.DisplayName, user_bio: res.data.BIO, following: res.data.FollowingNum, follower: res.data.FollowerNum});
             await fetchPost(user_id);
+            await checkFollow(user_id);
             await fetchYetPost(user_id);
         }
         const fetchPost = async (user_id) => {
@@ -75,45 +78,59 @@ const User = (props) => {
         const user_id = parseInt(props.match.params.id)
         // const query = new URLSearchParams(props.location.search);
         // const user_id = query.get('id');
+        const checkFollow = async (user_id) => {
+            const token = await getAccessTokenSilently();
+            const Sub = await user.sub;
+            const subRes = await axios.get("http://localhost:5000/users/"+Sub+"/auth", {
+                headers: {
+                    Authorization : "Bearer "+token,
+                }
+            })
+            setUser(subRes.data.ID)
+            const res = await axios.get("http://localhost:5000/following/"+subRes.data.ID+"/"+user_id, {
+                headers : {
+                    Authorization : `Bearer ${token}`,
+                }
+            })
+            console.log(res)
+            if (res.data > 0){
+                setFlg(true);
+            }
+        }
         getUserData(user_id);
     }, [])
     const handleFollow = async () => {
         const token = await getAccessTokenSilently();
-        const Sub = await user.sub;
-        const subRes = await axios.get("http://localhost:5000/users/"+Sub+"/auth", {
-            headers: {
-                Authorization : "Bearer "+token,
-            }
-        })
-        const following = subRes.data.ID;
-        addFollow(following);
-    }
-    const addFollow = async (following_id) => {
-        const token = await getAccessTokenSilently();
         const follower = parseInt(props.match.params.id);
         var params = new URLSearchParams();
-        params.append('following', following_id);
+        params.append('following', loggingUser);
         params.append('follower', follower);
         const postRes = await axios.post("http://localhost:5000/follow", params, {
             headers: {
                 Authorization : `Bearer ${token}`,
             }
         });
-        console.log(postRes)
+        console.log(postRes);
+        setFlg(true)
     }
     return (
         <div>
             {isLoading ? <>loading...</>
             :
             <div>
-                <Button color="green" size="lg" onClick={() => handleFollow()}>Follow </Button>
+                <div style={{ textAlign : "center"}}>
+                    { !followFlg ? <Button size="lg" variant="success" onClick={() => handleFollow()}>Follow </Button>
+                    : 
+                    <Button size="lg" variant="secondary" disabled>Following </Button>
+                    }
+                </div>
                 <MyInfo name={data.user_name} bio={data.user_bio} following={data.following} follower={data.follower} other="yes"/>
                 <CardGroup className = 'm-4' style={{ width: '100vm' }}>
                         <Card.Header style={{ width: '50%' }}>
                             {posts.length > 0 ? (
                                 posts.map((post, i) => {
                                     return (
-                                        <Posts key={post.post.ID} title={post.post.Title} overview={post.post.Overview} link={post.post.Link} thought={post.post.Thought} tags={post.post.Tags} id={post.post.ID} me={post.me} authorized={post.authorized} index={i} />
+                                        <Posts key={i} title={post.post.Title} overview={post.post.Overview} link={post.post.Link} thought={post.post.Thought} tags={post.post.Tags} id={post.post.ID} me={post.me} authorized={post.authorized} index={i} />
                                     );
                                 })
                             ) : (
