@@ -9,9 +9,11 @@ const YetPosts = (props) => {
     const link = props.link;
     const thought = props.thought;
     const tags = props.tags;
+    const me = props.me;
     const { getAccessTokenSilently, user } = useAuth0();
     const [isLoading, setIsLoading] = useState(false);
     const [user_id, setUserID] = useState(0);
+    console.log(title, link)
     useEffect(() => {
         const getSub = async (user) => {
             setIsLoading(true)
@@ -26,7 +28,6 @@ const YetPosts = (props) => {
             return res.data.ID
         }
         const a = getSub(user);
-        console.log(a+user_id)
         setIsLoading(false);
     }, [])
     const handleDeleteClick = async () => {
@@ -209,6 +210,7 @@ const YetPosts = (props) => {
             <div>
             <ModalPost show={show} onHide={() => setShow(false)} />
             <Card>
+            {me ? 
             <Dropdown>
                 <Dropdown.Toggle className="detail"variant="secondary">more action</Dropdown.Toggle>
                 <Dropdown.Menu>
@@ -216,11 +218,15 @@ const YetPosts = (props) => {
                 <Dropdown.Item onClick={handleDeleteClick}>もう読まない</Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>
+            :
+            <></>
+            }
+            
             <Card.Body>
-                <Card.Title>{props.title}
+                <Card.Title>{title}
                 </Card.Title>
-                <Card.Link href={props.link}>
-                {props.link}
+                <Card.Link href={link}>
+                {link}
                 </Card.Link>
             </Card.Body>
             </Card>

@@ -68,24 +68,16 @@ const Posts = (props) => {
             setLike(false);
         }
     }
-    const handleOtherPage = (id) => {
-        if (me){
-            props.history.push("/")
-        }
-        else{
-            props.history.push("/user?id="+id);
-        }
-    }
     const handleSeePost = (id) => {
-        props.history.push("/posts?id="+id);
+        props.history.push("/posts/"+id);
     }
     return (
         <div>
             {isLoading ? <>Loading...</> : 
                     (<Card >
-                    {me ? <Image src="../../images/logo.png"  roundedCircle onClick={() => handleOtherPage(id)}
+                    {me ? <Image src="../../images/logo.png"  roundedCircle
                         style={{ height: 50, width: 50}} /> : 
-                        <Image src="../../images/logo2.png"  roundedCircle onClick={() => handleOtherPage(id)}
+                        <Image src="../../images/logo2.png"  roundedCircle
                         style={{ height: 50, width: 50}} />
                     }
                         <Card.Body  id="post">

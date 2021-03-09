@@ -95,10 +95,12 @@ var RemovePost = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(rowsDeleted)
 })
 
-// GetUser is to get my infomation about diaplayname or bio ...
+// GetUser is to get user infomation about diaplayname or bio ...
 var GetUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	log.Println("Get user")
 	var user User
+	var followingNum int
+	var followerNum int
 	params := mux.Vars(r)
 	log.Println(params["id"])
 	rows := A.DB.QueryRow("select * from users where auth_id = $1;", params["id"])
@@ -106,13 +108,19 @@ var GetUser = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
-	if user.ID == 0 {
+	if user.ID != 0 {
+		followerNum, followingNum = countFollowNum(user.ID)
+		user.FollowerNum = followerNum
+		user.FollowingNum = followingNum
+	} else { //dont exist that user , then this user just register auth0, so need to add our database
 		name, BIO, err1 := AddUser(params["id"])
 		if err1 != nil {
 			log.Fatal(err1)
 		}
 		user.DisplayName = name
 		user.BIO = BIO
+		user.FollowerNum = 0
+		user.FollowingNum = 0
 	}
 	json.NewEncoder(w).Encode(&user)
 })
@@ -388,4 +396,34 @@ var UpdateDraft = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) 
 	}
 
 	json.NewEncoder(w).Encode(rowsUpdated)
+})
+
+var AddFollow = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	var followID int
+	var followingID int
+	var followerID int
+	followingID, _ = strconv.Atoi(r.FormValue("following"))
+	followerID, _ = strconv.Atoi(r.FormValue("follower"))
+	log.Println(followerID, followingID)
+	err := A.DB.QueryRow("INSERT INTO follows (following_id, follower_id) values ($1, $2) RETURNING follow_id", followingID, followerID).Scan(&followID)
+	if err != nil {
+		log.Fatal(err)
+	}
+	json.NewEncoder(w).Encode(followID)
+})
+
+var CheckFollow = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	var followFlg int
+	log.Println("check follow is called")
+	params := mux.Vars(r)
+	err := A.DB.QueryRow("SELECT count(*) FROM follows WHERE following_id = $1 and follower_id = $2 ;", params["following_id"], params["follower_id"]).Scan(&followFlg)
+	if err != nil {
+		log.Fatal(err)
+	}
+	json.NewEncoder(w).Encode(followFlg)
+})
+
+var OPTIONSAddFollow = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	log.Println("options get post is called")
+	w.WriteHeader(http.StatusOK)
 })

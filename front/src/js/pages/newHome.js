@@ -11,7 +11,7 @@ const newHome = () => {
     const [wantReadShow, setWantReadShow] = useState(false);
     const [postList, setPosts] = useState([]);
     const [yetPostList, setYetPosts] = useState([]);
-    const [userInfo, setUser] = useState({DisplayName: "", BIO:"", ID: ""});
+    const [userInfo, setUser] = useState({DisplayName: "", BIO:"", ID: "", FollowingNum: "0", FollowerNum: "0"});
     const [ isLoading, setIsLoading] = useState(false);
     const [ draft_id, setDraftID] = useState("");
     const [ draft_click, setDraftClick ] = useState(false);
@@ -37,7 +37,7 @@ const newHome = () => {
                 Authorization: `Bearer ${token}`,
             }});
             res.data.forEach((doc) => {
-                yetPostList.push(<YetPosts key={doc.ID} title={doc.Title} link={doc.Link} id={doc.ID}/>
+                yetPostList.push(<YetPosts key={doc.ID} title={doc.Title} link={doc.Link} id={doc.ID} me={true}/>
                     );
                 setYetPosts(yetPostList);
             });
@@ -54,6 +54,7 @@ const newHome = () => {
             });
             setUser(res.data);
             console.log(userInfo)
+            console.log(res.data)
             const post = await getPosts(res.data.ID)
             const yetpost = await getYetPosts(res.data.ID)
             console.log(post+yetpost)
@@ -369,7 +370,7 @@ const newHome = () => {
     return (
         <div>
         <ModalPost show={show} onHide={() => setShow(false)} />
-        <MyInfo name={userInfo.DisplayName} bio={userInfo.BIO} following="10" follower="10"/>
+        <MyInfo name={userInfo.DisplayName} bio={userInfo.BIO} following={userInfo.FollowingNum} follower={userInfo.FollowerNum}/>
             <div className="papers">
             <CardGroup className = 'm-4' style={{ width: '100vm' }}>
                 <Card.Header style={{ width: '50%' }}><Button variant="info" size="lg" onClick={() => setShow(true)}>読んだ論文を投稿</Button>

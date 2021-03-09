@@ -91,6 +91,12 @@ var routes = Routes{
 		"RemoveDraft", "DELETE", "/drafts/{id}", RemoveDraft, true,
 	},
 	Route{
+		"AddFollow", "POST", "/follow", AddFollow, true,
+	},
+	Route{
+		"CheckFollow", "GET", "/following/{following_id}/{follower_id}", CheckFollow, true,
+	},
+	Route{
 		"OPTIONSFavorite", "OPTIONS", "/favoritesRemove/{id}/{uid}", OPTIONSFavorite, true,
 	},
 	Route{
@@ -113,5 +119,8 @@ var routes = Routes{
 	},
 	Route{
 		"OPTIONSGetPost", "OPTIONS", "/posts/{id}", OPTIONSGetPost, true,
+	},
+	Route{
+		"OPTIONSAddFollow", "OPTIONS", "/follow", OPTIONSAddFollow, true,
 	},
 }
